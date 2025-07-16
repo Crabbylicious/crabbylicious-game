@@ -11,6 +11,7 @@ import GameplayKit
 class GameScene: SKScene {
     
     let gameArea: CGRect
+    let crab: CrabNode
     
     override init(size: CGSize) {
         
@@ -18,6 +19,8 @@ class GameScene: SKScene {
         let playableWidth = size.height / maxAspectRatio
         let margin = (size.width - playableWidth) / 2
         gameArea = CGRect(x: margin, y: 0, width: playableWidth, height: size.height)
+        
+        crab = CrabNode(size: size)
         
         super.init(size: size)
     }
@@ -33,6 +36,34 @@ class GameScene: SKScene {
         
         let ground = GroundNode(size: self.size)
         self.addChild(ground)
+        
+        crab.position = CGPoint(x: self.size.width/2, y: self.size.height * 0.13)
+        self.addChild(crab)
+        
+    }
+    
+    // crab movement
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        for touch in touches {
+            
+            let pointOfTouch = touch.location(in: self) // where we touch the screen right now
+            let previousPointOfTouch = touch.previousLocation(in: self) // where we were touching before
+            
+            let amountDragged = pointOfTouch.x - previousPointOfTouch.x
+            
+            crab.position.x += amountDragged
+            
+            let moreMarginBowl = crab.size.width / 1.1 //
+            
+            if crab.position.x > CGRectGetMaxX(gameArea) - moreMarginBowl {
+                crab.position.x = CGRectGetMaxX(gameArea) - moreMarginBowl
+            }
+            
+            if crab.position.x < CGRectGetMinX(gameArea) + moreMarginBowl {
+                crab.position.x = CGRectGetMinX(gameArea) + moreMarginBowl
+            }
+        }
     }
     
 }
