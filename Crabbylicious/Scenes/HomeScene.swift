@@ -9,14 +9,23 @@ import SpriteKit
 
 class HomeScene: SKScene {
     
+    var background: SKSpriteNode!
+    
     override func didMove(to view: SKView) {
-        super.didMove(to: view)
+        //super.didMove(to: view)
+        print("didMove called ✅")
         setupScene()
         setupUI()
     }
     
     private func setupScene() {
-        // TODO: Setup scene properties
+        let background = SKSpriteNode(imageNamed: "background")
+      background.position = CGPoint(x: frame.midX, y: frame.midY)
+        background.zPosition = 10
+        background.size = self.size
+        
+        addChild(background)
+        print("background spawned ✅")
     }
     
     private func setupUI() {
