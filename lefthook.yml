@@ -18,8 +18,8 @@ pre-commit:
 # Optional: run checks before pushing
 pre-push:
   commands:
-    lint-strict:
-      run: swiftlint lint || true
+    lint:
+      run: swiftlint lint --quite || true
       fail_text: "SwiftLint found issues. Fix them before pushing."
     
     # Uncomment if you have tests
