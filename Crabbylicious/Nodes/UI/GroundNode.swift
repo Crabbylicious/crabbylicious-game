@@ -1,20 +1,19 @@
 //
-//  CrabNode.swift
+//  GroundNode.swift
 //  Crabbylicious
 //
-//  Created by Java Kanaya Prada on 16/07/25.
+//  Created by Nessa on 16/07/25.
 //
 
-import Foundation
 import GameplayKit
 import SpriteKit
 
-class CrabNode: SKSpriteNode {
+class GroundNode: SKSpriteNode {
   init(size: CGSize) {
-    let texture = SKTexture(imageNamed: "crabAndBowl2")
+    let texture = SKTexture(imageNamed: "ground")
     super.init(texture: texture, color: .clear, size: size)
-    setScale(0.15) // TODO: ganti biar ga penyet
-    zPosition = 2
+    position = CGPoint(x: size.width / 2, y: size.height / 2)
+    zPosition = 0
   }
 
   @available(*, unavailable)
