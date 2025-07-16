@@ -14,7 +14,7 @@ class CrabNode: SKSpriteNode {
     init(size: CGSize) {
         let texture = SKTexture(imageNamed: "crabAndBowl2")
         super.init(texture: texture, color: .clear, size: size)
-        self.setScale(0.15)
+        self.setScale(0.15) // TODO: ganti biar ga penyet
         self.zPosition = 2
     }
     

@@ -42,4 +42,28 @@ class GameScene: SKScene {
         
     }
     
+    // crab movement
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        for touch in touches {
+            
+            let pointOfTouch = touch.location(in: self) // where we touch the screen right now
+            let previousPointOfTouch = touch.previousLocation(in: self) // where we were touching before
+            
+            let amountDragged = pointOfTouch.x - previousPointOfTouch.x
+            
+            crab.position.x += amountDragged
+            
+            let moreMarginBowl = crab.size.width / 1.1 //
+            
+            if crab.position.x > CGRectGetMaxX(gameArea) - moreMarginBowl {
+                crab.position.x = CGRectGetMaxX(gameArea) - moreMarginBowl
+            }
+            
+            if crab.position.x < CGRectGetMinX(gameArea) + moreMarginBowl {
+                crab.position.x = CGRectGetMinX(gameArea) + moreMarginBowl
+            }
+        }
+    }
+    
 }
