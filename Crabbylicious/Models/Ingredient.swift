@@ -6,3 +6,10 @@
 //
 
 import Foundation
+
+struct Ingredient: Identifiable, Hashable {
+  let id = UUID()
+  let imageName: String
+  let name: String
+  let isAbsurd: Bool
+}
