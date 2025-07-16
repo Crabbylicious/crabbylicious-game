@@ -1,0 +1,42 @@
+# Lefthook configuration for Swift project
+# See: https://github.com/evilmartians/lefthook
+
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      run: swiftformat . --indent 2 --swiftversion 5.9
+      stage_fixed: true  # Automatically stage formatted files
+      fail_text: "SwiftFormat failed. Please check the output above."
+    
+    lint:
+      run: swiftlint lint --quiet || true
+      fail_text: |
+        SwiftLint found issues. Please fix them before committing.
+        Run 'swiftlint lint' to see detailed output.
+
+# Optional: run checks before pushing
+pre-push:
+  commands:
+    lint-strict:
+      run: swiftlint lint || true
+      fail_text: "SwiftLint found issues. Fix them before pushing."
+    
+    # Uncomment if you have tests
+    # tests:
+    #   run: swift test
+    #   fail_text: "Tests failed. Fix them before pushing."
+
+# Skip hooks for specific scenarios
+skip_output:
+  - meta
+  - summary
+
+# Example of environment-specific settings
+# You can override settings based on environment
+# environments:
+#   production:
+#     pre-commit:
+#       commands:
+#         format:
+#           skip: true  # Skip formatting in production

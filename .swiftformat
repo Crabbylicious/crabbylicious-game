@@ -1,0 +1,12 @@
+--swiftversion 5.9
+--indent 2
+--tabwidth 2
+--maxwidth 120
+--wraparguments preserve
+--wrapcollections preserve
+--closingparen balanced
+--commas inline
+--semicolons inline
+--trimwhitespace always
+--insertlines enabled
+--removelines enabled
