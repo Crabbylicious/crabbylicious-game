@@ -12,8 +12,10 @@ class GroundNode: SKSpriteNode {
   init(size: CGSize) {
     let texture = SKTexture(imageNamed: "ground")
     super.init(texture: texture, color: .clear, size: size)
-    position = CGPoint(x: size.width / 2, y: size.height / 2)
-//    self.zPosition = 0
+
+    // Position the ground at the bottom of the screen
+    position = CGPoint(x: size.width / 2, y: self.size.height / 2)
+    zPosition = 1
   }
 
   @available(*, unavailable)

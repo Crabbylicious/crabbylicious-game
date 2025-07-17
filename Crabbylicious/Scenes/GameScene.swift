@@ -31,17 +31,26 @@ class GameScene: SKScene {
 
   // make every node visible
   override func didMove(to _: SKView) {
+    // Add background first (lowest z-position)
     let background = BackgroundNode(size: size)
     background.zPosition = 0
     addChild(background)
 
+    // Add ground second
     let ground = GroundNode(size: size)
     ground.zPosition = 1
     addChild(ground)
 
+    // Add crab on top
     crab.position = CGPoint(x: size.width / 2, y: size.height * 0.13)
     crab.zPosition = 2
     addChild(crab)
+
+    // Debug: Print positions to console
+    print("Scene size: \(size)")
+    print("Background position: \(background.position)")
+    print("Ground position: \(ground.position)")
+    print("Crab position: \(crab.position)")
   }
 
   // crab movement

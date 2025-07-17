@@ -10,15 +10,14 @@ import SwiftUI
 
 struct ContentView: View {
   var scene: SKScene {
-    let scene = GameScene(size: CGSize(width: 1536, height: 2048))
-    scene.size = CGSize(width: 1536, height: 2048)
-    scene.scaleMode = .fill
+    let screenSize = UIScreen.main.bounds.size
+    let scene = GameScene(size: screenSize)
+    scene.scaleMode = .aspectFill
     return scene
   }
 
   var body: some View {
     SpriteView(scene: scene)
-      .frame(width: 1536, height: 2048)
       .ignoresSafeArea()
   }
 }
