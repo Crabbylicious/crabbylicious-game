@@ -10,10 +10,10 @@ import GameplayKit
 import SpriteKit
 
 class CrabNode: SKSpriteNode {
-  init(size: CGSize) {
+  init(size _: CGSize) {
     let texture = SKTexture(imageNamed: "crabAndBowl2")
-    super.init(texture: texture, color: .clear, size: size)
-    setScale(0.15) // TODO: ganti biar ga penyet
+    super.init(texture: texture, color: .clear, size: texture.size())
+    setScale(0.15)
     zPosition = 2
   }
 

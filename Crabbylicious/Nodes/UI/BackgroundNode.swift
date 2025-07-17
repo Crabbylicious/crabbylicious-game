@@ -13,7 +13,7 @@ class BackgroundNode: SKSpriteNode {
     let texture = SKTexture(imageNamed: "background")
     super.init(texture: texture, color: .clear, size: size)
     position = CGPoint(x: size.width / 2, y: size.height / 2)
-    zPosition = -1
+//    self.zPosition = 0
   }
 
   @available(*, unavailable)

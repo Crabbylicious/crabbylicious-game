@@ -6,6 +6,8 @@
 //
 
 import GameplayKit
+import SpriteKit
+import SwiftUI
 
 class GameScene: SKScene {
   let gameArea: CGRect
@@ -30,12 +32,15 @@ class GameScene: SKScene {
   // make every node visible
   override func didMove(to _: SKView) {
     let background = BackgroundNode(size: size)
+    background.zPosition = 0
     addChild(background)
 
     let ground = GroundNode(size: size)
+    ground.zPosition = 1
     addChild(ground)
 
     crab.position = CGPoint(x: size.width / 2, y: size.height * 0.13)
+    crab.zPosition = 2
     addChild(crab)
   }
 
