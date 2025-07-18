@@ -12,11 +12,12 @@ class ButtonNode: SKSpriteNode {
   
   init(imageName: String, size: CGSize) {
     let texture = SKTexture(imageNamed: imageName)
-    super.init(texture: texture, color: .clear, size: size)
+    let buttonSize = CGSize(width: size.width, height: size.height / 1.25)
+    super.init(texture: texture, color: .clear, size: buttonSize)
   }
   
   func handleButtonPressed(button: ButtonNode) {
-    let scaleDown = SKAction.scale(to: 0.975, duration: 0.3)
+    let scaleDown = SKAction.scale(to: 0.99, duration: 0.3)
     button.run(scaleDown)
   }
   
