@@ -45,12 +45,7 @@ class GameScene: SKScene {
     crab.position = CGPoint(x: size.width / 2, y: size.height * 0.13)
     crab.zPosition = 2
     addChild(crab)
-
-    // Debug: Print positions to console
-    print("Scene size: \(size)")
-    print("Background position: \(background.position)")
-    print("Ground position: \(ground.position)")
-    print("Crab position: \(crab.position)")
+      
   }
 
   // crab movement
@@ -61,6 +56,7 @@ class GameScene: SKScene {
 
       let amountDragged = pointOfTouch.x - previousPointOfTouch.x
 
+        crab.startLegAnimation()
       crab.position.x += amountDragged
 
       let moreMarginBowl = crab.size.width / 1.1 //
@@ -74,4 +70,8 @@ class GameScene: SKScene {
       }
     }
   }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        crab.stopLegAnimation() 
+    }
 }
