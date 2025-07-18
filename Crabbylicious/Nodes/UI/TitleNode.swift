@@ -12,7 +12,6 @@ class TitleNode: SKSpriteNode {
   init(size: CGSize) {
     let texture = SKTexture(imageNamed: "title")
     super.init(texture: texture, color: .clear, size: size)
-    print("title appeared ✅")
   }
 
   @available(*, unavailable)
