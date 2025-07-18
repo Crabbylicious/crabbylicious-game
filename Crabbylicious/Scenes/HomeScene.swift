@@ -53,9 +53,35 @@ class HomeScene: SKScene {
     ))
     bottomCloud.zPosition = 5
     addChild(bottomCloud)
+    
+    let playButton = ButtonNode(imageName: "buttonPlay", size: size)
+    playButton.position = CGPoint(x: gameArea.midX, y: gameArea.midY)
+    playButton.zPosition = 10
+    addChild(playButton)
+    
   }
 
-  override func touchesBegan(_: Set<UITouch>, with _: UIEvent?) {
-    // TODO: Handle touch input
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    guard let touch = touches.first else { return }
+    let location = touch.location(in: self)
+    let nodes = self.nodes(at: location)
+    
+    for node in nodes {
+      if let buttonNode = node as? ButtonNode {
+        buttonNode.handleButtonPressed(button: buttonNode)
+      }
+    }
+  }
+  
+  override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+    guard let touch = touches.first else { return }
+    let location = touch.location(in: self)
+    let nodes = self.nodes(at: location)
+    
+    for node in nodes {
+      if let buttonNode = node as? ButtonNode {
+        buttonNode.handleButtonReleased(button: buttonNode)
+      }
+    }
   }
 }
