@@ -10,10 +10,12 @@ import SpriteKit
 
 class ButtonNode: SKSpriteNode {
   
-  init(imageName: String, size: CGSize) {
+  init(imageName: String, size: CGSize, alpha: CGFloat = 1.0) {
     let texture = SKTexture(imageNamed: imageName)
     let buttonSize = CGSize(width: size.width, height: size.height / 1.25)
     super.init(texture: texture, color: .clear, size: buttonSize)
+    
+    self.alpha = alpha
   }
   
   func handleButtonPressed(button: ButtonNode) {
@@ -24,6 +26,11 @@ class ButtonNode: SKSpriteNode {
   func handleButtonReleased(button: ButtonNode) {
     let scaleUp = SKAction.scale(to: 1.0, duration: 0.3)
     button.run(scaleUp)
+  }
+  
+  func fadeIn() {
+    let fadeIn = SKAction.fadeIn(withDuration: 0.5)
+    self.run(fadeIn)
   }
 
   @available(*, unavailable)

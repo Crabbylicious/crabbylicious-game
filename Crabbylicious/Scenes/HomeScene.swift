@@ -36,7 +36,7 @@ class HomeScene: SKScene {
     addChild(ground)
 
     let title = TitleNode(size: CGSize(width: 300, height: 300))
-    title.position = CGPoint(x: gameArea.midX, y: gameArea.midY + 30)
+    let titleFinalPosition = CGPoint(x: gameArea.midX, y: gameArea.midY + 30)
     title.zPosition = 10
     addChild(title)
     
@@ -45,7 +45,9 @@ class HomeScene: SKScene {
     titleShadow.alpha = 0.5
     titleShadow.zPosition = 9
     addChild(titleShadow)
-    titleShadow.animation()
+    
+    title.slideIn(finalPosition: titleFinalPosition)
+    titleShadow.slideInThenAnimate(finalPosition: titleFinalPosition)
 
     let topCloud = CloudNode(position: CGPoint(
       x: gameArea.minX + 70 + (CloudNode.cloudSize.width / 2),
@@ -61,10 +63,14 @@ class HomeScene: SKScene {
     bottomCloud.zPosition = 5
     addChild(bottomCloud)
     
-    let playButton = ButtonNode(imageName: "buttonPlay", size: size)
+    let playButton = ButtonNode(imageName: "buttonPlay", size: size, alpha: 0.0)
     playButton.position = CGPoint(x: gameArea.midX, y: gameArea.midY + 70)
     playButton.zPosition = 10
     addChild(playButton)
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+      playButton.fadeIn()
+    }
     
   }
 

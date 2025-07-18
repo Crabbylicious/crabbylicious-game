@@ -14,7 +14,15 @@ class TitleNode: SKSpriteNode {
     super.init(texture: texture, color: .clear, size: size)
   }
   
-  
+  func slideIn(finalPosition: CGPoint) {
+    let startPosition = CGPoint(x: -self.size.width, y: finalPosition.y)
+    self.position = startPosition
+    
+    let slideIn = SKAction.move(to: finalPosition, duration: 0.5)
+    slideIn.timingMode = .easeOut
+    
+    run(slideIn)
+  }
   
   func animation() {
     let scaleUp = SKAction.scale(to: 1.35, duration: 0.5)
@@ -22,6 +30,19 @@ class TitleNode: SKSpriteNode {
     
     let sequence = SKAction.sequence([scaleUp, scaleDown])
     run(SKAction.repeatForever(sequence))
+  }
+  
+  func slideInThenAnimate(finalPosition: CGPoint) {
+    let startPosition = CGPoint(x: -self.size.width, y: finalPosition.y)
+    self.position = startPosition
+    
+    let slideIn = SKAction.move(to: finalPosition, duration: 0.5)
+    slideIn.timingMode = .easeOut
+    
+    // Run slide in, then start animation when complete
+    run(slideIn) {
+      self.animation()
+    }
   }
   
   @available(*, unavailable)
