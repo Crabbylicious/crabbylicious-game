@@ -27,17 +27,27 @@ class IngredientEntity: GKEntity {
     // Create ingredient sprite
     let texture = SKTexture(imageNamed: ingredient.imageName)
     let spriteNode = SKSpriteNode(texture: texture)
-    spriteNode.setScale(0.3)
+    spriteNode.setScale(0.1)
     spriteNode.position = position
     spriteNode.zPosition = 3
     scene.addChild(spriteNode)
 
-    // Get current fall speed from game state
-    let currentFallSpeed = GameState.shared.getCurrentFallSpeed()
+    // Base gravity value
+    let baseGravity: CGFloat = 400.0
 
-    // Add random variation to fall speed (±20%)
-    let speedVariation = CGFloat.random(in: 0.8 ... 1.2)
-    let finalFallSpeed = currentFallSpeed * speedVariation
+    // Apply difficulty multiplier to gravity
+    let difficultyGravity = baseGravity * CGFloat(GameState.shared.difficultyMultiplier)
+
+    // Add random variation to gravity (±20%)
+    let gravityVariation = CGFloat.random(in: 0.8 ... 1.2)
+    let finalGravity = difficultyGravity * gravityVariation
+
+    // Set terminal velocity based on difficulty
+    let baseTerminalVelocity: CGFloat = 600.0
+    let maxFallSpeed = baseTerminalVelocity * CGFloat(GameState.shared.difficultyMultiplier)
+
+    // Random initial velocity (small downward push)
+    let initialVelocity = CGFloat.random(in: 0 ... 50)
 
     // Add random rotation speed
     let rotationSpeed = CGFloat.random(in: 1.0 ... 3.0)
@@ -45,9 +55,14 @@ class IngredientEntity: GKEntity {
     // Add components
     addComponent(SpriteComponent(node: spriteNode))
     addComponent(IngredientComponent(ingredient: ingredient))
-    addComponent(FallingComponent(fallSpeed: finalFallSpeed, rotationSpeed: rotationSpeed))
+    addComponent(FallingComponent(
+      initialVelocity: initialVelocity,
+      gravity: finalGravity,
+      maxFallSpeed: maxFallSpeed,
+      rotationSpeed: rotationSpeed
+    ))
 
-    // Auto-remove after 6 seconds (should be enough time to fall off screen)
-    addComponent(LifetimeComponent(lifetime: 6.0))
+    // Auto-remove after 8 seconds (increased time since they start slower)
+    addComponent(LifetimeComponent(lifetime: 8.0))
   }
 }
