@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  Crabbylicious
 //
-//  Created by Nessa on 17/07/25.
+//  Debug version
 //
 
 import SpriteKit
@@ -11,7 +11,7 @@ import SwiftUI
 struct ContentView: View {
   var scene: SKScene {
     let screenSize = UIScreen.main.bounds.size
-    let scene = GameScene(size: screenSize)
+    let scene = ECSGameScene(size: screenSize)
     scene.scaleMode = .aspectFill
     return scene
   }

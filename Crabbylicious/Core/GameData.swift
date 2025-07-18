@@ -18,7 +18,7 @@ class GameData {
   static let telor = Ingredient(imageName: "telor", name: "telor", isAbsurd: false)
 
   // Absurd ingredients (traps)
-  static let trapChili = Ingredient(imageName: "trap-chili", name: "trap chili", isAbsurd: true)
+  static let trapChili = Ingredient(imageName: "trap-chilli", name: "trap chili", isAbsurd: true)
   static let trapFishBone = Ingredient(imageName: "trap-fish-bone", name: "trap fish bone", isAbsurd: true)
 
   static let recipes = [
