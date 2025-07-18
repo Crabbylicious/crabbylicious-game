@@ -11,12 +11,14 @@ import SwiftUI
 
 class HomeScene: SKScene {
   let gameArea: CGRect
+  let playButton: ButtonNode
 
   override init(size: CGSize) {
     let maxAspectRatio: CGFloat = 16.0 / 9.0
     let playableWidth = size.height / maxAspectRatio
     let margin = (size.width - playableWidth) / 2
     gameArea = CGRect(x: margin, y: 0, width: playableWidth, height: size.height)
+    playButton = ButtonNode(imageName: "buttonPlay", size: size, alpha: 0.0)
 
     super.init(size: size)
   }
@@ -63,13 +65,12 @@ class HomeScene: SKScene {
     bottomCloud.zPosition = 5
     addChild(bottomCloud)
 
-    let playButton = ButtonNode(imageName: "buttonPlay", size: size, alpha: 0.0)
     playButton.position = CGPoint(x: gameArea.midX, y: gameArea.midY + 70)
     playButton.zPosition = 10
     addChild(playButton)
 
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-      playButton.fadeIn()
+      self.playButton.fadeIn()
     }
   }
 
@@ -77,10 +78,18 @@ class HomeScene: SKScene {
     guard let touch = touches.first else { return }
     let location = touch.location(in: self)
     let nodes = nodes(at: location)
+    let pointOfTouch = touch.location(in: self)
 
     for node in nodes {
       if let buttonNode = node as? ButtonNode {
         buttonNode.handleButtonPressed(button: buttonNode)
+      }
+
+      if playButton.contains(pointOfTouch) {
+        let screenSize = UIScreen.main.bounds.size
+        let sceneToMove = GameScene(size: screenSize)
+        let myTransition = SKTransition.fade(withDuration: 0.5) // transition play button
+        view?.presentScene(sceneToMove, transition: myTransition)
       }
     }
   }
