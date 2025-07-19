@@ -48,13 +48,9 @@ Crabbylicious/
 ### Installation
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/crabbylicious.git
+git clone https://github.com/Crabbylicious/crabbylicious-game.git
 ```
-
-3. Open the project in Xcode
-```bash 
-cd crabbylicious-game
-```
+2. Open the project in Xcode
 3. Open Crabbylicious.xcodeproj
 4. Build and run the project on your device or simulator
 
