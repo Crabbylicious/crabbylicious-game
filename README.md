@@ -41,9 +41,9 @@ Crabbylicious/
 
 ## 🚀 Getting Started
 ### Prerequisites
-iOS 14.0+
-Xcode 12.0+
-Swift 5.0+
+- iOS 14.0+
+- Xcode 12.0+
+- Swift 5.0+
 
 ### Installation
 1. Clone the repository:
