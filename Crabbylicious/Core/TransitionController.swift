@@ -22,7 +22,7 @@ class TransitionController {
   private let gameLayerManager: GameLayerManager
 
   // Countdown
-  private var countdownLabel: SKLabelNode?
+  private var countdownNode: CountdownNode?
 
   // State
   private var isTransitioning = false
@@ -36,25 +36,20 @@ class TransitionController {
 
   func setup(in scene: SKScene) {
     self.scene = scene
-    setupCountdownLabel()
+    setupCountdownNode()
   }
 
-  private func setupCountdownLabel() {
+  private func setupCountdownNode() {
     guard let scene else { return }
 
-    countdownLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
-    countdownLabel?.text = "3"
-    countdownLabel?.fontSize = 120
-    countdownLabel?.fontColor = .white
-    countdownLabel?.position = CGPoint(x: scene.size.width / 2, y: scene.size.height / 2)
-    countdownLabel?.zPosition = 15
-    countdownLabel?.alpha = 0
+    let centerPosition = CGPoint(x: scene.size.width / 2, y: scene.size.height / 2)
+    countdownNode = CountdownNode(position: centerPosition)
 
-    if let countdown = countdownLabel {
+    if let countdown = countdownNode {
       scene.addChild(countdown)
     }
 
-    print("⏰ TransitionController: Countdown label created")
+    print("⏰ TransitionController: Countdown node created")
   }
 
   // MARK: - Transition Orchestration
@@ -93,12 +88,16 @@ class TransitionController {
   private func startCountdown() {
     print("🎬 Step 3: Starting countdown...")
 
+    guard let countdown = countdownNode else {
+      startGameplay()
+      return
+    }
+
     let countdownNumbers = ["3", "2", "1", "GO!"]
     var currentIndex = 0
 
     func showNextNumber() {
-      guard currentIndex < countdownNumbers.count,
-            let countdown = countdownLabel
+      guard currentIndex < countdownNumbers.count
       else {
         // Countdown finished - start the game!
         startGameplay()
@@ -139,7 +138,7 @@ class TransitionController {
     print("🎬 Step 4: Starting gameplay...")
 
     // Hide countdown
-    countdownLabel?.removeFromParent()
+    countdownNode?.removeFromParent()
 
     // Activate game layer
     gameLayerManager.activateGameplay()
@@ -162,8 +161,8 @@ class TransitionController {
   // MARK: - Cleanup
 
   func cleanup() {
-    countdownLabel?.removeFromParent()
-    countdownLabel = nil
+    countdownNode?.removeFromParent()
+    countdownNode = nil
     isTransitioning = false
     scene = nil
   }
