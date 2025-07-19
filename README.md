@@ -39,7 +39,7 @@ Crabbylicious/
 └── Assets.xcassets
 ```
 
-##🚀 Getting Started
+## 🚀 Getting Started
 ### Prerequisites
 iOS 14.0+
 Xcode 12.0+
@@ -55,8 +55,9 @@ git clone https://github.com/yourusername/crabbylicious.git
 ```bash 
 cd crabbylicious-game
 ```
-3. open Crabbylicious.xcodeproj
+3. Open Crabbylicious.xcodeproj
 4. Build and run the project on your device or simulator
+
 
 ---
 Made with ❤️ and lots of 🦀 by the Crabbylicious! team 
