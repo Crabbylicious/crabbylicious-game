@@ -193,14 +193,6 @@ class GameLayerManager: BaseLayerManager {
     entityManager.removeEntity(entity)
   }
 
-  // MARK: - Touch Handling
-
-  override func handleTouch(at _: CGPoint) -> Bool {
-    // Game layer doesn't handle individual touches
-    // Touch movement is handled via handleCrabMovement
-    false
-  }
-
   func handleCrabMovement(delta: CGFloat) {
     guard isGameActive else { return }
     playerInputSystem.handleTouchMoved(delta: delta)

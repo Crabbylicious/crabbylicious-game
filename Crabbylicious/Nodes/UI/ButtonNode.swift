@@ -18,7 +18,7 @@ class ButtonNode: SKSpriteNode {
   }
 
   func handleButtonPressed(button: ButtonNode) {
-    let scaleDown = SKAction.scale(to: 0.99, duration: 0.3)
+    let scaleDown = SKAction.scale(to: 0.9, duration: 0.3)
     button.run(scaleDown)
   }
 

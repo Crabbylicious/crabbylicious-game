@@ -99,16 +99,10 @@ class SeamlessScene: SKScene {
     guard let touch = touches.first else { return }
     let location = touch.location(in: self)
 
-    // Try each layer in priority order (UI first, then game)
-    if homeLayerManager.handleTouch(at: location) {
-      return // UI layer consumed the touch
+    // Only handle touch began for UI elements when not in game mode
+    if !isInGameMode {
+      _ = homeLayerManager.handleTouchBegan(at: location)
     }
-
-    if gameLayerManager.handleTouch(at: location) {
-      return // Game layer consumed the touch
-    }
-
-    // No layer handled the touch
   }
 
   override func touchesEnded(_ touches: Set<UITouch>, with _: UIEvent?) {
@@ -116,7 +110,7 @@ class SeamlessScene: SKScene {
     let location = touch.location(in: self)
 
     // Handle UI touch releases
-    if homeLayerManager.handleTouch(at: location) {
+    if homeLayerManager.handleTouchEnded(at: location) {
       return // UI layer handled it
     }
 

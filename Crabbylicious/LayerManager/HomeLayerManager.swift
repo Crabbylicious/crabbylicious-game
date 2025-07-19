@@ -155,30 +155,51 @@ class HomeLayerManager: BaseLayerManager {
 
   // MARK: - Touch Handling
 
-  override func handleTouch(at location: CGPoint) -> Bool {
+  func handleTouchBegan(at location: CGPoint) -> Bool {
     guard isActive, !isTransitioning,
-          let playButton,
-          playButton.contains(location)
+          let playButton
     else {
       return false
     }
 
-    if !isButtonPressed {
+    // Check if the touch location is actually within the play button bounds
+    if playButton.contains(location) {
       // Button press
       playButton.handleButtonPressed(button: playButton)
       isButtonPressed = true
-      print("🎮 HomeLayerManager: Play button pressed")
-    } else {
+      print("🎮 UILayerManager: Play button pressed")
+      return true // Consumed the touch
+    }
+
+    return false // Touch was not on the button, don't consume it
+  }
+
+  func handleTouchEnded(at location: CGPoint) -> Bool {
+    guard isActive, !isTransitioning,
+          let playButton
+    else {
+      return false
+    }
+
+    // Check if we have a button that was pressed and the touch ended on it
+    if isButtonPressed, playButton.contains(location) {
       // Button release - trigger transition
       playButton.handleButtonReleased(button: playButton)
       isButtonPressed = false
 
       // Notify delegate to start transition
       delegate?.HomeLayerDidRequestTransition()
-      print("🎮 HomeLayerManager: Play button released - requesting transition")
+      print("🎮 UILayerManager: Play button released - requesting transition")
+      return true // Consumed the touch
+    } else if isButtonPressed {
+      // Touch ended outside button - cancel the press
+      playButton.handleButtonReleased(button: playButton)
+      isButtonPressed = false
+      print("🎮 UILayerManager: Play button press cancelled")
+      return true // Still consumed since we were tracking this touch
     }
 
-    return true // Consumed the touch
+    return false // Touch was not related to our button
   }
 
   // MARK: - Touch State Management
