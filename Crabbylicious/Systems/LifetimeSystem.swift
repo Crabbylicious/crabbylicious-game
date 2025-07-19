@@ -10,9 +10,9 @@ import GameplayKit
 
 // lifetime of the Entity, to be removed after falling
 class LifetimeSystem {
-  private weak var scene: ECSGameScene?
+  private weak var scene: SeamlessScene?
 
-  init(scene: ECSGameScene) {
+  init(scene: SeamlessScene) {
     self.scene = scene
   }
 

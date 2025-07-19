@@ -11,7 +11,7 @@ import SwiftUI
 struct ContentView: View {
   var scene: SKScene {
     let screenSize = UIScreen.main.bounds.size
-    let scene = HomeScene(size: screenSize)
+    let scene = SeamlessScene(size: screenSize)
     scene.scaleMode = .aspectFill
     return scene
   }
