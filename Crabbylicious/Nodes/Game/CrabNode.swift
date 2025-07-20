@@ -27,6 +27,16 @@ class CrabNode: SKSpriteNode {
     setScale(0.2)
     zPosition = 2
 
+    // Tambahkan physics body untuk deteksi kontak dengan ingredient
+    physicsBody = SKPhysicsBody(
+      rectangleOf: CGSize(width: size.width * 0.7, height: size.height * 0.4),
+      center: CGPoint(x: 0, y: -size.height * 0.15)
+    )
+    physicsBody?.isDynamic = false // crab tidak terdorong oleh ingredient
+    physicsBody?.categoryBitMask = PhysicsCategory.basket
+    physicsBody?.contactTestBitMask = PhysicsCategory.ingredient
+    physicsBody?.collisionBitMask = 0 // tidak saling dorong
+
     // posisi dan ukuran legs crab
     legsNode.setScale(0.6)
     legsNode.position = CGPoint(x: 0, y: -size.height * 1.9)
