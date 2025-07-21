@@ -16,7 +16,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   // Component Systems
   private let playerInputSystem = PlayerInputSystem()
   private let fallingSystem = FallingSystem()
-  private var lifetimeSystem: LifetimeSystem!
 
   // Game properties
   let gameArea: CGRect
@@ -33,19 +32,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     super.init(size: size)
     print("🟢 ECSGameScene: Super init completed")
-
-    setupECS()
   }
 
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
-  }
-
-  private func setupECS() {
-    print("🟢 ECSGameScene: Setting up proper ECS...")
-    lifetimeSystem = LifetimeSystem(scene: self)
-    print("🟢 All systems created")
   }
 
   override func didMove(to _: SKView) {
@@ -90,10 +81,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Systems query entities automatically
     playerInputSystem.update(deltaTime: deltaTime, entityManager: entityManager)
     fallingSystem.update(deltaTime: deltaTime, entityManager: entityManager)
-    lifetimeSystem.update(deltaTime: deltaTime, entityManager: entityManager)
+
+    // Cleanup ingredients
+    cleanupOffscreenIngredients()
 
     // Handle ingredient spawning
     updateIngredientSpawning(deltaTime: deltaTime)
+  }
+
+  private func cleanupOffscreenIngredients() {
+    let ingredientEntities = entityManager.getEntitiesWith(componentType: IngredientComponent.self)
+    var entitiesToRemove: [GKEntity] = []
+
+    for entity in ingredientEntities {
+      guard let spriteComponent = entity.component(ofType: SpriteComponent.self) else { continue }
+
+      let position = spriteComponent.node.position
+
+      // Simple bounds check - if below screen or too far to sides, remove it
+      if position.y < -100 ||
+        position.x < gameArea.minX - 100 ||
+        position.x > gameArea.maxX + 100
+      {
+        entitiesToRemove.append(entity)
+      }
+    }
+
+    // Remove offscreen entities
+    for entity in entitiesToRemove {
+      if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
+        spriteComponent.node.removeFromParent()
+      }
+      removeEntity(entity)
+    }
   }
 
   private func updateIngredientSpawning(deltaTime: TimeInterval) {

@@ -42,21 +42,20 @@ class IngredientEntity: GKEntity {
     physicsBody.mass = CGFloat(difficultyMultiplier)
 
     // Add some random horizontal velocity
-    let randomXVelocity = CGFloat.random(in: -50 ... 50)
+    let randomXVelocity = CGFloat.random(in: -10 ... 10)
     physicsBody.velocity = CGVector(dx: randomXVelocity, dy: 0)
 
-    // Apply random variation to mass (±20%)
-    let massVariation = CGFloat.random(in: 0.8 ... 1.2)
+    // Apply random variation to mass (±10%)
+    let massVariation = CGFloat.random(in: 0.9 ... 1.1)
     physicsBody.mass *= massVariation
 
     // Random rotation speed for visual effect
-    let rotationSpeed = CGFloat.random(in: 1.0 ... 3.0)
+    let rotationSpeed = CGFloat.random(in: 1.0 ... 2.0)
 
     // Add components using the IngredientNode
     addComponent(SpriteComponent(node: ingredientNode))
     addComponent(IngredientComponent(ingredient: ingredient))
     addComponent(PhysicsComponent(physicsBody: physicsBody))
     addComponent(FallingComponent(rotationSpeed: rotationSpeed, baseMass: physicsBody.mass))
-    addComponent(LifetimeComponent(lifetime: 8.0))
   }
 }
