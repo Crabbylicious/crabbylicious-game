@@ -25,7 +25,7 @@ class CrabNode: SKSpriteNode {
 
     super.init(texture: texture, color: .clear, size: texture.size())
     setScale(0.2)
-    zPosition = 2
+    zPosition = 3
 
     // Tambahkan physics body untuk deteksi kontak dengan ingredient
     physicsBody = SKPhysicsBody(
