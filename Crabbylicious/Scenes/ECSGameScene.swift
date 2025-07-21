@@ -100,7 +100,7 @@ class ECSGameScene: SKScene {
 
   private func spawnRandomIngredient() {
     let randomIngredient = GameData.allIngredients.randomElement()!
-    let spawnX = CGFloat.random(in: gameArea.minX ... gameArea.maxX)
+    let spawnX = CGFloat.random(in: gameArea.minX + 50 ... gameArea.maxX - 50)
     let spawnPosition = CGPoint(x: spawnX, y: size.height + 50)
 
     let ingredientEntity = IngredientEntity(scene: self, ingredient: randomIngredient, position: spawnPosition)
