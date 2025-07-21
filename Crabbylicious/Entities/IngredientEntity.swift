@@ -11,11 +11,16 @@ import SpriteKit
 
 class IngredientEntity: GKEntity {
   let ingredient: Ingredient
+  private let ingredientNode: IngredientNode
 
   init(scene: SKScene, ingredient: Ingredient, position: CGPoint) {
     self.ingredient = ingredient
+
+    ingredientNode = IngredientNode(ingredient: ingredient)
+    ingredientNode.position = position
+
     super.init()
-    setupIngredient(scene: scene, position: position)
+    setupIngredient(scene: scene)
   }
 
   @available(*, unavailable)
@@ -23,37 +28,23 @@ class IngredientEntity: GKEntity {
     fatalError("init(coder:) has not been implemented")
   }
 
-  private func setupIngredient(scene: SKScene, position: CGPoint) {
-    // Create ingredient sprite
-    let texture = SKTexture(imageNamed: ingredient.imageName)
-    let spriteNode = SKSpriteNode(texture: texture)
-    spriteNode.setScale(0.1)
-    spriteNode.position = position
-    spriteNode.zPosition = 3
-    scene.addChild(spriteNode)
+  private func setupIngredient(scene: SKScene) {
+    // Add ingredient node to scene
+    scene.addChild(ingredientNode)
 
-    // Base gravity value
+    // Calculate physics parameters based on difficulty
     let baseGravity: CGFloat = 400.0
-
-    // Apply difficulty multiplier to gravity
     let difficultyGravity = baseGravity * CGFloat(GameState.shared.difficultyMultiplier)
-
-    // Add random variation to gravity (±20%)
     let gravityVariation = CGFloat.random(in: 0.8 ... 1.2)
     let finalGravity = difficultyGravity * gravityVariation
 
-    // Set terminal velocity based on difficulty
     let baseTerminalVelocity: CGFloat = 600.0
     let maxFallSpeed = baseTerminalVelocity * CGFloat(GameState.shared.difficultyMultiplier)
-
-    // Random initial velocity (small downward push)
     let initialVelocity = CGFloat.random(in: 0 ... 50)
-
-    // Add random rotation speed
     let rotationSpeed = CGFloat.random(in: 1.0 ... 3.0)
 
-    // Add components
-    addComponent(SpriteComponent(node: spriteNode))
+    // Add ECS components
+    addComponent(SpriteComponent(node: ingredientNode))
     addComponent(IngredientComponent(ingredient: ingredient))
     addComponent(FallingComponent(
       initialVelocity: initialVelocity,
@@ -62,7 +53,7 @@ class IngredientEntity: GKEntity {
       rotationSpeed: rotationSpeed
     ))
 
-    // Auto-remove after 8 seconds (increased time since they start slower)
+    // Auto-remove after 8 seconds
     addComponent(LifetimeComponent(lifetime: 8.0))
   }
 }
