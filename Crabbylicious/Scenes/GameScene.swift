@@ -16,6 +16,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   // Component Systems
   private let playerInputSystem = PlayerInputSystem()
   private let fallingSystem = FallingSystem()
+  private let bubbleBackgroundSystem = BubbleBackgroundSystem() // Tambahkan sistem baru
 
   // Game properties
   let gameArea: CGRect
@@ -57,6 +58,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let ground = GroundNode(size: size)
     addChild(ground)
 
+    let bubbleNode1 = BubbleBackgroundNode(size: size)
+    let bubbleNode2 = BubbleBackgroundNode(size: size)
+    bubbleNode1.zPosition = 1
+    bubbleNode2.zPosition = 1
+
+    // Posisi bubble pertama
+    bubbleNode1.position = CGPoint(x: size.width / 2, y: size.height / 2)
+
+    // Posisi bubble ke dua
+    let overlapY: CGFloat = 20.0
+    bubbleNode2.position = CGPoint(x: size.width / 2, y: bubbleNode1.position.y - bubbleNode1.size.height + overlapY)
+    addChild(bubbleNode1)
+    addChild(bubbleNode2)
+    let bubbleEntity = GKEntity()
+    bubbleEntity.addComponent(BubbleBackgroundComponent(nodes: [bubbleNode1, bubbleNode2]))
+    addEntity(bubbleEntity)
+
     // Test GameState
     let gameState = GameState.shared
     print("🟢 GameState recipe: \(gameState.currentRecipe.name)")
@@ -81,6 +99,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Systems query entities automatically
     playerInputSystem.update(deltaTime: deltaTime, entityManager: entityManager)
     fallingSystem.update(deltaTime: deltaTime, entityManager: entityManager)
+    bubbleBackgroundSystem
+      .update(deltaTime: deltaTime, entityManager: entityManager, sceneSize: size) // update animasi bubble background
 
     // Cleanup ingredients
     cleanupOffscreenIngredients()
