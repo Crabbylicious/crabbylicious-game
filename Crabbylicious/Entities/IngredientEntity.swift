@@ -11,9 +11,11 @@ import SpriteKit
 
 class IngredientEntity: GKEntity {
   let ingredient: Ingredient
+  private let ingredientNode: IngredientNode
 
   init(scene: SKScene, ingredient: Ingredient, position: CGPoint) {
     self.ingredient = ingredient
+    ingredientNode = IngredientNode(ingredient: ingredient)
     super.init()
     setupIngredient(scene: scene, position: position)
   }
@@ -24,45 +26,36 @@ class IngredientEntity: GKEntity {
   }
 
   private func setupIngredient(scene: SKScene, position: CGPoint) {
-    // Create ingredient sprite
-    let texture = SKTexture(imageNamed: ingredient.imageName)
-    let spriteNode = SKSpriteNode(texture: texture)
-    spriteNode.setScale(0.1)
-    spriteNode.position = position
-    spriteNode.zPosition = 3
-    scene.addChild(spriteNode)
+    // Set position and add to scene
+    ingredientNode.position = position
+    scene.addChild(ingredientNode)
 
-    // Base gravity value
-    let baseGravity: CGFloat = 400.0
+    // Get the existing physics body from IngredientNode
+    guard let physicsBody = ingredientNode.physicsBody else {
+      fatalError("IngredientNode should have a physics body")
+    }
 
-    // Apply difficulty multiplier to gravity
-    let difficultyGravity = baseGravity * CGFloat(GameState.shared.difficultyMultiplier)
+    // Apply difficulty scaling through mass and initial velocity
+    let difficultyMultiplier = GameState.shared.difficultyMultiplier
 
-    // Add random variation to gravity (±20%)
-    let gravityVariation = CGFloat.random(in: 0.8 ... 1.2)
-    let finalGravity = difficultyGravity * gravityVariation
+    // Heavier objects fall faster in SpriteKit (counterintuitive but useful for difficulty)
+    physicsBody.mass = CGFloat(difficultyMultiplier)
 
-    // Set terminal velocity based on difficulty
-    let baseTerminalVelocity: CGFloat = 600.0
-    let maxFallSpeed = baseTerminalVelocity * CGFloat(GameState.shared.difficultyMultiplier)
+    // Add some random horizontal velocity
+    let randomXVelocity = CGFloat.random(in: -10 ... 10)
+    physicsBody.velocity = CGVector(dx: randomXVelocity, dy: 0)
 
-    // Random initial velocity (small downward push)
-    let initialVelocity = CGFloat.random(in: 0 ... 50)
+    // Apply random variation to mass (±10%)
+    let massVariation = CGFloat.random(in: 0.9 ... 1.1)
+    physicsBody.mass *= massVariation
 
-    // Add random rotation speed
-    let rotationSpeed = CGFloat.random(in: 1.0 ... 3.0)
+    // Random rotation speed for visual effect
+    let rotationSpeed = CGFloat.random(in: 1.0 ... 2.0)
 
-    // Add components
-    addComponent(SpriteComponent(node: spriteNode))
+    // Add components using the IngredientNode
+    addComponent(SpriteComponent(node: ingredientNode))
     addComponent(IngredientComponent(ingredient: ingredient))
-    addComponent(FallingComponent(
-      initialVelocity: initialVelocity,
-      gravity: finalGravity,
-      maxFallSpeed: maxFallSpeed,
-      rotationSpeed: rotationSpeed
-    ))
-
-    // Auto-remove after 8 seconds (increased time since they start slower)
-    addComponent(LifetimeComponent(lifetime: 8.0))
+    addComponent(PhysicsComponent(physicsBody: physicsBody))
+    addComponent(FallingComponent(rotationSpeed: rotationSpeed, baseMass: physicsBody.mass))
   }
 }

@@ -9,18 +9,12 @@ import Foundation
 import GameplayKit
 
 class FallingComponent: GKComponent {
-  var velocity: CGFloat // Current falling velocity
-  var gravity: CGFloat // Acceleration due to gravity
-  var maxFallSpeed: CGFloat // Terminal velocity
   var rotationSpeed: CGFloat
+  var baseMass: CGFloat // For difficulty scaling
 
-  init(initialVelocity: CGFloat = 0, gravity: CGFloat = 400, maxFallSpeed: CGFloat = 600,
-       rotationSpeed: CGFloat = 1.0)
-  {
-    velocity = initialVelocity
-    self.gravity = gravity
-    self.maxFallSpeed = maxFallSpeed
+  init(rotationSpeed: CGFloat = 1.0, baseMass: CGFloat = 1.0) {
     self.rotationSpeed = rotationSpeed
+    self.baseMass = baseMass
     super.init()
   }
 

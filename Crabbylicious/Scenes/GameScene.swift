@@ -2,30 +2,36 @@
 //  GameScene.swift
 //  Crabbylicious
 //
-//  Created by Java Kanaya Prada on 16/07/25.
+//  Created by Java Kanaya Prada on 18/07/25.
 //
 
+import Foundation
 import GameplayKit
 import SpriteKit
-import SwiftUI
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-  let gameArea: CGRect
-  let crab: CrabNode
+  // Entity Manager
+  private let entityManager = EntityManager()
 
-  // Ingredient spawning properties
-  private var ingredientSpawnTimer: Timer?
-  private let ingredientSpawnInterval: TimeInterval = 1.5 // seconds between spawns
+  // Component Systems
+  private let playerInputSystem = PlayerInputSystem()
+  private let fallingSystem = FallingSystem()
+
+  // Game properties
+  let gameArea: CGRect
+  private var lastUpdateTime: TimeInterval = 0
+  private var crabEntity: CrabEntity!
 
   override init(size: CGSize) {
+    print("🟢 ECSGameScene: Initializing...")
+
     let maxAspectRatio: CGFloat = 16.0 / 9.0
     let playableWidth = size.height / maxAspectRatio
     let margin = (size.width - playableWidth) / 2
     gameArea = CGRect(x: margin, y: 0, width: playableWidth, height: size.height)
 
-    crab = CrabNode(size: size)
-
     super.init(size: size)
+    print("🟢 ECSGameScene: Super init completed")
   }
 
   @available(*, unavailable)
@@ -33,141 +39,188 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     fatalError("init(coder:) has not been implemented")
   }
 
-  // make every node visible
   override func didMove(to _: SKView) {
-    // Set up physics world
-    physicsWorld.gravity = CGVector(dx: 0, dy: -2.8)
+    // Set up physics world (this replaces your custom gravity!)
     physicsWorld.contactDelegate = self
 
-    // Add background first (lowest z-position)
+    // Base gravity that scales with difficulty
+    let baseGravity: CGFloat = -2.0 // Negative for downward
+    let difficultyGravity = baseGravity * CGFloat(GameState.shared.difficultyMultiplier)
+    physicsWorld.gravity = CGVector(dx: 0, dy: difficultyGravity)
+
+    print("🟢 ProperECSGameScene: didMove called")
+
+    // Add background and ground
     let background = BackgroundNode(size: size)
-    background.zPosition = 0
     addChild(background)
 
-    // Add ground second
     let ground = GroundNode(size: size)
-    ground.zPosition = 1
     addChild(ground)
 
-    // Add crab on top
-    crab.position = CGPoint(x: size.width / 2, y: size.height * 0.13)
-    crab.zPosition = 2
-    addChild(crab)
+    // Test GameState
+    let gameState = GameState.shared
+    print("🟢 GameState recipe: \(gameState.currentRecipe.name)")
 
-    startIngredientSpawning()
+    // Create crab entity
+    let crabPosition = CGPoint(x: size.width / 2, y: size.height * 0.13)
+    crabEntity = CrabEntity(scene: self, position: crabPosition, gameArea: gameArea)
+
+    // Simply add entity - no manual system registration needed!
+    addEntity(crabEntity)
+    print("🟢 Crab created and added successfully!")
   }
 
-  // MARK: - Ingredient Spawning
+  override func update(_ currentTime: TimeInterval) {
+    if lastUpdateTime == 0 {
+      lastUpdateTime = currentTime
+    }
 
-  private func startIngredientSpawning() {
-    ingredientSpawnTimer = Timer.scheduledTimer(withTimeInterval: ingredientSpawnInterval, repeats: true) { _ in
-      self.spawnRandomIngredient()
+    let deltaTime = currentTime - lastUpdateTime
+    lastUpdateTime = currentTime
+
+    // Systems query entities automatically
+    playerInputSystem.update(deltaTime: deltaTime, entityManager: entityManager)
+    fallingSystem.update(deltaTime: deltaTime, entityManager: entityManager)
+
+    // Cleanup ingredients
+    cleanupOffscreenIngredients()
+
+    // Handle ingredient spawning
+    updateIngredientSpawning(deltaTime: deltaTime)
+  }
+
+  private func cleanupOffscreenIngredients() {
+    let ingredientEntities = entityManager.getEntitiesWith(componentType: IngredientComponent.self)
+    var entitiesToRemove: [GKEntity] = []
+
+    for entity in ingredientEntities {
+      guard let spriteComponent = entity.component(ofType: SpriteComponent.self) else { continue }
+
+      let position = spriteComponent.node.position
+
+      // Simple bounds check - if below screen or too far to sides, remove it
+      if position.y < -100 ||
+        position.x < gameArea.minX - 100 ||
+        position.x > gameArea.maxX + 100
+      {
+        entitiesToRemove.append(entity)
+      }
+    }
+
+    // Remove offscreen entities
+    for entity in entitiesToRemove {
+      if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
+        spriteComponent.node.removeFromParent()
+      }
+      removeEntity(entity)
     }
   }
 
-  private func stopIngredientSpawning() {
-    ingredientSpawnTimer?.invalidate()
-    ingredientSpawnTimer = nil
+  private func updateIngredientSpawning(deltaTime: TimeInterval) {
+    let gameState = GameState.shared
+    gameState.ingredientSpawnTimer += deltaTime
+
+    if gameState.ingredientSpawnTimer >= gameState.ingredientSpawnInterval {
+      spawnRandomIngredient()
+      gameState.ingredientSpawnTimer = 0
+    }
   }
 
   private func spawnRandomIngredient() {
-    // Get a random ingredient from all available ingredients
     let randomIngredient = GameData.allIngredients.randomElement()!
-    let ingredientNode = IngredientNode(ingredient: randomIngredient)
+    let spawnX = CGFloat.random(in: gameArea.minX + 50 ... gameArea.maxX - 50)
+    let spawnPosition = CGPoint(x: spawnX, y: size.height + 50)
 
-    // Random X position within game area
-    let randomX = CGFloat.random(in: gameArea.minX + 50 ... gameArea.maxX - 50)
+    let ingredientEntity = IngredientEntity(scene: self, ingredient: randomIngredient, position: spawnPosition)
 
-    // Start above the screen
-    ingredientNode.position = CGPoint(x: randomX, y: size.height + 100)
-
-    addChild(ingredientNode)
-
-    // Add some random horizontal velocity for more interesting gameplay
-    let randomXVelocity = CGFloat.random(in: -50 ... 50)
-    ingredientNode.physicsBody?.velocity = CGVector(dx: randomXVelocity, dy: 0)
+    // Simply add entity - systems will find it automatically!
+    addEntity(ingredientEntity)
+    print("🟢 Spawned ingredient: \(randomIngredient.name)")
   }
 
-  func didBegin(_ contact: SKPhysicsContact) {
-    var ingredientNode: IngredientNode?
-    var basketNode: SKNode?
+  // MARK: - Entity Management (Clean!)
 
-    // Determine which node is the ingredient and which is the basket
-    if contact.bodyA.categoryBitMask == PhysicsCategory.ingredient {
-      ingredientNode = contact.bodyA.node as? IngredientNode
-      basketNode = contact.bodyB.node
-    } else if contact.bodyB.categoryBitMask == PhysicsCategory.ingredient {
-      ingredientNode = contact.bodyB.node as? IngredientNode
-      basketNode = contact.bodyA.node
-    }
-
-    // Handle ingredient caught by crab
-    if let ingredient = ingredientNode, let _ = basketNode {
-      handleIngredientCaught(ingredient)
-    }
+  func addEntity(_ entity: GKEntity) {
+    print("🟢 Adding entity to EntityManager...")
+    entityManager.addEntity(entity)
+    print("🟢 Entity added - systems will find it automatically!")
   }
 
-  // MARK: - Physics Contact Delegate
-
-  private func handleIngredientCaught(_ ingredientNode: IngredientNode) {
-    // Remove the ingredient from the scene
-    ingredientNode.removeFromParent()
-
-    // TODO: Add ingredient to inventory
-    // TODO: Check if absurd ingredient (game over logic)
-    // TODO: Update score/UI
-    // TODO: Add visual feedback (particles, sound, etc.)
-
-    print("Caught ingredient: \(ingredientNode.ingredient.name)")
-
-    if ingredientNode.ingredient.isAbsurd {
-      print("Oops! Caught an absurd ingredient!")
-      // TODO: Implement game over logic
-    }
+  func removeEntity(_ entity: GKEntity) {
+    print("🟢 Removing entity from EntityManager...")
+    entityManager.removeEntity(entity)
   }
 
-  // MARK: - Scene Updates
+  // MARK: - Touch Handling
 
-  override func update(_: TimeInterval) {
-    // Remove ingredients that have fallen off screen
-    enumerateChildNodes(withName: "*") { node, _ in
-      if let ingredientNode = node as? IngredientNode,
-         ingredientNode.position.y < -100
-      {
-        ingredientNode.removeFromParent()
-      }
-    }
-  }
-
-  // crab movement
   override func touchesMoved(_ touches: Set<UITouch>, with _: UIEvent?) {
     for touch in touches {
-      let pointOfTouch = touch.location(in: self) // where we touch the screen right now
-      let previousPointOfTouch = touch.previousLocation(in: self) // where we were touching before
-
+      let pointOfTouch = touch.location(in: self)
+      let previousPointOfTouch = touch.previousLocation(in: self)
       let amountDragged = pointOfTouch.x - previousPointOfTouch.x
 
-      crab.startLegAnimation()
-      crab.position.x += amountDragged
-
-      let moreMarginBowl = crab.size.width / 1.1 //
-
-      if crab.position.x > CGRectGetMaxX(gameArea) - moreMarginBowl {
-        crab.position.x = CGRectGetMaxX(gameArea) - moreMarginBowl
-      }
-
-      if crab.position.x < CGRectGetMinX(gameArea) + moreMarginBowl {
-        crab.position.x = CGRectGetMinX(gameArea) + moreMarginBowl
-      }
+      playerInputSystem.handleTouchMoved(delta: amountDragged)
     }
   }
 
   override func touchesEnded(_: Set<UITouch>, with _: UIEvent?) {
-    crab.stopLegAnimation()
+    playerInputSystem.handleTouchEnded()
   }
 
-  // Clean up when scene is removed
-  deinit {
-    stopIngredientSpawning()
+  // MARK: - Physics Contact Handling
+
+  func didBegin(_ contact: SKPhysicsContact) {
+    var ingredientEntity: GKEntity?
+    var basketEntity: GKEntity?
+
+    // Find which bodies are ingredient and basket
+    if contact.bodyA.categoryBitMask == PhysicsCategory.ingredient {
+      ingredientEntity = findEntityForNode(contact.bodyA.node)
+      basketEntity = findEntityForNode(contact.bodyB.node)
+    } else if contact.bodyB.categoryBitMask == PhysicsCategory.ingredient {
+      ingredientEntity = findEntityForNode(contact.bodyB.node)
+      basketEntity = findEntityForNode(contact.bodyA.node)
+    }
+
+    if let ingredient = ingredientEntity, let _ = basketEntity {
+      handleIngredientCaught(ingredient)
+    }
+  }
+
+  private func findEntityForNode(_ node: SKNode?) -> GKEntity? {
+    // Helper method to find entity associated with a sprite node
+    let allEntities = entityManager.getAllEntities()
+    for entity in allEntities {
+      if let spriteComponent = entity.component(ofType: SpriteComponent.self),
+         spriteComponent.node == node
+      {
+        return entity
+      }
+    }
+    return nil
+  }
+
+  private func handleIngredientCaught(_ entity: GKEntity) {
+    // Remove the caught ingredient
+    if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
+      spriteComponent.node.removeFromParent()
+    }
+    removeEntity(entity)
+
+    // Handle game logic (score, absurd ingredients, etc.)
+    if let ingredientComponent = entity.component(ofType: IngredientComponent.self) {
+      print("Caught: \(ingredientComponent.ingredient.name)")
+
+      if ingredientComponent.ingredient.isAbsurd {
+        print("Game Over - Caught absurd ingredient!")
+        // Handle game over
+      }
+    }
+  }
+
+  // Method to update difficulty during gameplay
+  func updateDifficulty() {
+    let newGravity = -400.0 * CGFloat(GameState.shared.difficultyMultiplier)
+    physicsWorld.gravity = CGVector(dx: 0, dy: newGravity)
   }
 }
