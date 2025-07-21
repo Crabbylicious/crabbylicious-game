@@ -44,6 +44,16 @@ class CrabNode: SKSpriteNode {
     addChild(legsNode)
   }
 
+  /// Returns the leg textures for AnimationComponent
+  func getLegTextures() -> [SKTexture] {
+    legTextures
+  }
+
+  /// Returns the legs node for AnimationComponent
+  func getLegsNode() -> SKSpriteNode {
+    legsNode
+  }
+
   func startLegAnimation() {
     guard legsNode.action(forKey: legAnimationActionKey) == nil else { return }
     let animation = SKAction.repeatForever(SKAction.animate(with: legTextures, timePerFrame: 0.15))
