@@ -202,8 +202,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
       basketEntity = findEntityForNode(contact.bodyA.node)
     }
 
-    if let ingredient = ingredientEntity, let _ = basketEntity {
-      handleIngredientCaught(ingredient)
+    // just for top area
+    if let ingredient = ingredientEntity, let basket = basketEntity {
+      guard let ingredientNode = ingredient.component(ofType: SpriteComponent.self)?.node,
+            let crabNode = basket.component(ofType: SpriteComponent.self)?.node else { return }
+
+      let crabTopY = crabNode.frame.maxY
+      let crabTopAreaY = crabTopY - crabNode.frame.height * 0.2 // area top 20%
+      let ingredientCenterY = ingredientNode.position.y
+
+      if ingredientCenterY >= crabTopAreaY {
+        handleIngredientCaught(ingredient)
+      }
     }
   }
 
