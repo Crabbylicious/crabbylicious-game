@@ -22,6 +22,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   private var lastUpdateTime: TimeInterval = 0
   private var crabEntity: CrabEntity!
 
+  // Animation control
+  private var gameStarted = false
+  private let crabEntranceDuration: TimeInterval = 1.2
+  private let gameStartDelay: TimeInterval = 0.3 // Delay before crab starts walking in
+
   override init(size: CGSize) {
     print("🟢 ECSGameScene: Initializing...")
 
@@ -61,13 +66,59 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let gameState = GameState.shared
     print("🟢 GameState recipe: \(gameState.currentRecipe.name)")
 
-    // Create crab entity
-    let crabPosition = CGPoint(x: size.width / 2, y: size.height * 0.13)
-    crabEntity = CrabEntity(scene: self, position: crabPosition, gameArea: gameArea)
+    // Create crab entity positioned OFF-SCREEN to the left
+    let crabStartPosition = CGPoint(x: gameArea.minX - 100, y: size.height * 0.13)
+    let crabFinalPosition = CGPoint(x: size.width / 2, y: size.height * 0.13)
 
-    // Simply add entity - no manual system registration needed!
+    crabEntity = CrabEntity(scene: self, position: crabStartPosition, gameArea: gameArea)
     addEntity(crabEntity)
-    print("🟢 Crab created and added successfully!")
+
+    // Disable player control during entrance
+    if let playerControl = crabEntity.component(ofType: PlayerControlComponent.self) {
+      playerControl.isControllable = false
+    }
+
+    print("🟢 Crab created off-screen, starting entrance animation...")
+
+    // Start the entrance sequence
+    startCrabEntranceAnimation(to: crabFinalPosition)
+  }
+
+  private func startCrabEntranceAnimation(to finalPosition: CGPoint) {
+    guard let spriteComponent = crabEntity.component(ofType: SpriteComponent.self),
+          let animationComponent = crabEntity.component(ofType: AnimationComponent.self)
+    else {
+      print("❌ Missing components for crab entrance")
+      return
+    }
+
+    // Wait a moment, then start the entrance
+    DispatchQueue.main.asyncAfter(deadline: .now() + gameStartDelay) {
+      // Start walking animation
+      animationComponent.startWalkingAnimation()
+
+      // Create move action
+      let moveAction = SKAction.move(to: finalPosition, duration: self.crabEntranceDuration)
+      moveAction.timingMode = .easeOut
+
+      // Run the move action
+      spriteComponent.node.run(moveAction) {
+        // Animation completed
+        print("🟢 Crab entrance completed!")
+
+        // Stop walking animation
+        animationComponent.stopWalkingAnimation()
+
+        // Enable player control
+        if let playerControl = self.crabEntity.component(ofType: PlayerControlComponent.self) {
+          playerControl.isControllable = true
+        }
+
+        // Start the actual game
+        self.gameStarted = true
+        print("🟢 Game started - player can now control crab and ingredients will spawn")
+      }
+    }
   }
 
   override func update(_ currentTime: TimeInterval) {
@@ -154,6 +205,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   // MARK: - Touch Handling
 
   override func touchesMoved(_ touches: Set<UITouch>, with _: UIEvent?) {
+    guard gameStarted else { return } // Don't respond to touches during entrance
+
     for touch in touches {
       let pointOfTouch = touch.location(in: self)
       let previousPointOfTouch = touch.previousLocation(in: self)
@@ -164,12 +217,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   override func touchesEnded(_: Set<UITouch>, with _: UIEvent?) {
+    guard gameStarted else { return } // Don't respond to touches during entrance
+
     playerInputSystem.handleTouchEnded()
   }
 
   // MARK: - Physics Contact Handling
 
   func didBegin(_ contact: SKPhysicsContact) {
+    guard gameStarted else { return } // Don't respond to touches during entrance
+
     var ingredientEntity: GKEntity?
     var basketEntity: GKEntity?
 
