@@ -15,7 +15,7 @@ class GroundNode: SKSpriteNode {
 
     // Position the ground at the bottom of the screen
     position = CGPoint(x: size.width / 2, y: self.size.height / 2)
-    zPosition = 1
+    zPosition = 2
   }
 
   @available(*, unavailable)
