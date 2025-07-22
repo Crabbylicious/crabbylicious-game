@@ -23,6 +23,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   private var lastUpdateTime: TimeInterval = 0
   private var crabEntity: CrabEntity!
   private var recipeCard: RecipeCardNode!
+  
+  var catchingSystem: CatchingSystem!
 
   override init(size: CGSize) {
     print("🟢 ECSGameScene: Initializing...")
@@ -51,7 +53,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     physicsWorld.gravity = CGVector(dx: 0, dy: difficultyGravity)
 
     print("🟢 ProperECSGameScene: didMove called")
-
+    
+    catchingSystem = CatchingSystem(gameState: GameState.shared, scene: self)
+    
     // Add background and ground
     let background = BackgroundNode(size: size)
     addChild(background)
@@ -240,48 +244,119 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   private func handleIngredientCaught(_ entity: GKEntity) {
-    // Remove the caught ingredient
-    if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
-      spriteComponent.node.removeFromParent()
-    }
-    removeEntity(entity)
-
-    // Handle game logic (score, absurd ingredients, etc.)
+//    // Remove the caught ingredient
+//    if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
+//      spriteComponent.node.removeFromParent()
+//    }
+//    removeEntity(entity)
+//
+//    // Handle game logic (score, absurd ingredients, etc.)
+////    if let ingredientComponent = entity.component(ofType: IngredientComponent.self) {
+////      print("Caught: \(ingredientComponent.ingredient.name)")
+////
+////      if ingredientComponent.ingredient.isAbsurd {
+////        print("Game Over - Caught absurd ingredient!")
+////        // Handle game over
+////      }
+////    }
 //    if let ingredientComponent = entity.component(ofType: IngredientComponent.self) {
 //      print("Caught: \(ingredientComponent.ingredient.name)")
-//
+//      
 //      if ingredientComponent.ingredient.isAbsurd {
 //        print("Game Over - Caught absurd ingredient!")
 //        // Handle game over
+//      } else {
+//        // Add ingredient to collected ingredients
+//        GameState.shared.addCollectedIngredient(ingredientComponent.ingredient)
+//        
+//        // Update recipe card display
+//        recipeCard.updateRecipeDisplay()
+//        
+//        // Check if recipe is complete
+//        if GameState.shared.isRecipeComplete() {
+//          print("Recipe Complete!")
+//          // Handle recipe completion - maybe transition to next level or show completion screen
+//          handleRecipeComplete()
+//        }
 //      }
 //    }
-    if let ingredientComponent = entity.component(ofType: IngredientComponent.self) {
-      print("Caught: \(ingredientComponent.ingredient.name)")
-      
-      if ingredientComponent.ingredient.isAbsurd {
+    
+    guard let ingredientComponent = entity.component(ofType: IngredientComponent.self),
+          let spriteComponent = entity.component(ofType: SpriteComponent.self) else {
+        return
+    }
+    
+    let ingredient = ingredientComponent.ingredient
+    let spriteNode = spriteComponent.node
+
+    // Absurd (non-recipe) ingredient
+    if ingredient.isAbsurd {
         print("Game Over - Caught absurd ingredient!")
         // Handle game over
-      } else {
-        // Add ingredient to collected ingredients
-        GameState.shared.addCollectedIngredient(ingredientComponent.ingredient)
-        
-        // Update recipe card display
-        recipeCard.updateRecipeDisplay()
-        
-        // Check if recipe is complete
-        if GameState.shared.isRecipeComplete() {
-          print("Recipe Complete!")
-          // Handle recipe completion - maybe transition to next level or show completion screen
-          handleRecipeComplete()
-        }
-      }
+        showWrongIndicator(at: spriteNode.position)
+        removeEntity(entity)
+        spriteNode.removeFromParent()
+        return
     }
+
+    // Recipe logic
+    let recipe = GameState.shared.currentRecipe
+    let requiredAmount = recipe.ingredients.first(where: { $0.0 == ingredient })?.1 ?? 0
+    let currentAmount = GameState.shared.collectedIngredients[ingredient] ?? 0
+
+    if requiredAmount > 0 && currentAmount < requiredAmount {
+        // ✅ Correct and still needed
+        GameState.shared.addCollectedIngredient(ingredient)
+        recipeCard.updateRecipeDisplay()
+
+        spriteNode.removeFromParent()
+        removeEntity(entity)
+
+        // Optional: Correct indicator animation
+        showCorrectIndicator(on: spriteNode)
+
+        if GameState.shared.isRecipeComplete() {
+            print("Recipe Complete!")
+            handleRecipeComplete()
+        }
+
+    } else {
+        // ❌ Wrong: either not in recipe or already fulfilled
+        print("Wrong ingredient caught!")
+        showWrongIndicator(at: spriteNode.position)
+
+        // Remove the ingredient visually
+        spriteNode.removeFromParent()
+        removeEntity(entity)
+    }
+
   }
 
   private func handleRecipeComplete() {
     GameState.shared.moveToNextRecipe()
     recipeCard.updateRecipeDisplay()
   }
+  
+  private func showWrongIndicator(at position: CGPoint) {
+    let xMark = SKSpriteNode(imageNamed: "x_mark")
+    xMark.position = position
+    xMark.zPosition = 500
+    addChild(xMark)
+    
+    xMark.run(SKAction.sequence([
+      SKAction.fadeOut(withDuration: 0.6),
+      SKAction.removeFromParent()
+    ]))
+  }
+
+  private func showCorrectIndicator(on node: SKNode) {
+    node.run(SKAction.sequence([
+      SKAction.scale(to: 1.2, duration: 0.1),
+      SKAction.scale(to: 1.0, duration: 0.1)
+    ]))
+  }
+
+  
   // Method to update difficulty during gameplay
   func updateDifficulty() {
     let newGravity = -400.0 * CGFloat(GameState.shared.difficultyMultiplier)

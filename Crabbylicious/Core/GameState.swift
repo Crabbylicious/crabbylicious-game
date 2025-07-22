@@ -17,7 +17,7 @@ class GameState {
   var ingredientSpawnTimer: TimeInterval = 0
   let ingredientSpawnInterval: TimeInterval = 2.0
   
-  private var collectedIngredients: [Ingredient: Int] = [:]
+  var collectedIngredients: [Ingredient: Int] = [:]
   
   private var currentRecipeIndex: Int = 0
   var score: Int = 0
@@ -31,8 +31,10 @@ class GameState {
     150.0 * CGFloat(difficultyMultiplier)
   }
   
+
   func addCollectedIngredient(_ ingredient: Ingredient) {
       let success = collectIngredient(ingredient)
+      
       if success {
         print("🥬 Collected \(ingredient.name)")
       } else {
