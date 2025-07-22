@@ -27,6 +27,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   private let crabEntranceDuration: TimeInterval = 1.2
   private let gameStartDelay: TimeInterval = 0.3 // Delay before crab starts walking in
 
+  // Countdown control
+  private let countdownDuration: TimeInterval = 0.8 // How long each number shows
+  private let countdownPause: TimeInterval = 0.2 // Pause after crab entrance before countdown
+
   override init(size: CGSize) {
     print("🟢 ECSGameScene: Initializing...")
 
@@ -84,6 +88,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     startCrabEntranceAnimation(to: crabFinalPosition)
   }
 
+  private func startCountdownSequence() {
+    print("🟢 Starting countdown sequence...")
+
+    // Wait a moment after crab entrance, then start countdown
+    DispatchQueue.main.asyncAfter(deadline: .now() + countdownPause) {
+      self.showCountdownNumber(3)
+    }
+  }
+
+  private func showCountdownNumber(_ number: Int) {
+    print("🟢 Showing countdown: \(number)")
+
+    // Create countdown node at center of screen
+    let countdownPosition = CGPoint(x: size.width / 2, y: size.height / 2)
+    let countdownNode = CountdownNode(number: number, position: countdownPosition)
+
+    addChild(countdownNode)
+
+    // Calculate pause duration (subtract animation time from total duration)
+    let pauseDuration = countdownDuration - 0.6 // 0.6 = scaleIn + scaleOut duration
+
+    // Animate the countdown number
+    countdownNode.animateCountdown(pauseDuration: pauseDuration) {
+      // When animation completes, show next number or start game
+      if number > 1 {
+        // Show next countdown number
+        self.showCountdownNumber(number - 1)
+      } else {
+        // Countdown finished, start the game!
+        self.startActualGame()
+      }
+    }
+  }
+
+  private func startActualGame() {
+    print("🟢 Countdown finished - Game started!")
+    gameStarted = true
+    print("🟢 Game fully started - ingredients will now spawn")
+  }
+
   private func startCrabEntranceAnimation(to finalPosition: CGPoint) {
     guard let spriteComponent = crabEntity.component(ofType: SpriteComponent.self),
           let animationComponent = crabEntity.component(ofType: AnimationComponent.self)
@@ -114,14 +158,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
           playerControl.isControllable = true
         }
 
-        // Start the actual game
-        self.gameStarted = true
-        print("🟢 Game started - player can now control crab and ingredients will spawn")
+        // Start countdown sequence
+        self.startCountdownSequence()
       }
     }
   }
 
   override func update(_ currentTime: TimeInterval) {
+    guard gameStarted else { return } // Don't respond to touches during entrance and countdown
+
     if lastUpdateTime == 0 {
       lastUpdateTime = currentTime
     }
