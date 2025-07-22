@@ -9,21 +9,22 @@ import GameplayKit
 import SpriteKit
 
 class ButtonNode: SKSpriteNode {
-  init(imageName: String, size: CGSize, alpha: CGFloat = 1.0) {
+  init(imageName: String, scale: CGFloat = 0.4, alpha: CGFloat = 1.0) {
     let texture = SKTexture(imageNamed: imageName)
-    let buttonSize = CGSize(width: size.width, height: size.height / 1.25)
-    super.init(texture: texture, color: .clear, size: buttonSize)
+    // Use the actual texture size, then scale if needed
+    super.init(texture: texture, color: .clear, size: texture.size())
 
+    setScale(scale)
     self.alpha = alpha
   }
 
   func handleButtonPressed(button: ButtonNode) {
-    let scaleDown = SKAction.scale(to: 0.99, duration: 0.3)
+    let scaleDown = SKAction.scale(to: 0.38, duration: 0.3)
     button.run(scaleDown)
   }
 
   func handleButtonReleased(button: ButtonNode) {
-    let scaleUp = SKAction.scale(to: 1.0, duration: 0.3)
+    let scaleUp = SKAction.scale(to: 0.42, duration: 0.3)
     button.run(scaleUp)
   }
 
