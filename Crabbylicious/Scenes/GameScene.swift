@@ -25,6 +25,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
   // Animation control
   private var gameStarted = false
+  private var bubbleEntranceCompleted = false
   private let crabEntranceDuration: TimeInterval = 1.2
   private let gameStartDelay: TimeInterval = 0.3 // Delay before crab starts walking in
 
@@ -67,22 +68,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let ground = GroundNode(size: size)
     addChild(ground)
 
-    let bubbleNode1 = BubbleBackgroundNode(size: size)
-    let bubbleNode2 = BubbleBackgroundNode(size: size)
-    bubbleNode1.zPosition = 1
-    bubbleNode2.zPosition = 1
-
-    // Posisi bubble pertama
-    bubbleNode1.position = CGPoint(x: size.width / 2, y: size.height / 2)
-
-    // Posisi bubble ke dua
-    let overlapY: CGFloat = 20.0
-    bubbleNode2.position = CGPoint(x: size.width / 2, y: bubbleNode1.position.y - bubbleNode1.size.height + overlapY)
-    addChild(bubbleNode1)
-    addChild(bubbleNode2)
-    let bubbleEntity = GKEntity()
-    bubbleEntity.addComponent(BubbleBackgroundComponent(nodes: [bubbleNode1, bubbleNode2]))
-    addEntity(bubbleEntity)
+    // Set up bubble background starting from below
+    setupBubbleBackground()
 
     // Test GameState
     let gameState = GameState.shared
@@ -104,6 +91,57 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     // Start the entrance sequence
     startCrabEntranceAnimation(to: crabFinalPosition)
+  }
+
+  private func setupBubbleBackground() {
+    let bubbleNode1 = BubbleBackgroundNode(size: size)
+    let bubbleNode2 = BubbleBackgroundNode(size: size)
+    bubbleNode1.zPosition = 0.5 // Between background (0) and ground (1)
+    bubbleNode2.zPosition = 0.5
+
+    // Start bubbles from below the screen for nice entrance effect
+    let overlapY: CGFloat = 20.0
+    bubbleNode1.position = CGPoint(x: size.width / 2, y: -bubbleNode1.size.height / 2)
+    bubbleNode2.position = CGPoint(x: size.width / 2, y: bubbleNode1.position.y - bubbleNode1.size.height + overlapY)
+
+    print("🟢 GameScene: Starting bubbles from below screen")
+    print("   - Bubble 1: \(bubbleNode1.position)")
+    print("   - Bubble 2: \(bubbleNode2.position)")
+
+    addChild(bubbleNode1)
+    addChild(bubbleNode2)
+
+    // Create bubble entity and add to system
+    let bubbleEntity = GKEntity()
+    bubbleEntity.addComponent(BubbleBackgroundComponent(nodes: [bubbleNode1, bubbleNode2]))
+    addEntity(bubbleEntity)
+
+    // Start fast entrance animation to fill screen
+    startBubbleEntranceAnimation(nodes: [bubbleNode1, bubbleNode2])
+  }
+
+  private func startBubbleEntranceAnimation(nodes: [BubbleBackgroundNode]) {
+    print("🟢 Starting fast bubble entrance animation")
+
+    // Calculate how much to move up to fill screen
+    let fastMoveDistance: CGFloat = size.height + nodes[0].size.height
+
+    // Fast entrance animation duration (same as crab entrance)
+    let entranceDuration = crabEntranceDuration + gameStartDelay + countdownDuration + countdownPause
+
+    for node in nodes {
+      // Fast upward movement to fill screen
+      let fastMoveUp = SKAction.moveBy(x: 0, y: fastMoveDistance, duration: entranceDuration)
+      fastMoveUp.timingMode = .easeOut
+
+      node.run(fastMoveUp) {
+        print("🟢 Bubble fast entrance completed - switching to normal speed")
+        // Mark that entrance is done (when first bubble completes)
+        if node == nodes.first {
+          self.bubbleEntranceCompleted = true
+        }
+      }
+    }
   }
 
   private func startCountdownSequence() {
@@ -183,8 +221,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   override func update(_ currentTime: TimeInterval) {
-    guard gameStarted else { return } // Don't respond to touches during entrance and countdown
-
     if lastUpdateTime == 0 {
       lastUpdateTime = currentTime
     }
@@ -192,11 +228,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let deltaTime = currentTime - lastUpdateTime
     lastUpdateTime = currentTime
 
+    bubbleBackgroundSystem
+      .update(deltaTime: deltaTime, entityManager: entityManager, sceneSize: size) // update animasi bubble background
+
+    guard gameStarted else { return } // Don't respond to touches during entrance and countdown
+
     // Systems query entities automatically
     playerInputSystem.update(deltaTime: deltaTime, entityManager: entityManager)
     fallingSystem.update(deltaTime: deltaTime, entityManager: entityManager)
-    bubbleBackgroundSystem
-      .update(deltaTime: deltaTime, entityManager: entityManager, sceneSize: size) // update animasi bubble background
 
     // Cleanup ingredients
     cleanupOffscreenIngredients()
