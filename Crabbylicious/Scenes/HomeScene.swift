@@ -75,8 +75,8 @@ class HomeScene: SKScene {
     bottomCloud.zPosition = 5
     addChild(bottomCloud)
 
-    playButton = ButtonNode(imageName: "buttonPlay", size: size, alpha: 0.0)
-    playButton.position = CGPoint(x: gameArea.midX, y: gameArea.midY + 70)
+    playButton = ButtonNode(imageName: "buttonPlay")
+    playButton.position = CGPoint(x: gameArea.midX, y: gameArea.midY - 120)
     playButton.zPosition = 10
     addChild(playButton)
 

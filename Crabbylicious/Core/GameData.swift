@@ -10,7 +10,7 @@ import Foundation
 class GameData {
   // Valid ingredients
   static let cabbage = Ingredient(imageName: "kubis", name: "kubis", isAbsurd: false)
-  static let kacangPanjang = Ingredient(imageName: "kacang-panjang", name: "kacang panjang", isAbsurd: false)
+  static let kacangPanjang = Ingredient(imageName: "kacangPanjang", name: "kacang panjang", isAbsurd: false)
   static let kacang = Ingredient(imageName: "kacang", name: "kacang", isAbsurd: false)
   static let krupuk = Ingredient(imageName: "krupuk", name: "krupuk", isAbsurd: false)
   static let lontong = Ingredient(imageName: "lontong", name: "lontong", isAbsurd: false)
@@ -18,8 +18,8 @@ class GameData {
   static let telor = Ingredient(imageName: "telor", name: "telor", isAbsurd: false)
 
   // Absurd ingredients (traps)
-  static let trapChili = Ingredient(imageName: "trap-chilli", name: "trap chili", isAbsurd: true)
-  static let trapFishBone = Ingredient(imageName: "trap-fish-bone", name: "trap fish bone", isAbsurd: true)
+  static let trapChili = Ingredient(imageName: "trapChilli", name: "trap chili", isAbsurd: true)
+  static let trapFishBone = Ingredient(imageName: "trapFishBone", name: "trap fish bone", isAbsurd: true)
 
   static let recipes = [
     Recipe(name: "Gado-Gado", ingredients: [
