@@ -10,9 +10,15 @@ import GameplayKit
 import SpriteKit
 
 class CrabEntity: GKEntity {
+  private let crabNode: CrabNode
+
   init(scene: SKScene, position: CGPoint, gameArea: CGRect) {
+    // Create the crab node using existing CrabNode class
+    crabNode = CrabNode(size: CGSize(width: 100, height: 100))
+    crabNode.position = position
+
     super.init()
-    setupCrab(scene: scene, position: position, gameArea: gameArea)
+    setupCrab(scene: scene, gameArea: gameArea)
   }
 
   @available(*, unavailable)
@@ -20,29 +26,16 @@ class CrabEntity: GKEntity {
     fatalError("init(coder:) has not been implemented")
   }
 
-  private func setupCrab(scene: SKScene, position: CGPoint, gameArea: CGRect) {
-    // Create crab sprite
-    let texture = SKTexture(imageNamed: "crabAndBowl")
-    let spriteNode = SKSpriteNode(texture: texture)
-    spriteNode.setScale(0.2)
-    spriteNode.position = position
-    spriteNode.zPosition = 2
-    scene.addChild(spriteNode)
+  private func setupCrab(scene: SKScene, gameArea: CGRect) {
+    // Add crab node to scene
+    scene.addChild(crabNode)
 
-    // Create leg animation sprites
-    let atlas = SKTextureAtlas(named: "Legs")
-    let legTextures = [
-      atlas.textureNamed("leg1"),
-      atlas.textureNamed("leg2")
-    ]
-    let legsNode = SKSpriteNode(texture: legTextures[0])
-    legsNode.setScale(0.6)
-    legsNode.position = CGPoint(x: 0, y: -spriteNode.size.height * 1.9)
-    legsNode.zPosition = 3
-    spriteNode.addChild(legsNode)
+    // Extract leg textures and leg node from CrabNode for AnimationComponent
+    let legTextures = crabNode.getLegTextures()
+    let legsNode = crabNode.getLegsNode()
 
     // Add components
-    addComponent(SpriteComponent(node: spriteNode))
+    addComponent(SpriteComponent(node: crabNode))
     addComponent(PlayerControlComponent(gameArea: gameArea))
     addComponent(AnimationComponent(legNode: legsNode, legTextures: legTextures))
   }

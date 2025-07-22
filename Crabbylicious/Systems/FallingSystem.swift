@@ -17,18 +17,7 @@ class FallingSystem {
       guard let fallingComponent = entity.component(ofType: FallingComponent.self),
             let spriteComponent = entity.component(ofType: SpriteComponent.self) else { continue }
 
-      // Apply gravity to velocity (v = v0 + g*t)
-      fallingComponent.velocity += fallingComponent.gravity * CGFloat(seconds)
-
-      // Apply terminal velocity cap
-      if fallingComponent.velocity > fallingComponent.maxFallSpeed {
-        fallingComponent.velocity = fallingComponent.maxFallSpeed
-      }
-
-      // Apply falling movement using current velocity (s = s0 + v*t)
-      spriteComponent.node.position.y -= fallingComponent.velocity * CGFloat(seconds)
-
-      // Apply rotation animation
+      // Only handle rotation - SpriteKit physics handles the falling!
       spriteComponent.node.zRotation += fallingComponent.rotationSpeed * CGFloat(seconds)
     }
   }

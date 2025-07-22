@@ -25,7 +25,7 @@ class CrabNode: SKSpriteNode {
 
     super.init(texture: texture, color: .clear, size: texture.size())
     setScale(0.2)
-    zPosition = 2
+    zPosition = 3
 
     // Tambahkan physics body untuk deteksi kontak dengan ingredient
     physicsBody = SKPhysicsBody(
@@ -42,6 +42,16 @@ class CrabNode: SKSpriteNode {
     legsNode.position = CGPoint(x: 0, y: -size.height * 1.9)
     legsNode.zPosition = 3
     addChild(legsNode)
+  }
+
+  /// Returns the leg textures for AnimationComponent
+  func getLegTextures() -> [SKTexture] {
+    legTextures
+  }
+
+  /// Returns the legs node for AnimationComponent
+  func getLegsNode() -> SKSpriteNode {
+    legsNode
   }
 
   func startLegAnimation() {
