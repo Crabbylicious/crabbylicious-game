@@ -53,6 +53,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     crab.position = CGPoint(x: size.width / 2, y: size.height * 0.13)
     crab.zPosition = 2
     addChild(crab)
+    
+    // Ingredient card
+    let recipeCard = RecipeCardNode(size: size)
+    recipeCard.zPosition = 10
+    recipeCard.position = CGPoint(x: size.width / 2, y: size.height - 175)
+    addChild(recipeCard)
 
     startIngredientSpawning()
   }
