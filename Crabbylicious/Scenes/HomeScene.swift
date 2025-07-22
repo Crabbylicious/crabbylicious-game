@@ -20,9 +20,9 @@ class HomeScene: SKScene {
   private var bottomCloud: CloudNode!
 
   // Animation timing constants - easily adjustable
-  private let exitAnimationDuration: TimeInterval = 0.8
+  private let exitAnimationDuration: TimeInterval = 1.5
   private let buttonPressDelay: TimeInterval = 0.2
-  private let sceneTransitionDelay: TimeInterval = 0.4 // When to start scene transition during exit
+  private let sceneTransitionDelay: TimeInterval = 1.0 // When to start scene transition during exit
 
   override init(size: CGSize) {
     let maxAspectRatio: CGFloat = 16.0 / 9.0
@@ -138,7 +138,7 @@ class HomeScene: SKScene {
   }
 
   private func animateNodesExit() {
-    let moveUpDistance: CGFloat = size.height + 200 // Move well above screen
+    let moveUpDistance: CGFloat = size.height + 300 // Move well above screen
 
     // Safety check - ensure all nodes exist before animating
     guard let title,
