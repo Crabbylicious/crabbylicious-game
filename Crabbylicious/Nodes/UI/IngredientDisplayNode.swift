@@ -1,0 +1,114 @@
+//
+//  IngredientDisplayNode.swift
+//  Crabbylicious
+//
+//  Created by Nadaa Shafa Nadhifa on 22/07/25.
+//
+
+import GameplayKit
+import SpriteKit
+
+class IngredientDisplayNode: SKNode {
+  private let ingredient: Ingredient
+  private var count: Int
+  
+  private var ingredientSprite: SKSpriteNode!
+  private var countLabel: SKLabelNode!
+  
+  init(ingredient: Ingredient, count: Int) {
+    self.ingredient = ingredient
+    self.count = count
+    super.init()
+    setupDisplay()
+  }
+  
+  required init?(coder aDecoder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
+  private func setupDisplay() {
+    // Create ingredient sprite
+    ingredientSprite = SKSpriteNode(imageNamed: ingredient.imageName)
+    ingredientSprite.size = CGSize(width: 32, height: 32)
+    ingredientSprite.position = CGPoint(x: 0, y: 8)
+    addChild(ingredientSprite)
+    
+    // Create count label
+    countLabel = SKLabelNode(text: "\(count)")
+    countLabel.fontName = "Press Start 2P"
+    countLabel.fontSize = 10
+    countLabel.fontColor = .black
+    countLabel.position = CGPoint(x: 0, y: -28)
+    countLabel.horizontalAlignmentMode = .center
+    addChild(countLabel)
+  }
+  
+  func updateCount(_ newCount: Int) {
+    count = newCount
+    countLabel.text = "\(count)"
+    
+    // Add visual feedback when count changes
+    if count == 0 {
+      let fadeAction = SKAction.fadeAlpha(to: 0.3, duration: 0.3)
+      run(fadeAction)
+    } else {
+      // Bounce effect when count updates
+      let scaleUp = SKAction.scale(to: 1.2, duration: 0.1)
+      let scaleDown = SKAction.scale(to: 1.0, duration: 0.1)
+      let bounce = SKAction.sequence([scaleUp, scaleDown])
+      countLabel.run(bounce)
+    }
+  }
+}
+
+extension GameState {
+  // Add this property to track collected ingredients
+  private static var collectedIngredients: [Ingredient: Int] = [:]
+  
+  func getRemainingIngredients() -> [Ingredient: Int] {
+    var remaining: [Ingredient: Int] = [:]
+    
+    for (ingredient, required) in currentRecipe.ingredients {
+      let collected = GameState.collectedIngredients[ingredient] ?? 0
+      let stillNeeded = max(0, required - collected)
+      remaining[ingredient] = stillNeeded
+    }
+    
+    return remaining
+  }
+  
+  func collectIngredient(_ ingredient: Ingredient) -> Bool {
+    // Check if this ingredient is needed for current recipe
+    guard let required = currentRecipe.ingredients[ingredient] else {
+      return false // Not needed for current recipe
+    }
+    
+    let currentCollected = GameState.collectedIngredients[ingredient] ?? 0
+    
+    // Check if we still need this ingredient
+    if currentCollected < required {
+      GameState.collectedIngredients[ingredient] = currentCollected + 1
+      return true // Successfully collected
+    }
+    
+    return false // Already have enough of this ingredient
+  }
+  
+  func resetCollectedIngredients() {
+    GameState.collectedIngredients.removeAll()
+  }
+  
+  func isRecipeComplete() -> Bool {
+    for (ingredient, required) in currentRecipe.ingredients {
+      let collected = GameState.collectedIngredients[ingredient] ?? 0
+      if collected < required {
+        return false
+      }
+    }
+    return true
+  }
+  
+  func getTotalIngredientsRemaining() -> Int {
+    return getRemainingIngredients().values.reduce(0, +)
+  }
+}
