@@ -11,9 +11,9 @@ import SwiftUI
 
 class HomeScene: SKScene {
   let gameArea: CGRect
-  let playButton: ButtonNode
 
   // Store references to animated nodes
+  private var playButton: ButtonNode!
   private var title: TitleNode!
   private var titleShadow: TitleNode!
   private var topCloud: CloudNode!
@@ -29,7 +29,6 @@ class HomeScene: SKScene {
     let playableWidth = size.height / maxAspectRatio
     let margin = (size.width - playableWidth) / 2
     gameArea = CGRect(x: margin, y: 0, width: playableWidth, height: size.height)
-    playButton = ButtonNode(imageName: "buttonPlay", size: size, alpha: 0.0)
 
     super.init(size: size)
   }
@@ -76,6 +75,7 @@ class HomeScene: SKScene {
     bottomCloud.zPosition = 5
     addChild(bottomCloud)
 
+    playButton = ButtonNode(imageName: "buttonPlay", size: size, alpha: 0.0)
     playButton.position = CGPoint(x: gameArea.midX, y: gameArea.midY + 70)
     playButton.zPosition = 10
     addChild(playButton)
@@ -90,7 +90,7 @@ class HomeScene: SKScene {
     print("   - titleShadow: \(titleShadow != nil ? "✓" : "✗")")
     print("   - topCloud: \(topCloud != nil ? "✓" : "✗")")
     print("   - bottomCloud: \(bottomCloud != nil ? "✓" : "✗")")
-    print("   - playButton: \(playButton)")
+    print("   - playButton: \(playButton != nil ? "✓" : "✗")")
   }
 
   override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {
