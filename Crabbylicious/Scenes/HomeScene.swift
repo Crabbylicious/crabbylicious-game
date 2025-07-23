@@ -39,6 +39,8 @@ class HomeScene: SKScene {
   }
 
   override func didMove(to _: SKView) {
+    _ = HapticManager.haptic
+
     let background = BackgroundNode(size: size)
     background.zPosition = 0
     addChild(background)

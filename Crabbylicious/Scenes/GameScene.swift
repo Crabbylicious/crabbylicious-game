@@ -23,7 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   private var lastUpdateTime: TimeInterval = 0
   private var crabEntity: CrabEntity!
   private var recipeCard: RecipeCardNode!
-  
+
   var catchingSystem: CatchingSystem!
 
   // Animation control
@@ -35,6 +35,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   // Countdown control
   private let countdownDuration: TimeInterval = 0.8 // How long each number shows
   private let countdownPause: TimeInterval = 0.2 // Pause after crab entrance before countdown
+
+  private let wrongSound = SKAction.playSoundFileNamed("soundSalah.wav", waitForCompletion: false)
 
   override init(size: CGSize) {
     print("🟢 ECSGameScene: Initializing...")
@@ -63,22 +65,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     physicsWorld.gravity = CGVector(dx: 0, dy: difficultyGravity)
 
     print("🟢 ProperECSGameScene: didMove called")
-    
+
     catchingSystem = CatchingSystem(gameState: GameState.shared, scene: self)
-    
+
     // Add background and ground
     let background = BackgroundNode(size: size)
     addChild(background)
 
     let ground = GroundNode(size: size)
     addChild(ground)
-    
+
     // Ingredient card
     recipeCard = RecipeCardNode(size: size)
     recipeCard.zPosition = 10
     recipeCard.position = CGPoint(x: size.width / 2, y: size.height - 175)
     addChild(recipeCard)
-    
+
     recipeCard.updateRecipeDisplay()
 
     // Set up bubble background starting from below
@@ -385,74 +387,76 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   private func handleIngredientCaught(_ entity: GKEntity) {
-    
     guard let ingredientComponent = entity.component(ofType: IngredientComponent.self),
-          let spriteComponent = entity.component(ofType: SpriteComponent.self) else {
-        return
+          let spriteComponent = entity.component(ofType: SpriteComponent.self)
+    else {
+      return
     }
-    
+
     let ingredient = ingredientComponent.ingredient
     let spriteNode = spriteComponent.node
 
     // Absurd (non-recipe) ingredient
     if ingredient.isAbsurd {
-        print("Game Over - Caught absurd ingredient!")
-        // Handle game over
-        showWrongIndicator(at: spriteNode.position)
-        removeEntity(entity)
-        spriteNode.removeFromParent()
-        return
+      print("Game Over - Caught absurd ingredient!")
+      // Handle game over
+      showWrongIndicator(at: spriteNode.position)
+      removeEntity(entity)
+      spriteNode.removeFromParent()
+      return
     }
 
     // Recipe logic
     let recipe = GameState.shared.currentRecipe
     let requiredAmount = recipe.ingredients.first(where: { $0.0 == ingredient })?.1 ?? 0
     let currentAmount = GameState.shared.collectedIngredients[ingredient] ?? 0
-    
+
     print("🐛 DEBUG - Ingredient: \(ingredient.name)")
     print("🐛 DEBUG - Required: \(requiredAmount), Current: \(currentAmount)")
 
-    if requiredAmount > 0 && currentAmount < requiredAmount {
-        // ✅ Correct and still needed
-        GameState.shared.addCollectedIngredient(ingredient)
-        recipeCard.updateRecipeDisplay()
-        print(" 👀 Right ingredient caught!")
-      
-        spriteNode.removeFromParent()
-        removeEntity(entity)
+    if requiredAmount > 0, currentAmount < requiredAmount {
+      // ✅ Correct and still needed
+      GameState.shared.addCollectedIngredient(ingredient)
+      recipeCard.updateRecipeDisplay()
+      print(" 👀 Right ingredient caught!")
 
-        // Optional: Correct indicator animation
-        showCorrectIndicator(on: spriteNode)
+      spriteNode.removeFromParent()
+      removeEntity(entity)
 
-        if GameState.shared.isRecipeComplete() {
-            print("Recipe Complete!")
-            handleRecipeComplete()
-        }
+      // Optional: Correct indicator animation
+      showCorrectIndicator(on: spriteNode)
+
+      if GameState.shared.isRecipeComplete() {
+        print("Recipe Complete!")
+        handleRecipeComplete()
+      }
 
     } else {
-        // ❌ Wrong: either not in recipe or already fulfilled
-        print(" 👀 Wrong ingredient caught!")
-        showWrongIndicator(at: spriteNode.position)
+      // ❌ Wrong: either not in recipe or already fulfilled
+      print(" 👀 Wrong ingredient caught!")
+      showWrongIndicator(at: spriteNode.position)
 
-        // Remove the ingredient visually
-        spriteNode.removeFromParent()
-        removeEntity(entity)
+      // Remove the ingredient visually
+      spriteNode.removeFromParent()
+      removeEntity(entity)
     }
-
   }
 
   private func handleRecipeComplete() {
     GameState.shared.moveToNextRecipe()
     recipeCard.updateRecipeDisplay()
   }
-  
+
   private func showWrongIndicator(at position: CGPoint) {
     let xMark = SKSpriteNode(imageNamed: "x_mark")
     xMark.position = position
     xMark.zPosition = 500
     addChild(xMark)
-    
+
+    HapticManager.haptic.playFailureHaptic()
+
     xMark.run(SKAction.sequence([
+      wrongSound,
       SKAction.fadeOut(withDuration: 0.6),
       SKAction.removeFromParent()
     ]))
@@ -465,7 +469,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     ]))
   }
 
-  
   // Method to update difficulty during gameplay
   func updateDifficulty() {
     let newGravity = -400.0 * CGFloat(GameState.shared.difficultyMultiplier)
