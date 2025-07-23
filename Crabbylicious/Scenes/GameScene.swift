@@ -23,6 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   private var lastUpdateTime: TimeInterval = 0
   private var crabEntity: CrabEntity!
   private var recipeCard: RecipeCardNode!
+  private var lifeDisplay: LifeDisplayNode!
 
   var catchingSystem: CatchingSystem!
 
@@ -82,6 +83,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     addChild(recipeCard)
 
     recipeCard.updateRecipeDisplay()
+
+    // Life display
+    lifeDisplay = LifeDisplayNode()
+    lifeDisplay.zPosition = 10
+    lifeDisplay.position = CGPoint(x: 100, y: size.height - 80)
+    addChild(lifeDisplay)
 
     // Set up bubble background starting from below
     setupBubbleBackground()
@@ -446,6 +453,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   private func handleRecipeComplete() {
     GameState.shared.moveToNextRecipe()
     recipeCard.updateRecipeDisplay()
+    lifeDisplay.updateHeartDisplay() // Update hearts when lives are reset
+  }
+
+  private func handleGameOver() {
+    print("💀 Game Over! No lives remaining.")
+
+    // TODO: Add game over scene transition or restart functionality
+    // For now, just print a message
+    print("🔄 Game Over - implement restart functionality here")
+  }
+
+  // Public method for CatchingSystem to call
+  func updateLifeDisplay() {
+    lifeDisplay.updateHeartDisplay()
+  }
+
+  // Public method for CatchingSystem to handle game over
+  func handleGameOverFromSystem() {
+    handleGameOver()
   }
 
   private func showWrongIndicator(at position: CGPoint) {
@@ -455,6 +481,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     addChild(xMark)
 
     HapticManager.haptic.playFailureHaptic()
+
+    // Decrease life and update display
+    GameState.shared.decreaseLife()
+    lifeDisplay.animateLifeLoss()
+
+    // Check for game over
+    if GameState.shared.isGameOver() {
+      handleGameOver()
+    }
 
     xMark.run(SKAction.sequence([
       wrongSound,

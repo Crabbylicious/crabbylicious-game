@@ -22,9 +22,27 @@ class GameState {
   private var currentRecipeIndex: Int = 0
   var score: Int = 0
   var lives: Int = 3
+  var maxLives: Int = 3
 
   private init() {
     currentRecipe = GameData.recipes[0] // Start with Gado-Gado
+  }
+
+  // MARK: - Lives Management
+
+  func decreaseLife() {
+    if lives > 0 {
+      lives -= 1
+      print("💔 Life lost! Lives remaining: \(lives)")
+    }
+  }
+
+  func isGameOver() -> Bool {
+    lives <= 0
+  }
+
+  func resetLives() {
+    lives = maxLives
   }
 
   func getCurrentFallSpeed() -> CGFloat {
@@ -49,6 +67,7 @@ class GameState {
     if currentRecipeIndex >= GameData.recipes.count {
       currentRecipeIndex = 0 // Loop back to beginning
       difficultyMultiplier += 0.5 // Increase difficulty
+      resetLives() // Reset lives when difficulty increases
       print("🎉 All recipes completed! Increasing difficulty to \(difficultyMultiplier)")
     }
 
