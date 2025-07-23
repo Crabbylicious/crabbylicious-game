@@ -565,9 +565,38 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   func didTapBackHome() {
     print("🏠 Back Home tapped")
 
-    // TODO: Transition to home scene
-    // For now, we'll just reset the game
-    didTapPlayAgain()
+    // Hide overlay first
+    gameOverOverlay.hide()
+
+    // Reset game state for next play session
+    GameState.shared.resetGame()
+
+    // Reset game over flag
+    gameOverActive = false
+
+    // Clear any remaining ingredients from screen
+    clearAllIngredients()
+
+    // Transition to HomeScene with a slight delay for overlay to fade out
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+      self.transitionToHomeScene()
+    }
+  }
+
+  private func transitionToHomeScene() {
+    print("🏠 Transitioning to HomeScene...")
+
+    // Ensure game is fully paused during transition
+    gameStarted = false
+    isPaused = true
+
+    let homeScene = HomeScene(size: size)
+
+    // Use a fade transition for smooth experience
+    let transition = SKTransition.fade(withDuration: 0.5)
+    view?.presentScene(homeScene, transition: transition)
+
+    print("✅ Successfully transitioned to HomeScene")
   }
 
   // Helper method to clear all ingredients from screen
