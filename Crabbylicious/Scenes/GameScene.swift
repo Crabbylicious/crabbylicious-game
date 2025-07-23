@@ -521,6 +521,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   private func showCorrectIndicator(on node: SKNode) {
+    HapticManager.haptic.playSuccessHaptic()
+    SoundManager.sound.playCorrectSound()
+
     node.run(SKAction.sequence([
       SKAction.scale(to: 1.2, duration: 0.1),
       SKAction.scale(to: 1.0, duration: 0.1)
