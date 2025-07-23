@@ -10,12 +10,13 @@ import SwiftUI
 
 class RecipeDisplayComponent: GKComponent {
   var needsUpdate: Bool = false
-  
+
   override init() {
     super.init()
   }
-  
-  required init?(coder: NSCoder) {
+
+  @available(*, unavailable)
+  required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 }

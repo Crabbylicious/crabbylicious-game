@@ -11,28 +11,29 @@ import SpriteKit
 class IngredientDisplayNode: SKNode {
   private let ingredient: Ingredient
   private var count: Int
-  
+
   private var ingredientSprite: SKSpriteNode!
   private var countLabel: SKLabelNode!
-  
+
   init(ingredient: Ingredient, count: Int) {
     self.ingredient = ingredient
     self.count = count
     super.init()
     setupDisplay()
   }
-  
-  required init?(coder aDecoder: NSCoder) {
+
+  @available(*, unavailable)
+  required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-  
+
   private func setupDisplay() {
     // Create ingredient sprite
     ingredientSprite = SKSpriteNode(imageNamed: ingredient.imageName)
     ingredientSprite.size = CGSize(width: 40, height: 40)
     ingredientSprite.position = CGPoint(x: 0, y: 8)
     addChild(ingredientSprite)
-    
+
     // Create count label
     countLabel = SKLabelNode(text: "\(count)")
     countLabel.fontName = "Press Start 2P"
@@ -42,11 +43,11 @@ class IngredientDisplayNode: SKNode {
     countLabel.horizontalAlignmentMode = .center
     addChild(countLabel)
   }
-  
+
   func updateCount(_ newCount: Int) {
     count = newCount
     countLabel.text = "\(count)"
-    
+
     // Add visual feedback when count changes
     if count == 0 {
       let fadeAction = SKAction.fadeAlpha(to: 0.3, duration: 0.3)
@@ -64,40 +65,40 @@ class IngredientDisplayNode: SKNode {
 extension GameState {
   // Add this property to track collected ingredients
   private static var collectedIngredients: [Ingredient: Int] = [:]
-  
+
   func getRemainingIngredients() -> [Ingredient: Int] {
     var remaining: [Ingredient: Int] = [:]
-    
+
     for (ingredient, required) in currentRecipe.ingredients {
       let collected = GameState.collectedIngredients[ingredient] ?? 0
       let stillNeeded = max(0, required - collected)
       remaining[ingredient] = stillNeeded
     }
-    
+
     return remaining
   }
-  
+
   func collectIngredient(_ ingredient: Ingredient) -> Bool {
     // Check if this ingredient is needed for current recipe
     guard let required = currentRecipe.ingredients[ingredient] else {
       return false // Not needed for current recipe
     }
-    
+
     let currentCollected = collectedIngredients[ingredient] ?? 0
-    
+
     // Check if we still need this ingredient
     if currentCollected < required {
       collectedIngredients[ingredient] = currentCollected + 1
       return true // Successfully collected
     }
-    
+
     return false // Already have enough of this ingredient
   }
-  
+
   func resetCollectedIngredients() {
     GameState.collectedIngredients.removeAll()
   }
-  
+
   func isRecipeComplete() -> Bool {
     for (ingredient, required) in currentRecipe.ingredients {
       let collected = GameState.collectedIngredients[ingredient] ?? 0
@@ -107,8 +108,8 @@ extension GameState {
     }
     return true
   }
-  
+
   func getTotalIngredientsRemaining() -> Int {
-    return getRemainingIngredients().values.reduce(0, +)
+    getRemainingIngredients().values.reduce(0, +)
   }
 }

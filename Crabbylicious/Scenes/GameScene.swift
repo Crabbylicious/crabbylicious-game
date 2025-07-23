@@ -24,8 +24,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   private var crabEntity: CrabEntity!
   private var recipeCard: RecipeCardNode!
   private var recipeEntity: RecipeCardEntity!
-  
+
   var catchingSystem: CatchingSystem!
+
+  // Animation control
+  private var gameStarted = false
+  private var bubbleEntranceCompleted = false
+  private let crabEntranceDuration: TimeInterval = 1.2
+  private let gameStartDelay: TimeInterval = 0.3 // Delay before crab starts walking in
+
+  // Countdown control
+  private let countdownDuration: TimeInterval = 0.8 // How long each number shows
+  private let countdownPause: TimeInterval = 0.2 // Pause after crab entrance before countdown
+
+  private let wrongSound = SKAction.playSoundFileNamed("soundSalah.wav", waitForCompletion: false)
 
   override init(size: CGSize) {
     print("🟢 ECSGameScene: Initializing...")
@@ -54,16 +66,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     physicsWorld.gravity = CGVector(dx: 0, dy: difficultyGravity)
 
     print("🟢 ProperECSGameScene: didMove called")
-    
+
     catchingSystem = CatchingSystem(gameState: GameState.shared, scene: self)
-    
+
     // Add background and ground
     let background = BackgroundNode(size: size)
     addChild(background)
 
     let ground = GroundNode(size: size)
     addChild(ground)
-    
+
     recipeEntity = RecipeCardEntity(
       scene: self,
       size: size,
@@ -71,36 +83,158 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     )
 
     addEntity(recipeEntity) // Optional if you want systems to query it
-    self.recipeCard = recipeEntity.component(ofType: SpriteComponent.self)?.node as? RecipeCardNode
+    recipeCard = recipeEntity.component(ofType: SpriteComponent.self)?.node as? RecipeCardNode
 
-    let bubbleNode1 = BubbleBackgroundNode(size: size)
-    let bubbleNode2 = BubbleBackgroundNode(size: size)
-    bubbleNode1.zPosition = 1
-    bubbleNode2.zPosition = 1
-
-    // Posisi bubble pertama
-    bubbleNode1.position = CGPoint(x: size.width / 2, y: size.height / 2)
-
-    // Posisi bubble ke dua
-    let overlapY: CGFloat = 20.0
-    bubbleNode2.position = CGPoint(x: size.width / 2, y: bubbleNode1.position.y - bubbleNode1.size.height + overlapY)
-    addChild(bubbleNode1)
-    addChild(bubbleNode2)
-    let bubbleEntity = GKEntity()
-    bubbleEntity.addComponent(BubbleBackgroundComponent(nodes: [bubbleNode1, bubbleNode2]))
-    addEntity(bubbleEntity)
+    // Set up bubble background starting from below
+    setupBubbleBackground()
 
     // Test GameState
     let gameState = GameState.shared
     print("🟢 GameState recipe: \(gameState.currentRecipe.name)")
 
-    // Create crab entity
-    let crabPosition = CGPoint(x: size.width / 2, y: size.height * 0.13)
-    crabEntity = CrabEntity(scene: self, position: crabPosition, gameArea: gameArea)
+    // Create crab entity positioned OFF-SCREEN to the left
+    let crabStartPosition = CGPoint(x: gameArea.minX - 100, y: size.height * 0.13)
+    let crabFinalPosition = CGPoint(x: size.width / 2, y: size.height * 0.13)
 
-    // Simply add entity - no manual system registration needed!
+    crabEntity = CrabEntity(scene: self, position: crabStartPosition, gameArea: gameArea)
     addEntity(crabEntity)
-    print("🟢 Crab created and added successfully!")
+
+    // Disable player control during entrance
+    if let playerControl = crabEntity.component(ofType: PlayerControlComponent.self) {
+      playerControl.isControllable = false
+    }
+
+    print("🟢 Crab created off-screen, starting entrance animation...")
+
+    // Start the entrance sequence
+    startCrabEntranceAnimation(to: crabFinalPosition)
+  }
+
+  private func setupBubbleBackground() {
+    let bubbleNode1 = BubbleBackgroundNode(size: size)
+    let bubbleNode2 = BubbleBackgroundNode(size: size)
+    bubbleNode1.zPosition = 0.5 // Between background (0) and ground (1)
+    bubbleNode2.zPosition = 0.5
+
+    // Start bubbles from below the screen for nice entrance effect
+    let overlapY: CGFloat = 20.0
+    bubbleNode1.position = CGPoint(x: size.width / 2, y: -bubbleNode1.size.height / 2)
+    bubbleNode2.position = CGPoint(x: size.width / 2, y: bubbleNode1.position.y - bubbleNode1.size.height + overlapY)
+
+    print("🟢 GameScene: Starting bubbles from below screen")
+    print("   - Bubble 1: \(bubbleNode1.position)")
+    print("   - Bubble 2: \(bubbleNode2.position)")
+
+    addChild(bubbleNode1)
+    addChild(bubbleNode2)
+
+    // Create bubble entity and add to system
+    let bubbleEntity = GKEntity()
+    bubbleEntity.addComponent(BubbleBackgroundComponent(nodes: [bubbleNode1, bubbleNode2]))
+    addEntity(bubbleEntity)
+
+    // Start fast entrance animation to fill screen
+    startBubbleEntranceAnimation(nodes: [bubbleNode1, bubbleNode2])
+  }
+
+  private func startBubbleEntranceAnimation(nodes: [BubbleBackgroundNode]) {
+    print("🟢 Starting fast bubble entrance animation")
+
+    // Calculate how much to move up to fill screen
+    let fastMoveDistance: CGFloat = size.height + nodes[0].size.height
+
+    // Fast entrance animation duration (same as crab entrance)
+    let entranceDuration = crabEntranceDuration + gameStartDelay + countdownDuration + countdownPause
+
+    for node in nodes {
+      // Fast upward movement to fill screen
+      let fastMoveUp = SKAction.moveBy(x: 0, y: fastMoveDistance, duration: entranceDuration)
+      fastMoveUp.timingMode = .easeOut
+
+      node.run(fastMoveUp) {
+        print("🟢 Bubble fast entrance completed - switching to normal speed")
+        // Mark that entrance is done (when first bubble completes)
+        if node == nodes.first {
+          self.bubbleEntranceCompleted = true
+        }
+      }
+    }
+  }
+
+  private func startCountdownSequence() {
+    print("🟢 Starting countdown sequence...")
+
+    // Wait a moment after crab entrance, then start countdown
+    DispatchQueue.main.asyncAfter(deadline: .now() + countdownPause) {
+      self.showCountdownNumber(3)
+    }
+  }
+
+  private func showCountdownNumber(_ number: Int) {
+    print("🟢 Showing countdown: \(number)")
+
+    // Create countdown node at center of screen
+    let countdownPosition = CGPoint(x: size.width / 2, y: size.height / 2)
+    let countdownNode = CountdownNode(number: number, position: countdownPosition)
+
+    addChild(countdownNode)
+
+    // Calculate pause duration (subtract animation time from total duration)
+    let pauseDuration = countdownDuration - 0.6 // 0.6 = scaleIn + scaleOut duration
+
+    // Animate the countdown number
+    countdownNode.animateCountdown(pauseDuration: pauseDuration) {
+      // When animation completes, show next number or start game
+      if number > 1 {
+        // Show next countdown number
+        self.showCountdownNumber(number - 1)
+      } else {
+        // Countdown finished, start the game!
+        self.startActualGame()
+      }
+    }
+  }
+
+  private func startActualGame() {
+    print("🟢 Countdown finished - Game started!")
+    gameStarted = true
+    print("🟢 Game fully started - ingredients will now spawn")
+  }
+
+  private func startCrabEntranceAnimation(to finalPosition: CGPoint) {
+    guard let spriteComponent = crabEntity.component(ofType: SpriteComponent.self),
+          let animationComponent = crabEntity.component(ofType: AnimationComponent.self)
+    else {
+      print("❌ Missing components for crab entrance")
+      return
+    }
+
+    // Wait a moment, then start the entrance
+    DispatchQueue.main.asyncAfter(deadline: .now() + gameStartDelay) {
+      // Start walking animation
+      animationComponent.startWalkingAnimation()
+
+      // Create move action
+      let moveAction = SKAction.move(to: finalPosition, duration: self.crabEntranceDuration)
+      moveAction.timingMode = .easeOut
+
+      // Run the move action
+      spriteComponent.node.run(moveAction) {
+        // Animation completed
+        print("🟢 Crab entrance completed!")
+
+        // Stop walking animation
+        animationComponent.stopWalkingAnimation()
+
+        // Enable player control
+        if let playerControl = self.crabEntity.component(ofType: PlayerControlComponent.self) {
+          playerControl.isControllable = true
+        }
+
+        // Start countdown sequence
+        self.startCountdownSequence()
+      }
+    }
   }
 
   override func update(_ currentTime: TimeInterval) {
@@ -111,11 +245,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let deltaTime = currentTime - lastUpdateTime
     lastUpdateTime = currentTime
 
+    bubbleBackgroundSystem
+      .update(deltaTime: deltaTime, entityManager: entityManager, sceneSize: size) // update animasi bubble background
+
+    guard gameStarted else { return } // Don't respond to touches during entrance and countdown
+
     // Systems query entities automatically
     playerInputSystem.update(deltaTime: deltaTime, entityManager: entityManager)
     fallingSystem.update(deltaTime: deltaTime, entityManager: entityManager)
-    bubbleBackgroundSystem
-      .update(deltaTime: deltaTime, entityManager: entityManager, sceneSize: size) // update animasi bubble background
 
     // Cleanup ingredients
     cleanupOffscreenIngredients()
@@ -162,15 +299,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   private func spawnRandomIngredient() {
-    let randomIngredient = GameData.allIngredients.randomElement()!
+    // Use smart ingredient selection instead of pure random
+    let smartIngredient = GameState.shared.selectSmartIngredient()
     let spawnX = CGFloat.random(in: gameArea.minX + 50 ... gameArea.maxX - 50)
     let spawnPosition = CGPoint(x: spawnX, y: size.height + 50)
 
-    let ingredientEntity = IngredientEntity(scene: self, ingredient: randomIngredient, position: spawnPosition)
+    let ingredientEntity = IngredientEntity(scene: self, ingredient: smartIngredient, position: spawnPosition)
 
     // Simply add entity - systems will find it automatically!
     addEntity(ingredientEntity)
-    print("🟢 Spawned ingredient: \(randomIngredient.name)")
+    print("🟢 Spawned smart ingredient: \(smartIngredient.name)")
   }
 
   // MARK: - Entity Management (Clean!)
@@ -189,6 +327,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   // MARK: - Touch Handling
 
   override func touchesMoved(_ touches: Set<UITouch>, with _: UIEvent?) {
+    guard gameStarted else { return } // Don't respond to touches during entrance
+
     for touch in touches {
       let pointOfTouch = touch.location(in: self)
       let previousPointOfTouch = touch.previousLocation(in: self)
@@ -199,12 +339,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   override func touchesEnded(_: Set<UITouch>, with _: UIEvent?) {
+    guard gameStarted else { return } // Don't respond to touches during entrance
+
     playerInputSystem.handleTouchEnded()
   }
 
   // MARK: - Physics Contact Handling
 
   func didBegin(_ contact: SKPhysicsContact) {
+    guard gameStarted else { return } // Don't respond to touches during entrance
+
     var ingredientEntity: GKEntity?
     var basketEntity: GKEntity?
 
@@ -246,74 +390,76 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   private func handleIngredientCaught(_ entity: GKEntity) {
-    
     guard let ingredientComponent = entity.component(ofType: IngredientComponent.self),
-          let spriteComponent = entity.component(ofType: SpriteComponent.self) else {
-        return
+          let spriteComponent = entity.component(ofType: SpriteComponent.self)
+    else {
+      return
     }
-    
+
     let ingredient = ingredientComponent.ingredient
     let spriteNode = spriteComponent.node
 
     // Absurd (non-recipe) ingredient
     if ingredient.isAbsurd {
-        print("Game Over - Caught absurd ingredient!")
-        // Handle game over
-        showWrongIndicator(at: spriteNode.position)
-        removeEntity(entity)
-        spriteNode.removeFromParent()
-        return
+      print("Game Over - Caught absurd ingredient!")
+      // Handle game over
+      showWrongIndicator(at: spriteNode.position)
+      removeEntity(entity)
+      spriteNode.removeFromParent()
+      return
     }
 
     // Recipe logic
     let recipe = GameState.shared.currentRecipe
     let requiredAmount = recipe.ingredients.first(where: { $0.0 == ingredient })?.1 ?? 0
     let currentAmount = GameState.shared.collectedIngredients[ingredient] ?? 0
-    
+
     print("🐛 DEBUG - Ingredient: \(ingredient.name)")
     print("🐛 DEBUG - Required: \(requiredAmount), Current: \(currentAmount)")
 
-    if requiredAmount > 0 && currentAmount < requiredAmount {
-        // ✅ Correct and still needed
-        GameState.shared.addCollectedIngredient(ingredient)
-        recipeCard.updateRecipeDisplay()
-        print(" 👀 Right ingredient caught!")
-      
-        spriteNode.removeFromParent()
-        removeEntity(entity)
+    if requiredAmount > 0, currentAmount < requiredAmount {
+      // ✅ Correct and still needed
+      GameState.shared.addCollectedIngredient(ingredient)
+      recipeCard.updateRecipeDisplay()
+      print(" 👀 Right ingredient caught!")
 
-        // Optional: Correct indicator animation
-        showCorrectIndicator(on: spriteNode)
+      spriteNode.removeFromParent()
+      removeEntity(entity)
 
-        if GameState.shared.isRecipeComplete() {
-            print("Recipe Complete!")
-            handleRecipeComplete()
-        }
+      // Optional: Correct indicator animation
+      showCorrectIndicator(on: spriteNode)
+
+      if GameState.shared.isRecipeComplete() {
+        print("Recipe Complete!")
+        handleRecipeComplete()
+      }
 
     } else {
-        // ❌ Wrong: either not in recipe or already fulfilled
-        print(" 👀 Wrong ingredient caught!")
-        showWrongIndicator(at: spriteNode.position)
+      // ❌ Wrong: either not in recipe or already fulfilled
+      print(" 👀 Wrong ingredient caught!")
+      showWrongIndicator(at: spriteNode.position)
 
-        // Remove the ingredient visually
-        spriteNode.removeFromParent()
-        removeEntity(entity)
+      // Remove the ingredient visually
+      spriteNode.removeFromParent()
+      removeEntity(entity)
     }
-
   }
 
   private func handleRecipeComplete() {
     GameState.shared.moveToNextRecipe()
     recipeCard.updateRecipeDisplay()
   }
-  
+
   private func showWrongIndicator(at position: CGPoint) {
     let xMark = SKSpriteNode(imageNamed: "x_mark")
     xMark.position = position
     xMark.zPosition = 500
     addChild(xMark)
-    
+
+    HapticManager.haptic.playFailureHaptic()
+
     xMark.run(SKAction.sequence([
+      wrongSound,
       SKAction.fadeOut(withDuration: 0.6),
       SKAction.removeFromParent()
     ]))
@@ -326,7 +472,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     ]))
   }
 
-  
   // Method to update difficulty during gameplay
   func updateDifficulty() {
     let newGravity = -400.0 * CGFloat(GameState.shared.difficultyMultiplier)
