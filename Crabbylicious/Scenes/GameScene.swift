@@ -9,7 +9,7 @@ import Foundation
 import GameplayKit
 import SpriteKit
 
-class GameScene: SKScene, SKPhysicsContactDelegate {
+class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   // Entity Manager
   private let entityManager = EntityManager()
 
@@ -24,11 +24,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   private var crabEntity: CrabEntity!
   private var recipeCard: RecipeCardNode!
   private var lifeDisplay: LifeDisplayNode!
+  private var gameOverOverlay: GameOverOverlay!
 
   var catchingSystem: CatchingSystem!
 
   // Animation control
   private var gameStarted = false
+  private var gameOverActive = false
   private var bubbleEntranceCompleted = false
   private let crabEntranceDuration: TimeInterval = 1.2
   private let gameStartDelay: TimeInterval = 0.3 // Delay before crab starts walking in
@@ -89,6 +91,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     lifeDisplay.zPosition = 10
     lifeDisplay.position = CGPoint(x: 100, y: size.height - 80)
     addChild(lifeDisplay)
+
+    // Game Over Overlay (initially hidden)
+    gameOverOverlay = GameOverOverlay(size: size)
+    gameOverOverlay.delegate = self
+    gameOverOverlay.zPosition = 1000 // High z-position to appear on top
+    addChild(gameOverOverlay)
 
     // Set up bubble background starting from below
     setupBubbleBackground()
@@ -257,13 +265,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     // Systems query entities automatically
     playerInputSystem.update(deltaTime: deltaTime, entityManager: entityManager)
-    fallingSystem.update(deltaTime: deltaTime, entityManager: entityManager)
 
-    // Cleanup ingredients
+    // Only update falling system and ingredient spawning if game over is not active
+    if !gameOverActive {
+      fallingSystem.update(deltaTime: deltaTime, entityManager: entityManager)
+
+      // Handle ingredient spawning
+      updateIngredientSpawning(deltaTime: deltaTime)
+    }
+
+    // Cleanup ingredients (always run to clean up any remaining ingredients)
     cleanupOffscreenIngredients()
-
-    // Handle ingredient spawning
-    updateIngredientSpawning(deltaTime: deltaTime)
   }
 
   private func cleanupOffscreenIngredients() {
@@ -294,6 +306,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   private func updateIngredientSpawning(deltaTime: TimeInterval) {
+    // Don't spawn ingredients if game over overlay is active
+    guard !gameOverActive else { return }
+
     let gameState = GameState.shared
     gameState.ingredientSpawnTimer += deltaTime
 
@@ -459,9 +474,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   private func handleGameOver() {
     print("💀 Game Over! No lives remaining.")
 
-    // TODO: Add game over scene transition or restart functionality
-    // For now, just print a message
-    print("🔄 Game Over - implement restart functionality here")
+    // Set game over flag to stop ingredient spawning
+    gameOverActive = true
+
+    // Disable player input
+    if let playerControl = crabEntity.component(ofType: PlayerControlComponent.self) {
+      playerControl.isControllable = false
+    }
+
+    // Show game over overlay
+    gameOverOverlay.show()
   }
 
   // Public method for CatchingSystem to call
@@ -509,5 +531,54 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   func updateDifficulty() {
     let newGravity = -400.0 * CGFloat(GameState.shared.difficultyMultiplier)
     physicsWorld.gravity = CGVector(dx: 0, dy: newGravity)
+  }
+
+  // MARK: - GameOverOverlayDelegate
+
+  func didTapPlayAgain() {
+    print("🔄 Play Again tapped")
+
+    // Hide overlay
+    gameOverOverlay.hide()
+
+    // Reset game over flag to resume ingredient spawning
+    gameOverActive = false
+
+    // Reset game state
+    GameState.shared.resetGame()
+
+    // Update UI
+    recipeCard.updateRecipeDisplay()
+    lifeDisplay.updateHeartDisplay()
+
+    // Re-enable player control
+    if let playerControl = crabEntity.component(ofType: PlayerControlComponent.self) {
+      playerControl.isControllable = true
+    }
+
+    // Clear any remaining ingredients from screen
+    clearAllIngredients()
+
+    print("✅ Game restarted successfully")
+  }
+
+  func didTapBackHome() {
+    print("🏠 Back Home tapped")
+
+    // TODO: Transition to home scene
+    // For now, we'll just reset the game
+    didTapPlayAgain()
+  }
+
+  // Helper method to clear all ingredients from screen
+  private func clearAllIngredients() {
+    let ingredientEntities = entityManager.getEntitiesWith(componentType: IngredientComponent.self)
+
+    for entity in ingredientEntities {
+      if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
+        spriteComponent.node.removeFromParent()
+      }
+      removeEntity(entity)
+    }
   }
 }

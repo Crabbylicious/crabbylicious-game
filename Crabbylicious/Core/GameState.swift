@@ -45,6 +45,25 @@ class GameState {
     lives = maxLives
   }
 
+  // MARK: - Game Reset
+
+  func resetGame() {
+    // Reset to first recipe
+    currentRecipeIndex = 0
+    currentRecipe = GameData.recipes[0]
+
+    // Reset game properties
+    lives = maxLives
+    score = 0
+    difficultyMultiplier = 1.0
+    ingredientSpawnTimer = 0
+
+    // Clear collected ingredients
+    collectedIngredients.removeAll()
+
+    print("🔄 Game reset - starting fresh!")
+  }
+
   func getCurrentFallSpeed() -> CGFloat {
     150.0 * CGFloat(difficultyMultiplier)
   }
