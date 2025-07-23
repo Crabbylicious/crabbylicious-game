@@ -297,15 +297,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   private func spawnRandomIngredient() {
-    let randomIngredient = GameData.allIngredients.randomElement()!
+    // Use smart ingredient selection instead of pure random
+    let smartIngredient = GameState.shared.selectSmartIngredient()
     let spawnX = CGFloat.random(in: gameArea.minX + 50 ... gameArea.maxX - 50)
     let spawnPosition = CGPoint(x: spawnX, y: size.height + 50)
 
-    let ingredientEntity = IngredientEntity(scene: self, ingredient: randomIngredient, position: spawnPosition)
+    let ingredientEntity = IngredientEntity(scene: self, ingredient: smartIngredient, position: spawnPosition)
 
     // Simply add entity - systems will find it automatically!
     addEntity(ingredientEntity)
-    print("🟢 Spawned ingredient: \(randomIngredient.name)")
+    print("🟢 Spawned smart ingredient: \(smartIngredient.name)")
   }
 
   // MARK: - Entity Management (Clean!)
