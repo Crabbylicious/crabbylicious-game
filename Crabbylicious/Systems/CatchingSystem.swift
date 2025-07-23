@@ -17,6 +17,7 @@ class CatchingSystem {
     self.scene = scene
   }
 
+  // ! Unused function
   func handleContact(between ingredientEntity: GKEntity) {
     guard let ingredientComp = ingredientEntity.component(ofType: IngredientComponent.self),
           let sprite = ingredientEntity.component(ofType: GKSKNodeComponent.self)?.node else { return }
@@ -54,6 +55,21 @@ class CatchingSystem {
     xMark.position = position
     xMark.zPosition = 200
     scene.addChild(xMark)
+
+    // Decrease life when wrong ingredient is caught
+    gameState.decreaseLife()
+
+    // Update life display if scene is GameScene
+    if let gameScene = scene as? GameScene {
+      gameScene.updateLifeDisplay()
+    }
+
+    // Check for game over
+    if gameState.isGameOver() {
+      if let gameScene = scene as? GameScene {
+        gameScene.handleGameOverFromSystem()
+      }
+    }
 
     xMark.run(SKAction.sequence([
       SKAction.fadeOut(withDuration: 0.6),
