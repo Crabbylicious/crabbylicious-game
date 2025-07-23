@@ -31,11 +31,11 @@ class RecipeCardEntity: GKEntity {
     // Add components following your existing pattern
     addComponent(SpriteComponent(node: recipeCardNode))
     addComponent(RecipeDisplayComponent())
-    
+
     // Initial display update
     updateDisplay()
   }
-  
+
   func updateDisplay() {
     recipeCardNode.updateRecipeDisplay()
   }
