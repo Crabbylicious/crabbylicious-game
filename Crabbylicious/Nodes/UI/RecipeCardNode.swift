@@ -10,22 +10,20 @@ import SpriteKit
 
 class RecipeCardNode: SKSpriteNode {
   
-  private let cardBackground: SKShapeNode
-  private let countLabel: SKLabelNode
+  private let cardBackground: SKSpriteNode
   private let ingredientContainer: SKNode
   private var ingredientNodes: [IngredientDisplayNode] = []
   
   init(size: CGSize) {
     
-    cardBackground = SKShapeNode(rectOf: CGSize(width: size.width - 110, height: 120), cornerRadius: 30)
-    cardBackground.fillColor = .white
-    cardBackground.strokeColor = .clear
-    cardBackground.alpha = 0.5
+//    cardBackground = SKShapeNode(rectOf: CGSize(width: size.width - 110, height: 80), cornerRadius: 30)
+//    cardBackground.fillColor = .white
+//    cardBackground.strokeColor = .clear
+//    cardBackground.alpha = 0.5
     
-    countLabel = SKLabelNode(text: "")
-    countLabel.fontName = "Press Start 2P"
-    countLabel.fontColor = .black
-    countLabel.fontSize = 13
+    cardBackground = SKSpriteNode(imageNamed: "card")
+    cardBackground.setScale(0.6)
+    cardBackground.alpha = 0.5
     
     ingredientContainer = SKNode()
     
@@ -37,10 +35,7 @@ class RecipeCardNode: SKSpriteNode {
     
     addChild(cardBackground)
     
-    countLabel.position = CGPoint(x: 0, y: 23)
-    addChild(countLabel)
-    
-    ingredientContainer.position = CGPoint(x: 0, y: -18)
+    ingredientContainer.position = CGPoint(x: 0, y: 10)
     addChild(ingredientContainer)
     
     // Set z-position
@@ -66,13 +61,10 @@ class RecipeCardNode: SKSpriteNode {
       totalRemaining += remaining
     }
     
-    // Update count label
-    countLabel.text = "\(totalRemaining) left"
-    
     // Calculate layout
     let maxItemsPerRow = 5
     let itemWidth: CGFloat = 40
-    let itemSpacing: CGFloat = 8
+    let itemSpacing: CGFloat = 10
     
     let totalItems = remainingIngredients.count
     let itemsPerRow = min(totalItems, maxItemsPerRow)

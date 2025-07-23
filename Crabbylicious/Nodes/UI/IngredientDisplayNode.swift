@@ -29,16 +29,16 @@ class IngredientDisplayNode: SKNode {
   private func setupDisplay() {
     // Create ingredient sprite
     ingredientSprite = SKSpriteNode(imageNamed: ingredient.imageName)
-    ingredientSprite.size = CGSize(width: 32, height: 32)
+    ingredientSprite.size = CGSize(width: 40, height: 40)
     ingredientSprite.position = CGPoint(x: 0, y: 8)
     addChild(ingredientSprite)
     
     // Create count label
     countLabel = SKLabelNode(text: "\(count)")
     countLabel.fontName = "Press Start 2P"
-    countLabel.fontSize = 10
+    countLabel.fontSize = 12
     countLabel.fontColor = .black
-    countLabel.position = CGPoint(x: 0, y: -28)
+    countLabel.position = CGPoint(x: 0, y: -40)
     countLabel.horizontalAlignmentMode = .center
     addChild(countLabel)
   }

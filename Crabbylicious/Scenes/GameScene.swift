@@ -23,6 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   private var lastUpdateTime: TimeInterval = 0
   private var crabEntity: CrabEntity!
   private var recipeCard: RecipeCardNode!
+  private var recipeEntity: RecipeCardEntity!
   
   var catchingSystem: CatchingSystem!
 
@@ -63,13 +64,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let ground = GroundNode(size: size)
     addChild(ground)
     
-    // Ingredient card
-    recipeCard = RecipeCardNode(size: size)
-    recipeCard.zPosition = 10
-    recipeCard.position = CGPoint(x: size.width / 2, y: size.height - 175)
-    addChild(recipeCard)
-    
-    recipeCard.updateRecipeDisplay()
+    recipeEntity = RecipeCardEntity(
+      scene: self,
+      size: size,
+      position: CGPoint(x: size.width / 2, y: size.height - 175)
+    )
+
+    addEntity(recipeEntity) // Optional if you want systems to query it
+    self.recipeCard = recipeEntity.component(ofType: SpriteComponent.self)?.node as? RecipeCardNode
 
     let bubbleNode1 = BubbleBackgroundNode(size: size)
     let bubbleNode2 = BubbleBackgroundNode(size: size)
