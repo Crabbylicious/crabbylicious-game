@@ -430,8 +430,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
       showCorrectIndicator(on: spriteNode)
 
       if GameState.shared.isRecipeComplete() {
+        
+        print("Collected: \(GameState.shared.collectedIngredients)")
+        print("Current Recipe: \(GameState.shared.currentRecipe.ingredients)")
+
         print("Recipe Complete!")
         handleRecipeComplete()
+//        showNextStage()
       }
 
     } else {
@@ -444,10 +449,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
       removeEntity(entity)
     }
   }
+  
+  func showNextStage() {
+    let overlay = NextStageOverlay(recipe: GameState.shared.currentRecipe)
+    overlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
+    overlay.zPosition = 999
+    addChild(overlay)
+
+    self.isPaused = true // Optional if you want to pause gameplay
+  }
+
 
   private func handleRecipeComplete() {
-    GameState.shared.moveToNextRecipe()
-    recipeCard.updateRecipeDisplay()
+    showNextStage()
+
+//    GameState.shared.moveToNextRecipe()
+//    recipeCard.updateRecipeDisplay()
   }
 
   private func showWrongIndicator(at position: CGPoint) {

@@ -99,15 +99,15 @@ extension GameState {
     GameState.collectedIngredients.removeAll()
   }
 
-  func isRecipeComplete() -> Bool {
-    for (ingredient, required) in currentRecipe.ingredients {
-      let collected = GameState.collectedIngredients[ingredient] ?? 0
-      if collected < required {
-        return false
-      }
-    }
-    return true
-  }
+//  func isRecipeComplete() -> Bool {
+//    for (ingredient, required) in currentRecipe.ingredients {
+//      let collected = GameState.collectedIngredients[ingredient] ?? 0
+//      if collected < required {
+//        return false
+//      }
+//    }
+//    return true
+//  }
 
   func getTotalIngredientsRemaining() -> Int {
     getRemainingIngredients().values.reduce(0, +)

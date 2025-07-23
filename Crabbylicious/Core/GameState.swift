@@ -32,13 +32,22 @@ class GameState {
   }
 
   func addCollectedIngredient(_ ingredient: Ingredient) {
-    let success = collectIngredient(ingredient)
-
-    if success {
-      print("🥬 Collected \(ingredient.name)")
-    } else {
-      print("⚠️ Ingredient \(ingredient.name) not needed or already have enough")
+    let current = collectedIngredients[ingredient] ?? 0
+    collectedIngredients[ingredient] = current + 1
+    
+    print("Added \(ingredient.name). Now have: \(collectedIngredients[ingredient]!)")
+    print("Recipe needs: \(currentRecipe.ingredients)")
+    print("Currently have: \(collectedIngredients)")
+  }
+  
+  func isRecipeComplete() -> Bool {
+    for (ingredient, needed) in currentRecipe.ingredients {
+      let have = collectedIngredients[ingredient] ?? 0
+      if have < needed {
+        return false
+      }
     }
+    return true
   }
 
   /// Move to next recipe
@@ -55,7 +64,7 @@ class GameState {
     // Set new current recipe and reset ingredients
     currentRecipe = GameData.recipes[currentRecipeIndex]
     resetCollectedIngredients()
-
+    
     print("🍽️ New recipe: \(currentRecipe.name)")
   }
 
