@@ -244,42 +244,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   private func handleIngredientCaught(_ entity: GKEntity) {
-//    // Remove the caught ingredient
-//    if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
-//      spriteComponent.node.removeFromParent()
-//    }
-//    removeEntity(entity)
-//
-//    // Handle game logic (score, absurd ingredients, etc.)
-////    if let ingredientComponent = entity.component(ofType: IngredientComponent.self) {
-////      print("Caught: \(ingredientComponent.ingredient.name)")
-////
-////      if ingredientComponent.ingredient.isAbsurd {
-////        print("Game Over - Caught absurd ingredient!")
-////        // Handle game over
-////      }
-////    }
-//    if let ingredientComponent = entity.component(ofType: IngredientComponent.self) {
-//      print("Caught: \(ingredientComponent.ingredient.name)")
-//      
-//      if ingredientComponent.ingredient.isAbsurd {
-//        print("Game Over - Caught absurd ingredient!")
-//        // Handle game over
-//      } else {
-//        // Add ingredient to collected ingredients
-//        GameState.shared.addCollectedIngredient(ingredientComponent.ingredient)
-//        
-//        // Update recipe card display
-//        recipeCard.updateRecipeDisplay()
-//        
-//        // Check if recipe is complete
-//        if GameState.shared.isRecipeComplete() {
-//          print("Recipe Complete!")
-//          // Handle recipe completion - maybe transition to next level or show completion screen
-//          handleRecipeComplete()
-//        }
-//      }
-//    }
     
     guard let ingredientComponent = entity.component(ofType: IngredientComponent.self),
           let spriteComponent = entity.component(ofType: SpriteComponent.self) else {
@@ -303,12 +267,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let recipe = GameState.shared.currentRecipe
     let requiredAmount = recipe.ingredients.first(where: { $0.0 == ingredient })?.1 ?? 0
     let currentAmount = GameState.shared.collectedIngredients[ingredient] ?? 0
+    
+    print("🐛 DEBUG - Ingredient: \(ingredient.name)")
+    print("🐛 DEBUG - Required: \(requiredAmount), Current: \(currentAmount)")
 
     if requiredAmount > 0 && currentAmount < requiredAmount {
         // ✅ Correct and still needed
         GameState.shared.addCollectedIngredient(ingredient)
         recipeCard.updateRecipeDisplay()
-
+        print(" 👀 Right ingredient caught!")
+      
         spriteNode.removeFromParent()
         removeEntity(entity)
 
@@ -322,7 +290,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     } else {
         // ❌ Wrong: either not in recipe or already fulfilled
-        print("Wrong ingredient caught!")
+        print(" 👀 Wrong ingredient caught!")
         showWrongIndicator(at: spriteNode.position)
 
         // Remove the ingredient visually

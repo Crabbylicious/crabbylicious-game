@@ -52,35 +52,37 @@ class RecipeCardNode: SKSpriteNode {
     ingredientNodes.forEach { $0.removeFromParent() }
     ingredientNodes.removeAll()
     
-    // Update recipe name label
-    //let recipeName = GameState.shared.currentRecipe.name
-    let remainingIngredients = GameState.shared.getRemainingIngredients()
-    let totalRemaining = remainingIngredients.values.reduce(0, +)
+    // Calculate remaining ingredients manually
+    let currentRecipe = GameState.shared.currentRecipe
+    let collectedIngredients = GameState.shared.collectedIngredients
+    
+    var remainingIngredients: [Ingredient: Int] = [:]
+    var totalRemaining = 0
+    
+    for (ingredient, required) in currentRecipe.ingredients {
+      let collected = collectedIngredients[ingredient] ?? 0
+      let remaining = max(0, required - collected)
+      remainingIngredients[ingredient] = remaining
+      totalRemaining += remaining
+    }
+    
+    // Update count label
     countLabel.text = "\(totalRemaining) left"
-    
-    // Get remaining ingredients
-    
-    // Filter out ingredients with 0 count
-    //let activeIngredients = remainingIngredients.filter { $0.value > 0 }
-    
-    let activeIngredients = remainingIngredients
-    let allIngredients = GameState.shared.currentRecipe.ingredients
     
     // Calculate layout
     let maxItemsPerRow = 5
     let itemWidth: CGFloat = 40
     let itemSpacing: CGFloat = 8
     
-    let totalItems = activeIngredients.count
+    let totalItems = remainingIngredients.count
     let itemsPerRow = min(totalItems, maxItemsPerRow)
     let totalWidth = CGFloat(itemsPerRow) * itemWidth + CGFloat(itemsPerRow - 1) * itemSpacing
     let startX = CGFloat(-totalWidth) / 2 + itemWidth / 2
     
     // Create ingredient display nodes
     var index = 0
-    for (ingredient, _) in GameState.shared.currentRecipe.ingredients {
-      
-      let count = remainingIngredients[ingredient] ?? 0
+    for (ingredient, required) in currentRecipe.ingredients {
+      let remaining = remainingIngredients[ingredient] ?? 0
       
       let row = index / maxItemsPerRow
       let col = index % maxItemsPerRow
@@ -88,7 +90,7 @@ class RecipeCardNode: SKSpriteNode {
       let x = startX + CGFloat(col) * (itemWidth + itemSpacing)
       let y = CGFloat(-row) * 50 // Row spacing
       
-      let ingredientNode = IngredientDisplayNode(ingredient: ingredient, count: count)
+      let ingredientNode = IngredientDisplayNode(ingredient: ingredient, count: remaining)
       ingredientNode.position = CGPoint(x: x, y: y)
       
       ingredientContainer.addChild(ingredientNode)
@@ -96,11 +98,6 @@ class RecipeCardNode: SKSpriteNode {
       
       index += 1
     }
-    
-    // Adjust card height if needed for multiple rows
-    //let rows = (activeIngredients.count + maxItemsPerRow - 1) / maxItemsPerRow
-    //let newHeight = max(103, CGFloat(rows) * 50 + 53)
-    
   }
 
 

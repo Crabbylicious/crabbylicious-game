@@ -83,11 +83,11 @@ extension GameState {
       return false // Not needed for current recipe
     }
     
-    let currentCollected = GameState.collectedIngredients[ingredient] ?? 0
+    let currentCollected = collectedIngredients[ingredient] ?? 0
     
     // Check if we still need this ingredient
     if currentCollected < required {
-      GameState.collectedIngredients[ingredient] = currentCollected + 1
+      collectedIngredients[ingredient] = currentCollected + 1
       return true // Successfully collected
     }
     
