@@ -10,9 +10,22 @@
 		1484A2022E2785090067207B /* Crabbylicious.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Crabbylicious.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E1910A932E2E5B0200850074 /* Exceptions for "Crabbylicious" folder in "Crabbylicious" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 1484A2012E2785090067207B /* Crabbylicious */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1484A2042E2785090067207B /* Crabbylicious */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E1910A932E2E5B0200850074 /* Exceptions for "Crabbylicious" folder in "Crabbylicious" target */,
+			);
 			path = Crabbylicious;
 			sourceTree = "<group>";
 		};
@@ -255,6 +268,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 78S57A5PNL;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Crabbylicious/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
@@ -283,6 +297,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 78S57A5PNL;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Crabbylicious/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;

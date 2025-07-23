@@ -1,0 +1,108 @@
+//
+//  RecipeCardNode.swift
+//  Crabbylicious
+//
+//  Created by Nadaa Shafa Nadhifa on 21/07/25.
+//
+
+import GameplayKit
+import SpriteKit
+
+class RecipeCardNode: SKSpriteNode {
+  
+  private let cardBackground: SKShapeNode
+  private let countLabel: SKLabelNode
+  private let ingredientContainer: SKNode
+  private var ingredientNodes: [IngredientDisplayNode] = []
+  
+  init(size: CGSize) {
+    
+    cardBackground = SKShapeNode(rectOf: CGSize(width: size.width - 110, height: 120), cornerRadius: 30)
+    cardBackground.fillColor = .white
+    cardBackground.strokeColor = .clear
+    cardBackground.alpha = 0.5
+    
+    countLabel = SKLabelNode(text: "")
+    countLabel.fontName = "Press Start 2P"
+    countLabel.fontColor = .black
+    countLabel.fontSize = 13
+    
+    ingredientContainer = SKNode()
+    
+    super.init(texture: nil, color: .clear, size: size)
+    setupLayout(cardSize: size)
+  }
+  
+  private func setupLayout(cardSize: CGSize) {
+    
+    addChild(cardBackground)
+    
+    countLabel.position = CGPoint(x: 0, y: 23)
+    addChild(countLabel)
+    
+    ingredientContainer.position = CGPoint(x: 0, y: -18)
+    addChild(ingredientContainer)
+    
+    // Set z-position
+    zPosition = 100
+  }
+  
+  func updateRecipeDisplay() {
+    // Clear existing ingredient nodes
+    ingredientNodes.forEach { $0.removeFromParent() }
+    ingredientNodes.removeAll()
+    
+    // Calculate remaining ingredients manually
+    let currentRecipe = GameState.shared.currentRecipe
+    let collectedIngredients = GameState.shared.collectedIngredients
+    
+    var remainingIngredients: [Ingredient: Int] = [:]
+    var totalRemaining = 0
+    
+    for (ingredient, required) in currentRecipe.ingredients {
+      let collected = collectedIngredients[ingredient] ?? 0
+      let remaining = max(0, required - collected)
+      remainingIngredients[ingredient] = remaining
+      totalRemaining += remaining
+    }
+    
+    // Update count label
+    countLabel.text = "\(totalRemaining) left"
+    
+    // Calculate layout
+    let maxItemsPerRow = 5
+    let itemWidth: CGFloat = 40
+    let itemSpacing: CGFloat = 8
+    
+    let totalItems = remainingIngredients.count
+    let itemsPerRow = min(totalItems, maxItemsPerRow)
+    let totalWidth = CGFloat(itemsPerRow) * itemWidth + CGFloat(itemsPerRow - 1) * itemSpacing
+    let startX = CGFloat(-totalWidth) / 2 + itemWidth / 2
+    
+    // Create ingredient display nodes
+    var index = 0
+    for (ingredient, required) in currentRecipe.ingredients {
+      let remaining = remainingIngredients[ingredient] ?? 0
+      
+      let row = index / maxItemsPerRow
+      let col = index % maxItemsPerRow
+      
+      let x = startX + CGFloat(col) * (itemWidth + itemSpacing)
+      let y = CGFloat(-row) * 50 // Row spacing
+      
+      let ingredientNode = IngredientDisplayNode(ingredient: ingredient, count: remaining)
+      ingredientNode.position = CGPoint(x: x, y: y)
+      
+      ingredientContainer.addChild(ingredientNode)
+      ingredientNodes.append(ingredientNode)
+      
+      index += 1
+    }
+  }
+
+
+  @available(*, unavailable)
+  required init?(coder _: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+}

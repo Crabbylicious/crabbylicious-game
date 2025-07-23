@@ -22,6 +22,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   let gameArea: CGRect
   private var lastUpdateTime: TimeInterval = 0
   private var crabEntity: CrabEntity!
+  private var recipeCard: RecipeCardNode!
+  
+  var catchingSystem: CatchingSystem!
 
   // Animation control
   private var gameStarted = false
@@ -60,13 +63,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     physicsWorld.gravity = CGVector(dx: 0, dy: difficultyGravity)
 
     print("🟢 ProperECSGameScene: didMove called")
-
+    
+    catchingSystem = CatchingSystem(gameState: GameState.shared, scene: self)
+    
     // Add background and ground
     let background = BackgroundNode(size: size)
     addChild(background)
 
     let ground = GroundNode(size: size)
     addChild(ground)
+    
+    // Ingredient card
+    recipeCard = RecipeCardNode(size: size)
+    recipeCard.zPosition = 10
+    recipeCard.position = CGPoint(x: size.width / 2, y: size.height - 175)
+    addChild(recipeCard)
+    
+    recipeCard.updateRecipeDisplay()
 
     // Set up bubble background starting from below
     setupBubbleBackground()
@@ -372,23 +385,87 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   private func handleIngredientCaught(_ entity: GKEntity) {
-    // Remove the caught ingredient
-    if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
-      spriteComponent.node.removeFromParent()
+    
+    guard let ingredientComponent = entity.component(ofType: IngredientComponent.self),
+          let spriteComponent = entity.component(ofType: SpriteComponent.self) else {
+        return
     }
-    removeEntity(entity)
+    
+    let ingredient = ingredientComponent.ingredient
+    let spriteNode = spriteComponent.node
 
-    // Handle game logic (score, absurd ingredients, etc.)
-    if let ingredientComponent = entity.component(ofType: IngredientComponent.self) {
-      print("Caught: \(ingredientComponent.ingredient.name)")
-
-      if ingredientComponent.ingredient.isAbsurd {
+    // Absurd (non-recipe) ingredient
+    if ingredient.isAbsurd {
         print("Game Over - Caught absurd ingredient!")
         // Handle game over
-      }
+        showWrongIndicator(at: spriteNode.position)
+        removeEntity(entity)
+        spriteNode.removeFromParent()
+        return
     }
+
+    // Recipe logic
+    let recipe = GameState.shared.currentRecipe
+    let requiredAmount = recipe.ingredients.first(where: { $0.0 == ingredient })?.1 ?? 0
+    let currentAmount = GameState.shared.collectedIngredients[ingredient] ?? 0
+    
+    print("🐛 DEBUG - Ingredient: \(ingredient.name)")
+    print("🐛 DEBUG - Required: \(requiredAmount), Current: \(currentAmount)")
+
+    if requiredAmount > 0 && currentAmount < requiredAmount {
+        // ✅ Correct and still needed
+        GameState.shared.addCollectedIngredient(ingredient)
+        recipeCard.updateRecipeDisplay()
+        print(" 👀 Right ingredient caught!")
+      
+        spriteNode.removeFromParent()
+        removeEntity(entity)
+
+        // Optional: Correct indicator animation
+        showCorrectIndicator(on: spriteNode)
+
+        if GameState.shared.isRecipeComplete() {
+            print("Recipe Complete!")
+            handleRecipeComplete()
+        }
+
+    } else {
+        // ❌ Wrong: either not in recipe or already fulfilled
+        print(" 👀 Wrong ingredient caught!")
+        showWrongIndicator(at: spriteNode.position)
+
+        // Remove the ingredient visually
+        spriteNode.removeFromParent()
+        removeEntity(entity)
+    }
+
   }
 
+  private func handleRecipeComplete() {
+    GameState.shared.moveToNextRecipe()
+    recipeCard.updateRecipeDisplay()
+  }
+  
+  private func showWrongIndicator(at position: CGPoint) {
+    let xMark = SKSpriteNode(imageNamed: "x_mark")
+    xMark.position = position
+    xMark.zPosition = 500
+    addChild(xMark)
+    
+    xMark.run(SKAction.sequence([
+      SKAction.fadeOut(withDuration: 0.6),
+      SKAction.removeFromParent()
+    ]))
+  }
+
+  private func showCorrectIndicator(on node: SKNode) {
+    node.run(SKAction.sequence([
+      SKAction.scale(to: 1.2, duration: 0.1),
+      SKAction.scale(to: 1.0, duration: 0.1)
+    ]))
+  }
+
+  
   // Method to update difficulty during gameplay
   func updateDifficulty() {
     let newGravity = -400.0 * CGFloat(GameState.shared.difficultyMultiplier)
