@@ -77,6 +77,8 @@ class RecipeCardNode: SKSpriteNode {
 
       let ingredientNode = IngredientDisplayNode(ingredient: ingredient, count: remaining)
       ingredientNode.position = CGPoint(x: x, y: y)
+      
+      ingredientNode.alpha = (remaining == 0) ? 0.5 : 1
 
       ingredientContainer.addChild(ingredientNode)
       ingredientNodes.append(ingredientNode)
