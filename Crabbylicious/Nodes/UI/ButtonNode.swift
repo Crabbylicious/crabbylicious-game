@@ -9,8 +9,11 @@ import GameplayKit
 import SpriteKit
 
 class ButtonNode: SKSpriteNode {
+  private let initialScale: CGFloat
+
   init(imageName: String, scale: CGFloat = 0.4, alpha: CGFloat = 1.0) {
     let texture = SKTexture(imageNamed: imageName)
+    initialScale = scale
     // Use the actual texture size, then scale if needed
     super.init(texture: texture, color: .clear, size: texture.size())
 
@@ -26,6 +29,13 @@ class ButtonNode: SKSpriteNode {
   func handleButtonReleased(button: ButtonNode) {
     let scaleUp = SKAction.scale(to: 0.42, duration: 0.3)
     button.run(scaleUp)
+  }
+
+  func handleButtonReleasedPause(button: ButtonNode) {
+    let scaleUp = SKAction.scale(to: initialScale * 1.05, duration: 0.1)
+    let scaleBack = SKAction.scale(to: initialScale, duration: 0.1)
+    let sequence = SKAction.sequence([scaleUp, scaleBack])
+    button.run(sequence)
   }
 
   func fadeIn() {
