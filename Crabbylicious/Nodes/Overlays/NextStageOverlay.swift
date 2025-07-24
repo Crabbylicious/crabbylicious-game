@@ -9,7 +9,7 @@ import SpriteKit
 
 class NextStageOverlay: SKNode {
   
-  private var recipeCard: RecipeCardNode!
+  var recipeCard: RecipeCardNode!
   private weak var gameScene: GameScene?
   
   init(recipe: Recipe, gameScene: GameScene) {
@@ -80,7 +80,7 @@ class NextStageOverlay: SKNode {
       // Update the recipe card in the game scene
       if let gameScene = gameScene,
          let recipeCard = recipeCard {
-        recipeCard.updateRecipeDisplay()
+          recipeCard.updateRecipeDisplay()
       }
       
       // Remove this overlay

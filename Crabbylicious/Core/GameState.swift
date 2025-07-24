@@ -19,7 +19,7 @@ class GameState {
 
   var collectedIngredients: [Ingredient: Int] = [:]
 
-  private var currentRecipeIndex: Int = 0
+  var currentRecipeIndex: Int = 0
   var score: Int = 0
   var lives: Int = 3
 
@@ -51,22 +51,22 @@ class GameState {
   }
 
   /// Move to next recipe
-  func moveToNextRecipe() {
-    currentRecipeIndex += 1
-
-    // Check if we've completed all recipes
-    if currentRecipeIndex >= GameData.recipes.count {
-      currentRecipeIndex = 0 // Loop back to beginning
-      difficultyMultiplier += 0.5 // Increase difficulty
-      print("🎉 All recipes completed! Increasing difficulty to \(difficultyMultiplier)")
-    }
-
-    // Set new current recipe and reset ingredients
-    currentRecipe = GameData.recipes[currentRecipeIndex]
-    resetCollectedIngredients()
-    
-    print("🍽️ New recipe: \(currentRecipe.name)")
-  }
+//  func moveToNextRecipe() {
+//    currentRecipeIndex += 1
+//
+//    // Check if we've completed all recipes
+//    if currentRecipeIndex >= GameData.recipes.count {
+//      currentRecipeIndex = 0 // Loop back to beginning
+//      difficultyMultiplier += 0.5 // Increase difficulty
+//      print("🎉 All recipes completed! Increasing difficulty to \(difficultyMultiplier)")
+//    }
+//
+//    // Set new current recipe and reset ingredients
+//    currentRecipe = GameData.recipes[currentRecipeIndex]
+//    resetCollectedIngredients()
+//    
+//    print("🍽️ New recipe: \(currentRecipe.name)")
+//  }
 
   // MARK: - Smart Ingredient Selection
 

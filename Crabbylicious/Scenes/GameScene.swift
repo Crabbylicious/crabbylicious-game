@@ -20,9 +20,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
   // Game properties
   let gameArea: CGRect
+  var recipeCard: RecipeCardNode!
   private var lastUpdateTime: TimeInterval = 0
   private var crabEntity: CrabEntity!
-  private var recipeCard: RecipeCardNode!
   private var recipeEntity: RecipeCardEntity!
 
   var catchingSystem: CatchingSystem!
@@ -456,6 +456,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     addChild(overlay)
 
     self.isPaused = true // Optional if you want to pause gameplay
+  }
+  
+  // Add this method to handle next stage transition
+  func proceedToNextStage() {
+    print("🟢 GameScene: Proceeding to next stage...")
+    
+    // Debug current state before transition
+    recipeCard?.debugCurrentState()
+    
+    // Move to next recipe and reset ingredients
+    GameState.shared.moveToNextRecipe()
+    print("🔍 DEBUG: New recipe in GameScene: \(GameState.shared.currentRecipe.name)")
+    print("🔍 DEBUG: Collected ingredients after reset: \(GameState.shared.collectedIngredients)")
+    
+    // Force refresh the recipe card display
+    if let recipeCard = self.recipeCard {
+      print("🔍 DEBUG: Force refreshing recipe card from GameScene...")
+      recipeCard.forceRefreshDisplay()
+      
+      // Debug state after refresh
+      recipeCard.debugCurrentState()
+      
+      print("🔍 DEBUG: Recipe card force refreshed")
+    } else {
+      print("❌ ERROR: Recipe card is nil in GameScene!")
+    }
+    
+    // Resume the game
+    self.isPaused = false
+    
+    print("🟢 GameScene: Next stage transition completed")
   }
 
 
