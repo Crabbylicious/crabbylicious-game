@@ -18,7 +18,7 @@ class GameState {
 
   var collectedIngredients: [Ingredient: Int] = [:]
 
-  private var currentRecipeIndex: Int = 0
+  var currentRecipeIndex: Int = 0
   var score: Int = 0
   var lives: Int = 3
   var maxLives: Int = 3
@@ -87,6 +87,22 @@ class GameState {
   }
 
   func addCollectedIngredient(_ ingredient: Ingredient) {
+
+    let current = collectedIngredients[ingredient] ?? 0
+    collectedIngredients[ingredient] = current + 1
+    
+    print("Added \(ingredient.name). Now have: \(collectedIngredients[ingredient]!)")
+    print("Recipe needs: \(currentRecipe.ingredients)")
+    print("Currently have: \(collectedIngredients)")
+  }
+  
+  func isRecipeComplete() -> Bool {
+    for (ingredient, needed) in currentRecipe.ingredients {
+      let have = collectedIngredients[ingredient] ?? 0
+      if have < needed {
+        return false
+      }
+
     let success = collectIngredient(ingredient)
 
     if success {
@@ -100,7 +116,9 @@ class GameState {
       }
     } else {
       print("⚠️ Ingredient \(ingredient.name) not needed or already have enough")
+
     }
+    return true
   }
 
   /// Move to next recipe
@@ -123,6 +141,7 @@ class GameState {
     ingredientsCaughtThisRecipe = 0
     let newInterval = getCurrentSpawnInterval()
     print("🍽️ New recipe: \(currentRecipe.name) | Spawn interval: \(newInterval)s")
+
   }
 
   // MARK: - Smart Ingredient Selection

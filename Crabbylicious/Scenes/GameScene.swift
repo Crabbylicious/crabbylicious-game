@@ -20,9 +20,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
   // Game properties
   let gameArea: CGRect
+  var recipeCard: RecipeCardNode!
   private var lastUpdateTime: TimeInterval = 0
   private var crabEntity: CrabEntity!
-  private var recipeCard: RecipeCardNode!
+  private var recipeEntity: RecipeCardEntity!
   private var lifeDisplay: LifeDisplayNode!
   private var gameOverOverlay: GameOverOverlay!
 
@@ -76,13 +77,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     let ground = GroundNode(size: size)
     addChild(ground)
 
-    // Ingredient card
-    recipeCard = RecipeCardNode(size: size)
-    recipeCard.zPosition = 10
-    recipeCard.position = CGPoint(x: size.width / 2, y: size.height - 175)
-    addChild(recipeCard)
+    recipeEntity = RecipeCardEntity(
+      scene: self,
+      size: size,
+      position: CGPoint(x: size.width / 2, y: size.height - 175)
+    )
 
-    recipeCard.updateRecipeDisplay()
+    addEntity(recipeEntity) // Optional if you want systems to query it
+    recipeCard = recipeEntity.component(ofType: SpriteComponent.self)?.node as? RecipeCardNode
 
     // Life display
     lifeDisplay = LifeDisplayNode()
@@ -361,7 +363,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
   override func touchesEnded(_: Set<UITouch>, with _: UIEvent?) {
     guard gameStarted else { return } // Don't respond to touches during entrance
-
+    
     playerInputSystem.handleTouchEnded()
   }
 
@@ -451,6 +453,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
       showCorrectIndicator(on: spriteNode)
 
       if GameState.shared.isRecipeComplete() {
+        
+        print("Collected: \(GameState.shared.collectedIngredients)")
+        print("Current Recipe: \(GameState.shared.currentRecipe.ingredients)")
+
         print("Recipe Complete!")
         handleRecipeComplete()
       }
@@ -465,10 +471,50 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
       removeEntity(entity)
     }
   }
+  
+  func showNextStage() {
+    let overlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
+    overlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
+    overlay.zPosition = 999
+    addChild(overlay)
+
+    self.isPaused = true // Optional if you want to pause gameplay
+  }
+  
+  // Add this method to handle next stage transition
+  func proceedToNextStage() {
+    print("🟢 GameScene: Proceeding to next stage...")
+    
+    // Debug current state before transition
+    recipeCard?.debugCurrentState()
+    
+    // Move to next recipe and reset ingredients
+    GameState.shared.moveToNextRecipe()
+    print("🔍 DEBUG: New recipe in GameScene: \(GameState.shared.currentRecipe.name)")
+    print("🔍 DEBUG: Collected ingredients after reset: \(GameState.shared.collectedIngredients)")
+    
+    // Force refresh the recipe card display
+    if let recipeCard = self.recipeCard {
+      print("🔍 DEBUG: Force refreshing recipe card from GameScene...")
+      recipeCard.forceRefreshDisplay()
+      
+      // Debug state after refresh
+      recipeCard.debugCurrentState()
+      
+      print("🔍 DEBUG: Recipe card force refreshed")
+    } else {
+      print("❌ ERROR: Recipe card is nil in GameScene!")
+    }
+    
+    // Resume the game
+    self.isPaused = false
+    
+    print("🟢 GameScene: Next stage transition completed")
+  }
+
 
   private func handleRecipeComplete() {
-    GameState.shared.moveToNextRecipe()
-    recipeCard.updateRecipeDisplay()
+    showNextStage()
     lifeDisplay.updateHeartDisplay() // Update hearts when lives are reset
   }
 
@@ -495,6 +541,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   // Public method for CatchingSystem to handle game over
   func handleGameOverFromSystem() {
     handleGameOver()
+
   }
 
   private func showWrongIndicator(at position: CGPoint) {
