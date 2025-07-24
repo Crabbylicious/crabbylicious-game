@@ -9,6 +9,8 @@ import GameplayKit
 import SpriteKit
 
 class ButtonNode: SKSpriteNode {
+  var onButtonTapped: (() -> Void)?
+  
   init(imageName: String, scale: CGFloat = 0.4, alpha: CGFloat = 1.0) {
     let texture = SKTexture(imageNamed: imageName)
     // Use the actual texture size, then scale if needed
@@ -26,6 +28,8 @@ class ButtonNode: SKSpriteNode {
   func handleButtonReleased(button: ButtonNode) {
     let scaleUp = SKAction.scale(to: 0.42, duration: 0.3)
     button.run(scaleUp)
+    
+    onButtonTapped?()
   }
 
   func fadeIn() {

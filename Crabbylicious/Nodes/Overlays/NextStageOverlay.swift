@@ -9,9 +9,14 @@ import SpriteKit
 
 class NextStageOverlay: SKNode {
   
-  init(recipe: Recipe) {
+  private var recipeCard: RecipeCardNode!
+  private weak var gameScene: GameScene?
+  
+  init(recipe: Recipe, gameScene: GameScene) {
     super.init()
+    self.gameScene = gameScene
     setupOverlay(recipe: recipe)
+    self.isUserInteractionEnabled = true
   }
 
   required init?(coder aDecoder: NSCoder) {
@@ -53,11 +58,63 @@ class NextStageOverlay: SKNode {
     addChild(recipeLabel)
     
     // Menu Button
-    let nextStage = SKSpriteNode(imageNamed: "ButtonNextStage")
+    let nextStage = ButtonNode(imageName: "ButtonNextStage")
     nextStage.name = "nextStageButton"
     nextStage.position = CGPoint(x: 0, y: -240)
     nextStage.setScale(0.3)
     nextStage.zPosition = 101
+    
+    nextStage.onButtonTapped = { [weak self] in
+      self?.handleNextStageButtonTapped()
+    }
+    
     addChild(nextStage)
+  }
+  
+  private func handleNextStageButtonTapped() {
+      print("🟢 Next Stage button tapped!")
+      
+      // Execute the next stage logic
+      GameState.shared.moveToNextRecipe()
+      
+      // Update the recipe card in the game scene
+      if let gameScene = gameScene,
+         let recipeCard = recipeCard {
+        recipeCard.updateRecipeDisplay()
+      }
+      
+      // Remove this overlay
+      removeFromParent()
+      
+      // Resume the game if it was paused
+      gameScene?.isPaused = false
+      
+      print("🟢 Moved to next recipe: \(GameState.shared.currentRecipe.name)")
+    }
+  
+  override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {
+    guard let touch = touches.first else { return }
+    let location = touch.location(in: self)
+    let nodes = nodes(at: location)
+
+    for node in nodes {
+      if let buttonNode = node as? ButtonNode {
+        buttonNode.handleButtonPressed(button: buttonNode)
+      }
+    }
+    
+    
+  }
+
+  override func touchesEnded(_ touches: Set<UITouch>, with _: UIEvent?) {
+    guard let touch = touches.first else { return }
+    let location = touch.location(in: self)
+    let nodes = nodes(at: location)
+    
+    for node in nodes {
+      if let buttonNode = node as? ButtonNode {
+        buttonNode.handleButtonReleased(button: buttonNode)
+      }
+    }
   }
 }

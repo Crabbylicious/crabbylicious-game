@@ -340,7 +340,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
   override func touchesEnded(_: Set<UITouch>, with _: UIEvent?) {
     guard gameStarted else { return } // Don't respond to touches during entrance
-
+    
     playerInputSystem.handleTouchEnded()
   }
 
@@ -436,7 +436,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         print("Recipe Complete!")
         handleRecipeComplete()
-//        showNextStage()
       }
 
     } else {
@@ -451,7 +450,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
   
   func showNextStage() {
-    let overlay = NextStageOverlay(recipe: GameState.shared.currentRecipe)
+    let overlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
     overlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
     overlay.zPosition = 999
     addChild(overlay)
