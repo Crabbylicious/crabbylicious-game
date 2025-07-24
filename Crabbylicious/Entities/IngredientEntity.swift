@@ -35,17 +35,11 @@ class IngredientEntity: GKEntity {
       fatalError("IngredientNode should have a physics body")
     }
 
-    // Apply difficulty scaling through mass and initial velocity
-    let difficultyMultiplier = GameState.shared.difficultyMultiplier
-
-    // Heavier objects fall faster in SpriteKit (counterintuitive but useful for difficulty)
-    physicsBody.mass = CGFloat(difficultyMultiplier)
-
-    // Add some random horizontal velocity
+    // Add some random horizontal velocity for variety
     let randomXVelocity = CGFloat.random(in: -10 ... 10)
     physicsBody.velocity = CGVector(dx: randomXVelocity, dy: 0)
 
-    // Apply random variation to mass (±10%)
+    // Apply random variation to mass for visual variety (±10%)
     let massVariation = CGFloat.random(in: 0.9 ... 1.1)
     physicsBody.mass *= massVariation
 

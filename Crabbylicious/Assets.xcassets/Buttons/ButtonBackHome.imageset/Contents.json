@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "ButtonHome.png",
       "idiom" : "universal",
       "scale" : "1x"
     },

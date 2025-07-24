@@ -9,7 +9,7 @@ import Foundation
 import GameplayKit
 import SpriteKit
 
-class GameScene: SKScene, SKPhysicsContactDelegate {
+class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   // Entity Manager
   private let entityManager = EntityManager()
 
@@ -24,11 +24,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   private var lastUpdateTime: TimeInterval = 0
   private var crabEntity: CrabEntity!
   private var recipeEntity: RecipeCardEntity!
+  private var lifeDisplay: LifeDisplayNode!
+  private var gameOverOverlay: GameOverOverlay!
 
   var catchingSystem: CatchingSystem!
 
   // Animation control
   private var gameStarted = false
+  private var gameOverActive = false
   private var bubbleEntranceCompleted = false
   private let crabEntranceDuration: TimeInterval = 1.2
   private let gameStartDelay: TimeInterval = 0.3 // Delay before crab starts walking in
@@ -57,13 +60,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   override func didMove(to _: SKView) {
-    // Set up physics world (this replaces your custom gravity!)
+    // Set up physics world
     physicsWorld.contactDelegate = self
 
-    // Base gravity that scales with difficulty
-    let baseGravity: CGFloat = -2.0 // Negative for downward
-    let difficultyGravity = baseGravity * CGFloat(GameState.shared.difficultyMultiplier)
-    physicsWorld.gravity = CGVector(dx: 0, dy: difficultyGravity)
+    // Set consistent gravity - no more dynamic changes
+    physicsWorld.gravity = CGVector(dx: 0, dy: -2) // Nice, consistent falling speed
 
     print("🟢 ProperECSGameScene: didMove called")
 
@@ -84,6 +85,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     addEntity(recipeEntity) // Optional if you want systems to query it
     recipeCard = recipeEntity.component(ofType: SpriteComponent.self)?.node as? RecipeCardNode
+
+    // Life display
+    lifeDisplay = LifeDisplayNode()
+    lifeDisplay.zPosition = 10
+    lifeDisplay.position = CGPoint(x: 100, y: size.height - 80)
+    addChild(lifeDisplay)
+
+    // Game Over Overlay (initially hidden)
+    gameOverOverlay = GameOverOverlay(size: size)
+    gameOverOverlay.delegate = self
+    gameOverOverlay.zPosition = 1000 // High z-position to appear on top
+    addChild(gameOverOverlay)
 
     // Set up bubble background starting from below
     setupBubbleBackground()
@@ -252,13 +265,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     // Systems query entities automatically
     playerInputSystem.update(deltaTime: deltaTime, entityManager: entityManager)
-    fallingSystem.update(deltaTime: deltaTime, entityManager: entityManager)
 
-    // Cleanup ingredients
+    // Only update falling system and ingredient spawning if game over is not active
+    if !gameOverActive {
+      fallingSystem.update(deltaTime: deltaTime, entityManager: entityManager)
+
+      // Handle ingredient spawning
+      updateIngredientSpawning(deltaTime: deltaTime)
+    }
+
+    // Cleanup ingredients (always run to clean up any remaining ingredients)
     cleanupOffscreenIngredients()
-
-    // Handle ingredient spawning
-    updateIngredientSpawning(deltaTime: deltaTime)
   }
 
   private func cleanupOffscreenIngredients() {
@@ -289,10 +306,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
 
   private func updateIngredientSpawning(deltaTime: TimeInterval) {
+    // Don't spawn ingredients if game over overlay is active
+    guard !gameOverActive else { return }
+
     let gameState = GameState.shared
     gameState.ingredientSpawnTimer += deltaTime
 
-    if gameState.ingredientSpawnTimer >= gameState.ingredientSpawnInterval {
+    // Use dynamic spawn interval based on difficulty and progress
+    let currentSpawnInterval = gameState.getCurrentSpawnInterval()
+
+    if gameState.ingredientSpawnTimer >= currentSpawnInterval {
       spawnRandomIngredient()
       gameState.ingredientSpawnTimer = 0
     }
@@ -492,9 +515,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
   private func handleRecipeComplete() {
     showNextStage()
+    lifeDisplay.updateHeartDisplay() // Update hearts when lives are reset
+  }
 
-//    GameState.shared.moveToNextRecipe()
-//    recipeCard.updateRecipeDisplay()
+  private func handleGameOver() {
+    print("💀 Game Over! No lives remaining.")
+
+    // Set game over flag to stop ingredient spawning
+    gameOverActive = true
+
+    // Disable player input
+    if let playerControl = crabEntity.component(ofType: PlayerControlComponent.self) {
+      playerControl.isControllable = false
+    }
+
+    // Show game over overlay
+    gameOverOverlay.show()
+  }
+
+  // Public method for CatchingSystem to call
+  func updateLifeDisplay() {
+    lifeDisplay.updateHeartDisplay()
+  }
+
+  // Public method for CatchingSystem to handle game over
+  func handleGameOverFromSystem() {
+    handleGameOver()
+
   }
 
   private func showWrongIndicator(at position: CGPoint) {
@@ -504,6 +551,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     addChild(xMark)
 
     HapticManager.haptic.playFailureHaptic()
+
+    // Decrease life and update display
+    GameState.shared.decreaseLife()
+    lifeDisplay.animateLifeLoss()
+
+    // Check for game over
+    if GameState.shared.isGameOver() {
+      handleGameOver()
+    }
 
     xMark.run(SKAction.sequence([
       wrongSound,
@@ -522,9 +578,81 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     ]))
   }
 
-  // Method to update difficulty during gameplay
-  func updateDifficulty() {
-    let newGravity = -400.0 * CGFloat(GameState.shared.difficultyMultiplier)
-    physicsWorld.gravity = CGVector(dx: 0, dy: newGravity)
+  // MARK: - GameOverOverlayDelegate
+
+  func didTapPlayAgain() {
+    print("🔄 Play Again tapped")
+
+    // Hide overlay
+    gameOverOverlay.hide()
+
+    // Reset game over flag to resume ingredient spawning
+    gameOverActive = false
+
+    // Reset game state
+    GameState.shared.resetGame()
+
+    // Update UI
+    recipeCard.updateRecipeDisplay()
+    lifeDisplay.updateHeartDisplay()
+
+    // Re-enable player control
+    if let playerControl = crabEntity.component(ofType: PlayerControlComponent.self) {
+      playerControl.isControllable = true
+    }
+
+    // Clear any remaining ingredients from screen
+    clearAllIngredients()
+
+    print("✅ Game restarted successfully")
+  }
+
+  func didTapBackHome() {
+    print("🏠 Back Home tapped")
+
+    // Hide overlay first
+    gameOverOverlay.hide()
+
+    // Reset game state for next play session
+    GameState.shared.resetGame()
+
+    // Reset game over flag
+    gameOverActive = false
+
+    // Clear any remaining ingredients from screen
+    clearAllIngredients()
+
+    // Transition to HomeScene with a slight delay for overlay to fade out
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+      self.transitionToHomeScene()
+    }
+  }
+
+  private func transitionToHomeScene() {
+    print("🏠 Transitioning to HomeScene...")
+
+    // Ensure game is fully paused during transition
+    gameStarted = false
+    isPaused = true
+
+    let homeScene = HomeScene(size: size)
+
+    // Use a fade transition for smooth experience
+    let transition = SKTransition.fade(withDuration: 0.5)
+    view?.presentScene(homeScene, transition: transition)
+
+    print("✅ Successfully transitioned to HomeScene")
+  }
+
+  // Helper method to clear all ingredients from screen
+  private func clearAllIngredients() {
+    let ingredientEntities = entityManager.getEntitiesWith(componentType: IngredientComponent.self)
+
+    for entity in ingredientEntities {
+      if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
+        spriteComponent.node.removeFromParent()
+      }
+      removeEntity(entity)
+    }
   }
 }
