@@ -59,13 +59,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   override func didMove(to _: SKView) {
-    // Set up physics world (this replaces your custom gravity!)
+    // Set up physics world
     physicsWorld.contactDelegate = self
 
-    // Base gravity that scales with difficulty
-    let baseGravity: CGFloat = -2.0 // Negative for downward
-    let difficultyGravity = baseGravity * CGFloat(GameState.shared.difficultyMultiplier)
-    physicsWorld.gravity = CGVector(dx: 0, dy: difficultyGravity)
+    // Set consistent gravity - no more dynamic changes
+    physicsWorld.gravity = CGVector(dx: 0, dy: -2) // Nice, consistent falling speed
 
     print("🟢 ProperECSGameScene: didMove called")
 
@@ -312,7 +310,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     let gameState = GameState.shared
     gameState.ingredientSpawnTimer += deltaTime
 
-    if gameState.ingredientSpawnTimer >= gameState.ingredientSpawnInterval {
+    // Use dynamic spawn interval based on difficulty and progress
+    let currentSpawnInterval = gameState.getCurrentSpawnInterval()
+
+    if gameState.ingredientSpawnTimer >= currentSpawnInterval {
       spawnRandomIngredient()
       gameState.ingredientSpawnTimer = 0
     }
@@ -528,12 +529,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
       SKAction.scale(to: 1.2, duration: 0.1),
       SKAction.scale(to: 1.0, duration: 0.1)
     ]))
-  }
-
-  // Method to update difficulty during gameplay
-  func updateDifficulty() {
-    let newGravity = -400.0 * CGFloat(GameState.shared.difficultyMultiplier)
-    physicsWorld.gravity = CGVector(dx: 0, dy: newGravity)
   }
 
   // MARK: - GameOverOverlayDelegate
