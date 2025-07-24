@@ -209,8 +209,8 @@ class GameOverOverlay: SKNode {
   }
 
   private func animateButtonPress(_ button: SKNode, completion: @escaping () -> Void) {
-    let scaleDown = SKAction.scale(to: 0.38, duration: 0.2)
-    let scaleUp = SKAction.scale(to: 0.42, duration: 0.2)
+    let scaleDown = SKAction.scale(to: 0.38, duration: 0.1)
+    let scaleUp = SKAction.scale(to: 0.42, duration: 0.1)
     let sequence = SKAction.sequence([scaleDown, scaleUp, SKAction.run(completion)])
 
     button.run(sequence)
