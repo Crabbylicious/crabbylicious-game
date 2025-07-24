@@ -37,6 +37,6 @@ class CrabEntity: GKEntity {
     // Add components
     addComponent(SpriteComponent(node: crabNode))
     addComponent(PlayerControlComponent(gameArea: gameArea))
-    addComponent(AnimationComponent(legNode: legsNode, legTextures: legTextures))
+    addComponent(AnimationComponent(legNode: legsNode, legTextures: legTextures, crabNode: crabNode))
   }
 }
