@@ -117,7 +117,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
       x: size.width - margin - pauseButton.size.width / 3,
       y: size.height - margin - pauseButton.size.height / 0.9
     )
-    pauseButton.zPosition = 10
+    pauseButton.zPosition = 100
     addChild(pauseButton)
 
     // Test GameState
