@@ -99,43 +99,6 @@ extension GameState {
     collectedIngredients.removeAll()
   }
 
-//  func isRecipeComplete() -> Bool {
-//    for (ingredient, required) in currentRecipe.ingredients {
-//      let collected = GameState.collectedIngredients[ingredient] ?? 0
-//      if collected < required {
-//        return false
-//      }
-//    }
-//    return true
-//  }
-
-//  func getTotalIngredientsRemaining() -> Int {
-//    getRemainingIngredients().values.reduce(0, +)
-//  }
-  // Add the moveToNextRecipe method here as well
-
-//  func moveToNextRecipe() {
-//    print("🔍 DEBUG: === MOVING TO NEXT RECIPE ===")
-//    print("🔍 DEBUG: Current recipe before move: \(currentRecipe.name)")
-//    print("🔍 DEBUG: Current collected ingredients before reset: \(collectedIngredients)")
-//
-//    // CRITICAL: Reset collected ingredients for the new recipe
-//    resetCollectedIngredients()
-//    print("🔍 DEBUG: ✅ Collected ingredients cleared: \(collectedIngredients)")
-//
-//    // Move to next recipe (adjust this based on your actual implementation)
-//    currentRecipeIndex += 1
-//    if currentRecipeIndex >= GameData.recipes.count {
-//      currentRecipeIndex = 0 // Loop back or handle end game
-//      print("🔍 DEBUG: Looped back to first recipe")
-//    }
-//
-//    print("🔍 DEBUG: New recipe index: \(currentRecipeIndex)")
-//    print("🔍 DEBUG: New current recipe: \(currentRecipe.name)")
-//    print("🔍 DEBUG: New recipe ingredients: \(currentRecipe.ingredients)")
-//    print("🔍 DEBUG: === RECIPE MOVE COMPLETED ===")
-//  }
-
   func getTotalIngredientsRemaining() -> Int {
     getRemainingIngredients().values.reduce(0, +)
   }
