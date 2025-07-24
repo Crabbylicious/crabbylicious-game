@@ -419,7 +419,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
   private func handleIngredientCaught(_ entity: GKEntity) {
     guard let ingredientComponent = entity.component(ofType: IngredientComponent.self),
-          let spriteComponent = entity.component(ofType: SpriteComponent.self)
+          let spriteComponent = entity.component(ofType: SpriteComponent.self),
+          gameOverActive == false
     else {
       return
     }
