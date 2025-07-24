@@ -27,6 +27,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   private var lifeDisplay: LifeDisplayNode!
   private var scoreDisplay: ScoreDisplayNode!
   private var gameOverOverlay: GameOverOverlay!
+  private var nextStageOverlay: NextStageOverlay!
 
   var catchingSystem: CatchingSystem!
 
@@ -102,6 +103,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     scoreDisplay.position = CGPoint(x: 25, y: size.height - 60)
     addChild(scoreDisplay)
 
+//    nextStageOverlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
+//    //nextStageOverlay.delegate = self // Make sure GameScene conforms to NextStageOverlayDelegate
+//    nextStageOverlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
+//    nextStageOverlay.zPosition = 1000 // High z-position to appear on top
+//    nextStageOverlay.alpha = 0
+//    addChild(nextStageOverlay)
+    
     // Game Over Overlay (initially hidden)
     gameOverOverlay = GameOverOverlay(size: size)
     gameOverOverlay.delegate = self
@@ -510,13 +518,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   func showNextStage() {
     // Clear all falling ingredients before showing the overlay
     clearAllIngredients()
-
-    let overlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
-    overlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
-    overlay.zPosition = 999
-    addChild(overlay)
-
-    isPaused = true // Optional if you want to pause gameplay
+    
+    nextStageOverlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
+    nextStageOverlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
+    nextStageOverlay.zPosition = 999
+    
+    addChild(nextStageOverlay)
+    nextStageOverlay.show()
+    
+    run(SKAction.sequence([
+      SKAction.wait(forDuration: 0.5),
+        SKAction.run { self.isPaused = true }
+    ]))
   }
 
   // Add this method to handle next stage transition
