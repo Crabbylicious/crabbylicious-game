@@ -12,6 +12,12 @@ class NextStageOverlay: SKNode {
   private var recipeCard: RecipeCardNode!
   private weak var gameScene: GameScene?
   
+  private var background: SKSpriteNode!
+  private var label: SKLabelNode!
+  private var finishedDish: SKSpriteNode!
+  private var recipeLabel: SKLabelNode!
+  private var nextStage: ButtonNode!
+  
   init(recipe: Recipe, gameScene: GameScene) {
     super.init()
     self.gameScene = gameScene
@@ -25,14 +31,14 @@ class NextStageOverlay: SKNode {
 
   private func setupOverlay(recipe: Recipe) {
     // Background
-    let background = SKSpriteNode(color: UIColor.black.withAlphaComponent(0.6), size: CGSize(width: 1000, height: 1000))
+    background = SKSpriteNode(color: UIColor.black.withAlphaComponent(0.6), size: CGSize(width: 1000, height: 1000))
     background.zPosition = 100
     background.name = "nextStageBackground"
     background.position = .zero
     addChild(background)
 
     // Congratulations Label
-    let label = SKLabelNode(text: "CONGRATULATIONS!")
+    label = SKLabelNode(text: "CONGRATULATIONS!")
     label.fontName = "Press Start 2P"
     label.fontSize = 20
     label.fontColor = .white
@@ -41,7 +47,7 @@ class NextStageOverlay: SKNode {
     addChild(label)
 
     // Crab with the finished dish
-    let finishedDish = SKSpriteNode(imageNamed: recipe.name)
+    finishedDish = SKSpriteNode(imageNamed: recipe.name)
     finishedDish.name = "finishedDish"
     finishedDish.setScale(0.5)
     finishedDish.position = CGPoint(x: 0, y: 0)
@@ -49,7 +55,7 @@ class NextStageOverlay: SKNode {
     addChild(finishedDish)
     
     // recipe label
-    let recipeLabel = SKLabelNode(text: "\(recipe.name) done!")
+    recipeLabel = SKLabelNode(text: "\(recipe.name) done!")
     recipeLabel.fontName = "Press Start 2P"
     recipeLabel.fontSize = 20
     recipeLabel.fontColor = .white
@@ -58,7 +64,7 @@ class NextStageOverlay: SKNode {
     addChild(recipeLabel)
     
     // Menu Button
-    let nextStage = ButtonNode(imageName: "ButtonNextStage")
+    nextStage = ButtonNode(imageName: "ButtonNextStage")
     nextStage.name = "nextStageButton"
     nextStage.position = CGPoint(x: 0, y: -240)
     nextStage.setScale(0.3)
@@ -71,18 +77,54 @@ class NextStageOverlay: SKNode {
     addChild(nextStage)
   }
   
+  func show() {
+    isUserInteractionEnabled = true
+
+    // Reset positions for animation
+    finishedDish.position.y = 0
+    label.alpha = 0
+    recipeLabel.alpha = 0
+    nextStage.alpha = 0
+    //backHomeButton.alpha = 0
+
+    // Animate in
+    let fadeIn = SKAction.fadeIn(withDuration: 0.3)
+    let crabSlideDown = SKAction.moveTo(y: 30, duration: 0.5)
+    crabSlideDown.timingMode = .easeOut
+
+    let textFadeIn = SKAction.fadeIn(withDuration: 0.4)
+    let buttonFadeIn = SKAction.fadeIn(withDuration: 0.3)
+
+    run(fadeIn)
+
+    // Animate text labels first
+    label.run(SKAction.sequence([
+      SKAction.wait(forDuration: 0.1),
+      textFadeIn
+    ]))
+    
+    finishedDish.run(SKAction.sequence([
+      SKAction.wait(forDuration: 0.3),
+      crabSlideDown
+    ]))
+    
+    // Then animate crab
+    recipeLabel.run(SKAction.sequence([
+      SKAction.wait(forDuration: 0.3),
+      textFadeIn
+    ]))
+
+    // Finally animate buttons
+    nextStage.run(SKAction.sequence([
+      SKAction.wait(forDuration: 0.6),
+      buttonFadeIn
+    ]))
+  }
+  
   private func handleNextStageButtonTapped() {
       print("🟢 Next Stage button tapped!")
-      
-      // Execute the next stage logic
-      // GameState.shared.moveToNextRecipe()
+
       gameScene?.proceedToNextStage()
-      
-      // Update the recipe card in the game scene
-//      if let gameScene = gameScene,
-//         let recipeCard = recipeCard {
-//          recipeCard.updateRecipeDisplay()
-//      }
       
       // Remove this overlay
       removeFromParent()
