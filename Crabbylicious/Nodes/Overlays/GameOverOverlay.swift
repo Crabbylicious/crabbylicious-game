@@ -90,14 +90,14 @@ class GameOverOverlay: SKNode {
     addChild(highScoreLabel)
 
     // Play Again button
-    playAgainButton = ButtonNode(imageName: "buttonPlayAgain")
+    playAgainButton = ButtonNode(imageName: "ButtonPlayAgain")
     playAgainButton.position = CGPoint(x: overlaySize.width / 2, y: overlaySize.height / 2 - 100)
     playAgainButton.name = "playAgainButton"
     playAgainButton.zPosition = 10
     addChild(playAgainButton)
 
     // Back Home button
-    backHomeButton = ButtonNode(imageName: "buttonBackHome")
+    backHomeButton = ButtonNode(imageName: "ButtonBackHome")
     backHomeButton.position = CGPoint(x: overlaySize.width / 2, y: overlaySize.height / 2 - 200)
     backHomeButton.name = "backHomeButton"
     backHomeButton.zPosition = 10

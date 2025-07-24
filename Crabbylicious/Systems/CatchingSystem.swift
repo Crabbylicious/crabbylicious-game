@@ -17,32 +17,6 @@ class CatchingSystem {
     self.scene = scene
   }
 
-  // ! Unused function
-  func handleContact(between ingredientEntity: GKEntity) {
-    guard let ingredientComp = ingredientEntity.component(ofType: IngredientComponent.self),
-          let sprite = ingredientEntity.component(ofType: GKSKNodeComponent.self)?.node else { return }
-
-    let ingredient = ingredientComp.ingredient
-    let recipe = gameState.currentRecipe
-    let targetAmount = recipe.ingredients.first(where: { $0.0 == ingredient })?.1 ?? 0
-    let currentCaught = gameState.collectedIngredients[ingredient] ?? 0
-
-    if targetAmount == 0 {
-      showWrongIndicator(at: sprite.position)
-    } else if currentCaught < targetAmount {
-      gameState.collectedIngredients[ingredient] = currentCaught + 1
-      showCorrectIndicator(on: sprite)
-    } else {
-      showWrongIndicator(at: sprite.position)
-    }
-
-    // Optionally: remove ingredient from scene
-    sprite.removeFromParent()
-
-    // Refresh UI (e.g., RecipeCardNode)
-    // gameState.recipeCard.updateRecipeDisplay()
-  }
-
   func showCorrectIndicator(on node: SKNode) {
     node.run(SKAction.sequence([
       SKAction.scale(to: 1.2, duration: 0.1),

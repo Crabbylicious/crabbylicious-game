@@ -480,6 +480,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   func showNextStage() {
+    // Clear all falling ingredients before showing the overlay
+    clearAllIngredients()
+
     let overlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
     overlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
     overlay.zPosition = 999
