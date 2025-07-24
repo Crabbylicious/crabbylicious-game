@@ -43,7 +43,7 @@ class NextStageOverlay: SKNode {
     label.fontName = "Press Start 2P"
     label.fontSize = 20
     label.fontColor = .white
-    label.position = CGPoint(x: 0, y: 150)
+    label.position = CGPoint(x: 0, y: 225)
     label.zPosition = 101
     addChild(label)
 
@@ -88,14 +88,14 @@ class NextStageOverlay: SKNode {
     recipeLabel.alpha = 0
     nextStage.alpha = 0
     finishedDish.alpha = 1
-    finishedDish.position.y = -50
+    finishedDish.position.y = 0
     
     print("🟢 Starting animations...")
     
     let fadeIn = SKAction.fadeIn(withDuration: 0.3)
     
     let crabSlideDown = SKAction.moveTo(y: 30, duration: 0.5)
-    crabSlideDown.timingMode = .easeOut
+    //crabSlideDown.timingMode = .easeOut
     
     let textFadeIn = SKAction.fadeIn(withDuration: 0.4)
     let buttonFadeIn = SKAction.fadeIn(withDuration: 0.3)
@@ -104,44 +104,64 @@ class NextStageOverlay: SKNode {
       print("🟢 Background animation completed")
     }
     
-    let labelAnimation = SKAction.sequence([
+    label.run(SKAction.sequence([
       SKAction.wait(forDuration: 0.1),
-      SKAction.fadeAlpha(to: 1.0, duration: 0.4)
-    ])
+      textFadeIn
+    ]))
     
-    // Animate dish movement
-    let dishAnimation = SKAction.sequence([
+    finishedDish.run(SKAction.sequence([
       SKAction.wait(forDuration: 0.3),
-      SKAction.moveTo(y: 30, duration: 0.5)
-    ])
+      crabSlideDown
+    ]))
     
-    // Animate recipe label
-    let recipeLabelAnimation = SKAction.sequence([
-      SKAction.wait(forDuration: 0.1),
-      SKAction.fadeAlpha(to: 1.0, duration: 0.4)
-    ])
+    recipeLabel.run(SKAction.sequence([
+      SKAction.wait(forDuration: 0.5),
+      textFadeIn
+    ]))
     
-    // Animate button
-    let buttonAnimation = SKAction.sequence([
-      SKAction.wait(forDuration: 0.1),
-      SKAction.fadeAlpha(to: 1.0, duration: 0.3)
-    ])
+    nextStage.run(SKAction.sequence([
+      SKAction.wait(forDuration: 0.6),
+      buttonFadeIn
+    ]))
     
-    label.run(labelAnimation) {
-      print("🟢 Label animation completed - alpha: \(self.label.alpha)")
-    }
-    
-    finishedDish.run(dishAnimation) {
-      print("🟢 Dish animation completed - position: \(self.finishedDish.position)")
-    }
-    
-    recipeLabel.run(recipeLabelAnimation) {
-      print("🟢 Recipe label animation completed - alpha: \(self.recipeLabel.alpha)")
-    }
-    
-    nextStage.run(buttonAnimation) {
-      print("🟢 Button animation completed - alpha: \(self.nextStage.alpha)")
-    }
+//    let labelAnimation = SKAction.sequence([
+//      SKAction.wait(forDuration: 0.1),
+//      SKAction.fadeAlpha(to: 1.0, duration: 0.4)
+//    ])
+//    
+//    // Animate dish movement
+//    let dishAnimation = SKAction.sequence([
+//      SKAction.wait(forDuration: 0.3),
+//      SKAction.moveTo(y: 30, duration: 0.5)
+//    ])
+//    
+//    // Animate recipe label
+//    let recipeLabelAnimation = SKAction.sequence([
+//      SKAction.wait(forDuration: 0.4),
+//      SKAction.fadeAlpha(to: 1.0, duration: 0.4)
+//    ])
+//    
+//    // Animate button
+//    let buttonAnimation = SKAction.sequence([
+//      SKAction.wait(forDuration: 0.5),
+//      SKAction.fadeAlpha(to: 1.0, duration: 0.3)
+//    ])
+//    
+//    label.run(labelAnimation) {
+//      print("🟢 Label animation completed - alpha: \(self.label.alpha)")
+//    }
+//    
+//    finishedDish.run(dishAnimation) {
+//      print("🟢 Dish animation completed - position: \(self.finishedDish.position)")
+//    }
+//    
+//    recipeLabel.run(recipeLabelAnimation) {
+//      print("🟢 Recipe label animation completed - alpha: \(self.recipeLabel.alpha)")
+//    }
+//    
+//    nextStage.run(buttonAnimation) {
+//      print("🟢 Button animation completed - alpha: \(self.nextStage.alpha)")
+//    }
   }
   
   private func handleNextStageButtonTapped() {
