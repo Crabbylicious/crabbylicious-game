@@ -42,6 +42,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   private let countdownPause: TimeInterval = 0.2 // Pause after crab entrance before countdown
 
   private let wrongSound = SKAction.playSoundFileNamed("soundSalah.wav", waitForCompletion: false)
+  let pauseButton = ButtonNode(imageName: "ButtonPause", scale: 0.08)
+  private var pauseOverlay: PauseOverlay?
+  private var gamePaused = false
 
   override init(size: CGSize) {
     print("🟢 ECSGameScene: Initializing...")
@@ -107,6 +110,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
     // Set up bubble background starting from below
     setupBubbleBackground()
+
+    // pause button
+    let margin: CGFloat = 40
+    pauseButton.position = CGPoint(
+      x: size.width - margin - pauseButton.size.width / 3,
+      y: size.height - margin - pauseButton.size.height / 0.9
+    )
+    pauseButton.zPosition = 10
+    addChild(pauseButton)
 
     // Test GameState
     let gameState = GameState.shared
@@ -265,23 +277,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     let deltaTime = currentTime - lastUpdateTime
     lastUpdateTime = currentTime
 
-    bubbleBackgroundSystem
-      .update(deltaTime: deltaTime, entityManager: entityManager, sceneSize: size) // update animasi bubble background
+    bubbleBackgroundSystem.update(deltaTime: deltaTime, entityManager: entityManager, sceneSize: size)
 
-    guard gameStarted else { return } // Don't respond to touches during entrance and countdown
+    // Skip semua gameplay logic saat gamePaused aktif
+    guard gameStarted, !gamePaused else { return }
 
-    // Systems query entities automatically
     playerInputSystem.update(deltaTime: deltaTime, entityManager: entityManager)
 
-    // Only update falling system and ingredient spawning if game over is not active
     if !gameOverActive {
       fallingSystem.update(deltaTime: deltaTime, entityManager: entityManager)
-
-      // Handle ingredient spawning
       updateIngredientSpawning(deltaTime: deltaTime)
     }
 
-    // Cleanup ingredients (always run to clean up any remaining ingredients)
     cleanupOffscreenIngredients()
   }
 
@@ -368,8 +375,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     }
   }
 
-  override func touchesEnded(_: Set<UITouch>, with _: UIEvent?) {
-    guard gameStarted else { return } // Don't respond to touches during entrance
+  override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {
+    guard let touch = touches.first else { return }
+    let location = touch.location(in: self)
+    let touchedNode = atPoint(location)
+
+    if touchedNode == pauseButton {
+      pauseButton.handleButtonReleasedPause(button: pauseButton)
+    }
+  }
+
+  override func touchesEnded(_ touches: Set<UITouch>, with _: UIEvent?) {
+    guard gameStarted else { return }
+
+    // Deteksi sentuhan pada tombol pause
+    if let touch = touches.first {
+      let location = touch.location(in: self)
+      let touchedNode = atPoint(location)
+      if touchedNode == pauseButton {
+        pauseButton.handleButtonReleasedPause(button: pauseButton)
+        showPauseOverlay()
+        return
+      }
+    }
 
     playerInputSystem.handleTouchEnded()
   }
@@ -747,6 +775,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     print("✅ Successfully transitioned to HomeScene")
   }
 
+  func showPauseOverlay() {
+    guard pauseOverlay == nil else { return }
+
+    pauseOverlay = PauseOverlay(size: size)
+    pauseOverlay?.delegate = self
+    pauseOverlay?.zPosition = 999
+    addChild(pauseOverlay!)
+    pauseOverlay?.show()
+
+    gamePaused = true
+  }
+
   // Helper method to clear all ingredients from screen
   private func clearAllIngredients() {
     let ingredientEntities = entityManager.getEntitiesWith(componentType: IngredientComponent.self)
@@ -757,5 +797,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
       }
       removeEntity(entity)
     }
+  }
+}
+
+extension GameScene: PauseOverlayDelegate {
+  func didTapResume() {
+    pauseOverlay?.hide()
+    pauseOverlay?.removeFromParent()
+    pauseOverlay = nil
+    gamePaused = false // Lanjutkan game logic
+  }
+
+  func didTapBackHomePause() {
+    // Di-trigger setelah user konfirmasi YES di popup
+    pauseOverlay?.hide()
+    pauseOverlay?.removeFromParent()
+    pauseOverlay = nil
+    isPaused = false
+    transitionToHomeScene()
   }
 }
