@@ -87,15 +87,14 @@ class GameState {
   }
 
   func addCollectedIngredient(_ ingredient: Ingredient) {
-
     let current = collectedIngredients[ingredient] ?? 0
     collectedIngredients[ingredient] = current + 1
-    
+
     print("Added \(ingredient.name). Now have: \(collectedIngredients[ingredient]!)")
     print("Recipe needs: \(currentRecipe.ingredients)")
     print("Currently have: \(collectedIngredients)")
   }
-  
+
   func isRecipeComplete() -> Bool {
     for (ingredient, needed) in currentRecipe.ingredients {
       let have = collectedIngredients[ingredient] ?? 0
@@ -103,20 +102,20 @@ class GameState {
         return false
       }
 
-    let success = collectIngredient(ingredient)
+      let success = collectIngredient(ingredient)
 
-    if success {
-      ingredientsCaughtThisRecipe += 1
-      print("🥬 Collected \(ingredient.name) (Total this recipe: \(ingredientsCaughtThisRecipe))")
+      if success {
+        ingredientsCaughtThisRecipe += 1
+        print("🥬 Collected \(ingredient.name) (Total this recipe: \(ingredientsCaughtThisRecipe))")
 
-      // Check if we should increase spawn rate
-      if ingredientsCaughtThisRecipe % ingredientsPerSpeedIncrease == 0 {
-        let newInterval = getCurrentSpawnInterval()
-        print("⚡ Spawn rate increased! New interval: \(newInterval)s")
+        // Check if we should increase spawn rate
+        if ingredientsCaughtThisRecipe % ingredientsPerSpeedIncrease == 0 {
+          let newInterval = getCurrentSpawnInterval()
+          print("⚡ Spawn rate increased! New interval: \(newInterval)s")
+        }
+      } else {
+        print("⚠️ Ingredient \(ingredient.name) not needed or already have enough")
       }
-    } else {
-      print("⚠️ Ingredient \(ingredient.name) not needed or already have enough")
-
     }
     return true
   }
@@ -141,7 +140,6 @@ class GameState {
     ingredientsCaughtThisRecipe = 0
     let newInterval = getCurrentSpawnInterval()
     print("🍽️ New recipe: \(currentRecipe.name) | Spawn interval: \(newInterval)s")
-
   }
 
   // MARK: - Smart Ingredient Selection
