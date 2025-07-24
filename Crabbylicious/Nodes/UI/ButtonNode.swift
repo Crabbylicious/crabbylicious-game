@@ -10,6 +10,8 @@ import SpriteKit
 
 class ButtonNode: SKSpriteNode {
   private let initialScale: CGFloat
+  var onButtonTapped: (() -> Void)?
+
 
   init(imageName: String, scale: CGFloat = 0.4, alpha: CGFloat = 1.0) {
     let texture = SKTexture(imageNamed: imageName)
@@ -29,6 +31,8 @@ class ButtonNode: SKSpriteNode {
   func handleButtonReleased(button: ButtonNode) {
     let scaleUp = SKAction.scale(to: 0.42, duration: 0.3)
     button.run(scaleUp)
+
+    onButtonTapped?()
   }
 
   func handleButtonReleasedPause(button: ButtonNode) {

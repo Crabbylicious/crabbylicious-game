@@ -15,14 +15,33 @@ class GameState {
   var currentRecipe: Recipe
   var difficultyMultiplier: Float = 1.0
   var ingredientSpawnTimer: TimeInterval = 0
-  let ingredientSpawnInterval: TimeInterval = 2.0
 
   var collectedIngredients: [Ingredient: Int] = [:]
 
-  private var currentRecipeIndex: Int = 0
+  var currentRecipeIndex: Int = 0
   var score: Int = 0
   var lives: Int = 3
   var maxLives: Int = 3
+
+  // High score management
+  private let highScoreKey = "CrabbyliciousHighScore"
+  var highScore: Int {
+    get {
+      // Swift
+      UserDefaults.standard.integer(forKey: highScoreKey)
+    }
+    set {
+      UserDefaults.standard.set(newValue, forKey: highScoreKey)
+      UserDefaults.standard.synchronize()
+    }
+  }
+
+  // Falling speed system - now controls spawn rate instead of gravity
+  var ingredientsCaughtThisRecipe: Int = 0
+  private let baseSpawnInterval: TimeInterval = 2.0
+  private let intervalDecrement: TimeInterval = 0.1
+  private let minSpawnInterval: TimeInterval = 0.5
+  private let ingredientsPerSpeedIncrease: Int = 1
 
   private init() {
     currentRecipe = GameData.recipes[0] // Start with Gado-Gado
@@ -45,6 +64,29 @@ class GameState {
     lives = maxLives
   }
 
+  // MARK: - Score Management
+
+  func addScore(_ points: Int) {
+    score += points
+    print("🎯 Score increased by \(points)! Total score: \(score)")
+
+    // Check if we beat the high score
+    if score > highScore {
+      let oldHighScore = highScore
+      highScore = score
+      print("🏆 NEW HIGH SCORE! Old: \(oldHighScore), New: \(highScore)")
+    }
+  }
+
+  func resetScore() {
+    score = 0
+    print("🔄 Score reset to 0")
+  }
+
+  func isNewHighScore() -> Bool {
+    score > highScore
+  }
+
   // MARK: - Game Reset
 
   func resetGame() {
@@ -54,9 +96,10 @@ class GameState {
 
     // Reset game properties
     lives = maxLives
-    score = 0
+    resetScore() // Use the new resetScore method
     difficultyMultiplier = 1.0
     ingredientSpawnTimer = 0
+    ingredientsCaughtThisRecipe = 0
 
     // Clear collected ingredients
     collectedIngredients.removeAll()
@@ -64,18 +107,56 @@ class GameState {
     print("🔄 Game reset - starting fresh!")
   }
 
-  func getCurrentFallSpeed() -> CGFloat {
-    150.0 * CGFloat(difficultyMultiplier)
+  func getCurrentSpawnInterval() -> TimeInterval {
+    // Base interval reduction from difficulty
+    let difficultyReduction = TimeInterval(difficultyMultiplier - 1.0) * intervalDecrement
+
+    // Interval reductions from ingredients caught this recipe (every 2 ingredients)
+    let ingredientReduction = TimeInterval(ingredientsCaughtThisRecipe / ingredientsPerSpeedIncrease) *
+      intervalDecrement
+
+    // Calculate total interval
+    let totalInterval = baseSpawnInterval - difficultyReduction - ingredientReduction
+
+    // Apply minimum interval limit (don't spawn too fast)
+    let finalInterval = max(totalInterval, minSpawnInterval)
+
+    print("🔧 Spawn Interval Calculation:")
+    print("   - Base: \(baseSpawnInterval)s")
+    print("   - Difficulty reduction: \(difficultyReduction)s (multiplier: \(difficultyMultiplier))")
+    print("   - Ingredient reduction: \(ingredientReduction)s (caught: \(ingredientsCaughtThisRecipe))")
+    print("   - Final interval: \(finalInterval)s")
+
+    return finalInterval
   }
 
   func addCollectedIngredient(_ ingredient: Ingredient) {
-    let success = collectIngredient(ingredient)
+    let current = collectedIngredients[ingredient] ?? 0
+    collectedIngredients[ingredient] = current + 1
 
-    if success {
-      print("🥬 Collected \(ingredient.name)")
-    } else {
-      print("⚠️ Ingredient \(ingredient.name) not needed or already have enough")
+    // Increment the counter for spawn rate calculation
+    ingredientsCaughtThisRecipe += 1
+    print("🥬 Collected \(ingredient.name) (Total this recipe: \(ingredientsCaughtThisRecipe))")
+
+    // Check if we should increase spawn rate
+    if ingredientsCaughtThisRecipe % ingredientsPerSpeedIncrease == 0 {
+      let newInterval = getCurrentSpawnInterval()
+      print("⚡ Spawn rate increased! New interval: \(newInterval)s")
     }
+
+    print("Added \(ingredient.name). Now have: \(collectedIngredients[ingredient]!)")
+    print("Recipe needs: \(currentRecipe.ingredients)")
+    print("Currently have: \(collectedIngredients)")
+  }
+
+  func isRecipeComplete() -> Bool {
+    for (ingredient, needed) in currentRecipe.ingredients {
+      let have = collectedIngredients[ingredient] ?? 0
+      if have < needed {
+        return false
+      }
+    }
+    return true
   }
 
   /// Move to next recipe
@@ -94,7 +175,26 @@ class GameState {
     currentRecipe = GameData.recipes[currentRecipeIndex]
     resetCollectedIngredients()
 
-    print("🍽️ New recipe: \(currentRecipe.name)")
+    // Reset ingredient counter for new recipe and update spawn rate
+    ingredientsCaughtThisRecipe = 0
+    let newInterval = getCurrentSpawnInterval()
+    print("🍽️ New recipe: \(currentRecipe.name) | Spawn interval: \(newInterval)s")
+  }
+
+  func resetCollectedIngredients() {
+    collectedIngredients.removeAll()
+  }
+
+  func getRemainingIngredients() -> [Ingredient: Int] {
+    var remaining: [Ingredient: Int] = [:]
+
+    for (ingredient, required) in currentRecipe.ingredients {
+      let collected = collectedIngredients[ingredient] ?? 0
+      let stillNeeded = max(0, required - collected)
+      remaining[ingredient] = stillNeeded
+    }
+
+    return remaining
   }
 
   // MARK: - Smart Ingredient Selection

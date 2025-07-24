@@ -20,10 +20,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
   // Game properties
   let gameArea: CGRect
+  var recipeCard: RecipeCardNode!
   private var lastUpdateTime: TimeInterval = 0
   private var crabEntity: CrabEntity!
-  private var recipeCard: RecipeCardNode!
+  private var recipeEntity: RecipeCardEntity!
   private var lifeDisplay: LifeDisplayNode!
+  private var scoreDisplay: ScoreDisplayNode!
   private var gameOverOverlay: GameOverOverlay!
 
   var catchingSystem: CatchingSystem!
@@ -62,13 +64,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   override func didMove(to _: SKView) {
-    // Set up physics world (this replaces your custom gravity!)
+    // Set up physics world
     physicsWorld.contactDelegate = self
 
-    // Base gravity that scales with difficulty
-    let baseGravity: CGFloat = -2.0 // Negative for downward
-    let difficultyGravity = baseGravity * CGFloat(GameState.shared.difficultyMultiplier)
-    physicsWorld.gravity = CGVector(dx: 0, dy: difficultyGravity)
+    // Set consistent gravity - no more dynamic changes
+    physicsWorld.gravity = CGVector(dx: 0, dy: -2) // Nice, consistent falling speed
 
     print("🟢 ProperECSGameScene: didMove called")
 
@@ -81,19 +81,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     let ground = GroundNode(size: size)
     addChild(ground)
 
-    // Ingredient card
-    recipeCard = RecipeCardNode(size: size)
-    recipeCard.zPosition = 10
-    recipeCard.position = CGPoint(x: size.width / 2, y: size.height - 175)
-    addChild(recipeCard)
+    recipeEntity = RecipeCardEntity(
+      scene: self,
+      size: size,
+      position: CGPoint(x: size.width / 2, y: size.height - 175)
+    )
 
-    recipeCard.updateRecipeDisplay()
+    addEntity(recipeEntity) // Optional if you want systems to query it
+    recipeCard = recipeEntity.component(ofType: SpriteComponent.self)?.node as? RecipeCardNode
 
     // Life display
     lifeDisplay = LifeDisplayNode()
     lifeDisplay.zPosition = 10
-    lifeDisplay.position = CGPoint(x: 100, y: size.height - 80)
+    lifeDisplay.position = CGPoint(x: 70, y: size.height - 90)
     addChild(lifeDisplay)
+
+    // Score display (above life display)
+    scoreDisplay = ScoreDisplayNode()
+    scoreDisplay.zPosition = 10
+    scoreDisplay.position = CGPoint(x: 25, y: size.height - 60)
+    addChild(scoreDisplay)
 
     // Game Over Overlay (initially hidden)
     gameOverOverlay = GameOverOverlay(size: size)
@@ -319,7 +326,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     let gameState = GameState.shared
     gameState.ingredientSpawnTimer += deltaTime
 
-    if gameState.ingredientSpawnTimer >= gameState.ingredientSpawnInterval {
+    // Use dynamic spawn interval based on difficulty and progress
+    let currentSpawnInterval = gameState.getCurrentSpawnInterval()
+
+    if gameState.ingredientSpawnTimer >= currentSpawnInterval {
       spawnRandomIngredient()
       gameState.ingredientSpawnTimer = 0
     }
@@ -439,7 +449,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
   private func handleIngredientCaught(_ entity: GKEntity) {
     guard let ingredientComponent = entity.component(ofType: IngredientComponent.self),
-          let spriteComponent = entity.component(ofType: SpriteComponent.self)
+          let spriteComponent = entity.component(ofType: SpriteComponent.self),
+          gameOverActive == false
     else {
       return
     }
@@ -478,6 +489,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
       showCorrectIndicator(on: spriteNode)
 
       if GameState.shared.isRecipeComplete() {
+        print("Collected: \(GameState.shared.collectedIngredients)")
+        print("Current Recipe: \(GameState.shared.currentRecipe.ingredients)")
+
         print("Recipe Complete!")
         handleRecipeComplete()
       }
@@ -493,9 +507,51 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     }
   }
 
-  private func handleRecipeComplete() {
+  func showNextStage() {
+    // Clear all falling ingredients before showing the overlay
+    clearAllIngredients()
+
+    let overlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
+    overlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
+    overlay.zPosition = 999
+    addChild(overlay)
+
+    isPaused = true // Optional if you want to pause gameplay
+  }
+
+  // Add this method to handle next stage transition
+  func proceedToNextStage() {
+    print("🟢 GameScene: Proceeding to next stage...")
+
+    // Debug current state before transition
+    recipeCard?.debugCurrentState()
+
+    // Move to next recipe and reset ingredients
     GameState.shared.moveToNextRecipe()
-    recipeCard.updateRecipeDisplay()
+    print("🔍 DEBUG: New recipe in GameScene: \(GameState.shared.currentRecipe.name)")
+    print("🔍 DEBUG: Collected ingredients after reset: \(GameState.shared.collectedIngredients)")
+
+    // Force refresh the recipe card display
+    if let recipeCard {
+      print("🔍 DEBUG: Force refreshing recipe card from GameScene...")
+      recipeCard.forceRefreshDisplay()
+
+      // Debug state after refresh
+      recipeCard.debugCurrentState()
+
+      print("🔍 DEBUG: Recipe card force refreshed")
+    } else {
+      print("❌ ERROR: Recipe card is nil in GameScene!")
+    }
+
+    // Resume the game
+    isPaused = false
+
+    print("🟢 GameScene: Next stage transition completed")
+  }
+
+  private func handleRecipeComplete() {
+    showNextStage()
     lifeDisplay.updateHeartDisplay() // Update hearts when lives are reset
   }
 
@@ -525,12 +581,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   private func showWrongIndicator(at position: CGPoint) {
-    let xMark = SKSpriteNode(imageNamed: "x_mark")
-    xMark.position = position
-    xMark.zPosition = 500
-    addChild(xMark)
+    // Create X label instead of image
+    let xLabel = SKLabelNode(fontNamed: "PressStart2P")
+    xLabel.text = "X"
+    xLabel.fontSize = 24
+    xLabel.fontColor = SKColor.red
+    xLabel.position = position
+    xLabel.zPosition = 500
+
+    // Add subtle shadow for better visibility
+    let shadowLabel = SKLabelNode(fontNamed: "PressStart2P")
+    shadowLabel.text = "X"
+    shadowLabel.fontSize = 24
+    shadowLabel.fontColor = SKColor.black
+    shadowLabel.position = CGPoint(x: position.x + 2, y: position.y - 2)
+    shadowLabel.zPosition = 499
+    shadowLabel.alpha = 0.7
+
+    addChild(shadowLabel)
+    addChild(xLabel)
 
     HapticManager.haptic.playFailureHaptic()
+
+    // Add crab blinking effect
+    animateCrabBlinking()
 
     // Decrease life and update display
     GameState.shared.decreaseLife()
@@ -541,27 +615,97 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
       handleGameOver()
     }
 
-    xMark.run(SKAction.sequence([
-      wrongSound,
-      SKAction.fadeOut(withDuration: 0.6),
-      SKAction.removeFromParent()
-    ]))
+    // Animate the X label with sound
+    let scaleUp = SKAction.scale(to: 1.3, duration: 0.2)
+    let scaleDown = SKAction.scale(to: 1.0, duration: 0.2)
+    let fadeOut = SKAction.fadeOut(withDuration: 0.6)
+    let removeAction = SKAction.removeFromParent()
+
+    let scaleSequence = SKAction.sequence([scaleUp, scaleDown])
+    let fadeAndRemove = SKAction.sequence([fadeOut, removeAction])
+    let animation = SKAction.group([scaleSequence, fadeAndRemove])
+
+    let soundAndAnimation = SKAction.sequence([wrongSound, animation])
+
+    // Run animations on both labels
+    xLabel.run(soundAndAnimation)
+    shadowLabel.run(animation)
+  }
+
+  private func animateCrabBlinking() {
+    // Use the AnimationComponent to handle blinking - proper ECS approach
+    guard let animationComponent = crabEntity.component(ofType: AnimationComponent.self) else {
+      print("❌ Could not find animation component for crab blinking")
+      return
+    }
+
+    animationComponent.startBlinkingAnimation()
+  }
+
+  private func showScoreIndicator(at position: CGPoint, points: Int) {
+    // Create score label
+    let scoreLabel = SKLabelNode(fontNamed: "PressStart2P")
+    scoreLabel.text = "+\(points)"
+    scoreLabel.fontSize = 20
+    scoreLabel.fontColor = SKColor.green
+    scoreLabel.position = position
+    scoreLabel.zPosition = 500
+
+    // Add subtle shadow for better visibility
+    let shadowLabel = SKLabelNode(fontNamed: "PressStart2P")
+    shadowLabel.text = "+\(points)"
+    shadowLabel.fontSize = 20
+    shadowLabel.fontColor = SKColor.black
+    shadowLabel.position = CGPoint(x: position.x + 2, y: position.y - 2)
+    shadowLabel.zPosition = 499
+    shadowLabel.alpha = 0.7
+
+    addChild(shadowLabel)
+    addChild(scoreLabel)
+
+    // Animate the score label
+    let moveUp = SKAction.moveBy(x: 0, y: 50, duration: 0.8)
+    let fadeOut = SKAction.fadeOut(withDuration: 0.8)
+    let scaleUp = SKAction.scale(to: 1.2, duration: 0.2)
+    let scaleDown = SKAction.scale(to: 1.0, duration: 0.6)
+
+    let moveAndFade = SKAction.group([moveUp, fadeOut])
+    let scaleSequence = SKAction.sequence([scaleUp, scaleDown])
+    let animation = SKAction.group([moveAndFade, scaleSequence])
+
+    let removeAction = SKAction.removeFromParent()
+    let fullSequence = SKAction.sequence([animation, removeAction])
+
+    // Run animations on both labels
+    scoreLabel.run(fullSequence)
+    shadowLabel.run(fullSequence)
   }
 
   private func showCorrectIndicator(on node: SKNode) {
     HapticManager.haptic.playSuccessHaptic()
     SoundManager.sound.playCorrectSound()
 
+    // Add score for correct ingredient
+    let previousHighScore = GameState.shared.highScore
+    GameState.shared.addScore(5)
+
+    // Update score display
+    scoreDisplay.updateScoreDisplay()
+
+    // Check if we beat the high score
+    if GameState.shared.score > previousHighScore {
+      scoreDisplay.animateNewHighScore()
+    } else {
+      scoreDisplay.animateScoreIncrease()
+    }
+
+    // Show +5 score indicator at ingredient position
+    showScoreIndicator(at: node.position, points: 5)
+
     node.run(SKAction.sequence([
       SKAction.scale(to: 1.2, duration: 0.1),
       SKAction.scale(to: 1.0, duration: 0.1)
     ]))
-  }
-
-  // Method to update difficulty during gameplay
-  func updateDifficulty() {
-    let newGravity = -400.0 * CGFloat(GameState.shared.difficultyMultiplier)
-    physicsWorld.gravity = CGVector(dx: 0, dy: newGravity)
   }
 
   // MARK: - GameOverOverlayDelegate
@@ -581,6 +725,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     // Update UI
     recipeCard.updateRecipeDisplay()
     lifeDisplay.updateHeartDisplay()
+    scoreDisplay.updateScoreDisplay()
 
     // Re-enable player control
     if let playerControl = crabEntity.component(ofType: PlayerControlComponent.self) {

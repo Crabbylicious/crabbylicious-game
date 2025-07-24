@@ -9,21 +9,14 @@ import GameplayKit
 import SpriteKit
 
 class RecipeCardNode: SKSpriteNode {
-  private let cardBackground: SKShapeNode
-  private let countLabel: SKLabelNode
+  private let cardBackground: SKSpriteNode
   private let ingredientContainer: SKNode
   private var ingredientNodes: [IngredientDisplayNode] = []
 
   init(size: CGSize) {
-    cardBackground = SKShapeNode(rectOf: CGSize(width: size.width - 110, height: 120), cornerRadius: 30)
-    cardBackground.fillColor = .white
-    cardBackground.strokeColor = .clear
+    cardBackground = SKSpriteNode(imageNamed: "card")
+    cardBackground.setScale(0.6)
     cardBackground.alpha = 0.5
-
-    countLabel = SKLabelNode(text: "")
-    countLabel.fontName = "Press Start 2P"
-    countLabel.fontColor = .black
-    countLabel.fontSize = 13
 
     ingredientContainer = SKNode()
 
@@ -34,10 +27,8 @@ class RecipeCardNode: SKSpriteNode {
   private func setupLayout(cardSize _: CGSize) {
     addChild(cardBackground)
 
-    countLabel.position = CGPoint(x: 0, y: 23)
-    addChild(countLabel)
+    ingredientContainer.position = CGPoint(x: 0, y: 10)
 
-    ingredientContainer.position = CGPoint(x: 0, y: -18)
     addChild(ingredientContainer)
 
     // Set z-position
@@ -45,6 +36,7 @@ class RecipeCardNode: SKSpriteNode {
   }
 
   func updateRecipeDisplay() {
+    print("🔍 DEBUG: RecipeCardNode - updateRecipeDisplay called")
     // Clear existing ingredient nodes
     ingredientNodes.forEach { $0.removeFromParent() }
     ingredientNodes.removeAll()
@@ -52,6 +44,18 @@ class RecipeCardNode: SKSpriteNode {
     // Calculate remaining ingredients manually
     let currentRecipe = GameState.shared.currentRecipe
     let collectedIngredients = GameState.shared.collectedIngredients
+
+    print("🔍 DEBUG: Current recipe: \(currentRecipe.name)")
+    print("🔍 DEBUG: Recipe ingredients: \(currentRecipe.ingredients)")
+    print("🔍 DEBUG: Collected ingredients: \(collectedIngredients)")
+
+    print("🔍 DEBUG: Clearing \(ingredientNodes.count) existing ingredient nodes")
+    for node in ingredientNodes {
+      print("🔍 DEBUG: Removing ingredient node: \(node)")
+      node.removeFromParent()
+    }
+    ingredientNodes.removeAll()
+    print("🔍 DEBUG: All ingredient nodes cleared")
 
     var remainingIngredients: [Ingredient: Int] = [:]
     var totalRemaining = 0
@@ -63,13 +67,10 @@ class RecipeCardNode: SKSpriteNode {
       totalRemaining += remaining
     }
 
-    // Update count label
-    countLabel.text = "\(totalRemaining) left"
-
     // Calculate layout
     let maxItemsPerRow = 5
     let itemWidth: CGFloat = 40
-    let itemSpacing: CGFloat = 8
+    let itemSpacing: CGFloat = 10
 
     let totalItems = remainingIngredients.count
     let itemsPerRow = min(totalItems, maxItemsPerRow)
@@ -90,11 +91,39 @@ class RecipeCardNode: SKSpriteNode {
       let ingredientNode = IngredientDisplayNode(ingredient: ingredient, count: remaining)
       ingredientNode.position = CGPoint(x: x, y: y)
 
+      ingredientNode.alpha = (remaining == 0) ? 0.5 : 1
+
       ingredientContainer.addChild(ingredientNode)
       ingredientNodes.append(ingredientNode)
 
       index += 1
     }
+  }
+
+  func forceRefreshDisplay() {
+    print("🔍 DEBUG: Force refresh display called")
+
+    // Remove all children from ingredient container
+    ingredientContainer.removeAllChildren()
+    ingredientNodes.removeAll()
+
+    print("🔍 DEBUG: Ingredient container cleared, children count: \(ingredientContainer.children.count)")
+
+    // Call regular update
+    updateRecipeDisplay()
+
+    print("🔍 DEBUG: Force refresh completed")
+  }
+
+  // Method to verify the current state (for debugging)
+  func debugCurrentState() {
+    print("🔍 DEBUG: === RecipeCardNode Current State ===")
+    print("🔍 DEBUG: Recipe card children: \(children.count)")
+    print("🔍 DEBUG: Ingredient container children: \(ingredientContainer.children.count)")
+    print("🔍 DEBUG: Ingredient nodes array: \(ingredientNodes.count)")
+    print("🔍 DEBUG: Current recipe: \(GameState.shared.currentRecipe.name)")
+    print("🔍 DEBUG: Collected ingredients: \(GameState.shared.collectedIngredients)")
+    print("🔍 DEBUG: ==============================")
   }
 
   @available(*, unavailable)
