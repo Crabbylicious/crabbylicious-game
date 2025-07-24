@@ -64,13 +64,13 @@ class IngredientDisplayNode: SKNode {
 
 extension GameState {
   // Add this property to track collected ingredients
-  //private static var collectedIngredients: [Ingredient: Int] = [:]
+  // private static var collectedIngredients: [Ingredient: Int] = [:]
 
   func getRemainingIngredients() -> [Ingredient: Int] {
     var remaining: [Ingredient: Int] = [:]
 
     for (ingredient, required) in currentRecipe.ingredients {
-      let collected = self.collectedIngredients[ingredient] ?? 0
+      let collected = collectedIngredients[ingredient] ?? 0
       let stillNeeded = max(0, required - collected)
       remaining[ingredient] = stillNeeded
     }
@@ -96,7 +96,7 @@ extension GameState {
   }
 
   func resetCollectedIngredients() {
-    self.collectedIngredients.removeAll()
+    collectedIngredients.removeAll()
   }
 
 //  func isRecipeComplete() -> Bool {
@@ -113,23 +113,23 @@ extension GameState {
 //    getRemainingIngredients().values.reduce(0, +)
 //  }
   // Add the moveToNextRecipe method here as well
-  
+
 //  func moveToNextRecipe() {
 //    print("🔍 DEBUG: === MOVING TO NEXT RECIPE ===")
 //    print("🔍 DEBUG: Current recipe before move: \(currentRecipe.name)")
 //    print("🔍 DEBUG: Current collected ingredients before reset: \(collectedIngredients)")
-//    
+//
 //    // CRITICAL: Reset collected ingredients for the new recipe
 //    resetCollectedIngredients()
 //    print("🔍 DEBUG: ✅ Collected ingredients cleared: \(collectedIngredients)")
-//    
+//
 //    // Move to next recipe (adjust this based on your actual implementation)
 //    currentRecipeIndex += 1
 //    if currentRecipeIndex >= GameData.recipes.count {
 //      currentRecipeIndex = 0 // Loop back or handle end game
 //      print("🔍 DEBUG: Looped back to first recipe")
 //    }
-//    
+//
 //    print("🔍 DEBUG: New recipe index: \(currentRecipeIndex)")
 //    print("🔍 DEBUG: New current recipe: \(currentRecipe.name)")
 //    print("🔍 DEBUG: New recipe ingredients: \(currentRecipe.ingredients)")
@@ -139,7 +139,7 @@ extension GameState {
   func getTotalIngredientsRemaining() -> Int {
     getRemainingIngredients().values.reduce(0, +)
   }
-  
+
   // Debug method to check current state
   func debugCurrentState() {
     print("🔍 DEBUG: === GAMESTATE DEBUG ===")

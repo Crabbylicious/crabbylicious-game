@@ -40,81 +40,81 @@ class RecipeCardNode: SKSpriteNode {
     // Clear existing ingredient nodes
     ingredientNodes.forEach { $0.removeFromParent() }
     ingredientNodes.removeAll()
-    
+
     // Calculate remaining ingredients manually
     let currentRecipe = GameState.shared.currentRecipe
     let collectedIngredients = GameState.shared.collectedIngredients
-    
+
     print("🔍 DEBUG: Current recipe: \(currentRecipe.name)")
     print("🔍 DEBUG: Recipe ingredients: \(currentRecipe.ingredients)")
     print("🔍 DEBUG: Collected ingredients: \(collectedIngredients)")
-    
+
     print("🔍 DEBUG: Clearing \(ingredientNodes.count) existing ingredient nodes")
-    ingredientNodes.forEach { node in
+    for node in ingredientNodes {
       print("🔍 DEBUG: Removing ingredient node: \(node)")
       node.removeFromParent()
     }
     ingredientNodes.removeAll()
     print("🔍 DEBUG: All ingredient nodes cleared")
-    
+
     var remainingIngredients: [Ingredient: Int] = [:]
     var totalRemaining = 0
-    
+
     for (ingredient, required) in currentRecipe.ingredients {
       let collected = collectedIngredients[ingredient] ?? 0
       let remaining = max(0, required - collected)
       remainingIngredients[ingredient] = remaining
       totalRemaining += remaining
     }
-    
+
     // Calculate layout
     let maxItemsPerRow = 5
     let itemWidth: CGFloat = 40
     let itemSpacing: CGFloat = 10
-    
+
     let totalItems = remainingIngredients.count
     let itemsPerRow = min(totalItems, maxItemsPerRow)
     let totalWidth = CGFloat(itemsPerRow) * itemWidth + CGFloat(itemsPerRow - 1) * itemSpacing
     let startX = CGFloat(-totalWidth) / 2 + itemWidth / 2
-    
+
     // Create ingredient display nodes
     var index = 0
     for (ingredient, required) in currentRecipe.ingredients {
       let remaining = remainingIngredients[ingredient] ?? 0
-      
+
       let row = index / maxItemsPerRow
       let col = index % maxItemsPerRow
-      
+
       let x = startX + CGFloat(col) * (itemWidth + itemSpacing)
       let y = CGFloat(-row) * 50 // Row spacing
-      
+
       let ingredientNode = IngredientDisplayNode(ingredient: ingredient, count: remaining)
       ingredientNode.position = CGPoint(x: x, y: y)
-      
+
       ingredientNode.alpha = (remaining == 0) ? 0.5 : 1
-      
+
       ingredientContainer.addChild(ingredientNode)
       ingredientNodes.append(ingredientNode)
-      
+
       index += 1
     }
   }
-  
+
   func forceRefreshDisplay() {
     print("🔍 DEBUG: Force refresh display called")
-    
+
     // Remove all children from ingredient container
     ingredientContainer.removeAllChildren()
     ingredientNodes.removeAll()
-    
+
     print("🔍 DEBUG: Ingredient container cleared, children count: \(ingredientContainer.children.count)")
-    
+
     // Call regular update
     updateRecipeDisplay()
-    
+
     print("🔍 DEBUG: Force refresh completed")
   }
-  
+
   // Method to verify the current state (for debugging)
   func debugCurrentState() {
     print("🔍 DEBUG: === RecipeCardNode Current State ===")
