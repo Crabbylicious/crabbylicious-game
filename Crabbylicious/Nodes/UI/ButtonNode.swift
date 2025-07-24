@@ -12,7 +12,6 @@ class ButtonNode: SKSpriteNode {
   private let initialScale: CGFloat
   var onButtonTapped: (() -> Void)?
 
-
   init(imageName: String, scale: CGFloat = 0.4, alpha: CGFloat = 1.0) {
     let texture = SKTexture(imageNamed: imageName)
     initialScale = scale
