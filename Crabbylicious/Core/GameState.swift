@@ -23,6 +23,19 @@ class GameState {
   var lives: Int = 3
   var maxLives: Int = 3
 
+  // High score management
+  private let highScoreKey = "CrabbyliciousHighScore"
+  var highScore: Int {
+    get {
+      // Swift
+      UserDefaults.standard.integer(forKey: highScoreKey)
+    }
+    set {
+      UserDefaults.standard.set(newValue, forKey: highScoreKey)
+      UserDefaults.standard.synchronize()
+    }
+  }
+
   // Falling speed system - now controls spawn rate instead of gravity
   var ingredientsCaughtThisRecipe: Int = 0
   private let baseSpawnInterval: TimeInterval = 2.0
@@ -51,6 +64,29 @@ class GameState {
     lives = maxLives
   }
 
+  // MARK: - Score Management
+
+  func addScore(_ points: Int) {
+    score += points
+    print("🎯 Score increased by \(points)! Total score: \(score)")
+
+    // Check if we beat the high score
+    if score > highScore {
+      let oldHighScore = highScore
+      highScore = score
+      print("🏆 NEW HIGH SCORE! Old: \(oldHighScore), New: \(highScore)")
+    }
+  }
+
+  func resetScore() {
+    score = 0
+    print("🔄 Score reset to 0")
+  }
+
+  func isNewHighScore() -> Bool {
+    score > highScore
+  }
+
   // MARK: - Game Reset
 
   func resetGame() {
@@ -60,7 +96,7 @@ class GameState {
 
     // Reset game properties
     lives = maxLives
-    score = 0
+    resetScore() // Use the new resetScore method
     difficultyMultiplier = 1.0
     ingredientSpawnTimer = 0
     ingredientsCaughtThisRecipe = 0

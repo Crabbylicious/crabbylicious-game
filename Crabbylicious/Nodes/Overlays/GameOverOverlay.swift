@@ -19,6 +19,8 @@ class GameOverOverlay: SKNode {
   private var crabDieSprite: SKSpriteNode!
   private var ohNoLabel: SKLabelNode!
   private var youLoseLabel: SKLabelNode!
+  private var scoreLabel: SKLabelNode!
+  private var highScoreLabel: SKLabelNode!
   private var playAgainButton: SKSpriteNode!
   private var backHomeButton: SKSpriteNode!
 
@@ -68,16 +70,35 @@ class GameOverOverlay: SKNode {
     youLoseLabel.zPosition = 10
     addChild(youLoseLabel)
 
+    // Current Score label
+    scoreLabel = SKLabelNode(fontNamed: "PressStart2P")
+    scoreLabel.text = "Score: \(GameState.shared.score)"
+    scoreLabel.fontSize = 18
+    scoreLabel.fontColor = SKColor.white
+    scoreLabel.position = CGPoint(x: overlaySize.width / 2, y: overlaySize.height / 2 + 20)
+    scoreLabel.zPosition = 10
+    addChild(scoreLabel)
+
+    // High Score label
+    highScoreLabel = SKLabelNode(fontNamed: "PressStart2P")
+    let highScore = GameState.shared.highScore
+    highScoreLabel.text = "Best: \(highScore)"
+    highScoreLabel.fontSize = 16
+    highScoreLabel.fontColor = SKColor.yellow
+    highScoreLabel.position = CGPoint(x: overlaySize.width / 2, y: overlaySize.height / 2 - 20)
+    highScoreLabel.zPosition = 10
+    addChild(highScoreLabel)
+
     // Play Again button
     playAgainButton = ButtonNode(imageName: "buttonPlayAgain")
-    playAgainButton.position = CGPoint(x: overlaySize.width / 2, y: overlaySize.height / 2 - 130)
+    playAgainButton.position = CGPoint(x: overlaySize.width / 2, y: overlaySize.height / 2 - 100)
     playAgainButton.name = "playAgainButton"
     playAgainButton.zPosition = 10
     addChild(playAgainButton)
 
     // Back Home button
     backHomeButton = ButtonNode(imageName: "buttonBackHome")
-    backHomeButton.position = CGPoint(x: overlaySize.width / 2, y: overlaySize.height / 2 - 230)
+    backHomeButton.position = CGPoint(x: overlaySize.width / 2, y: overlaySize.height / 2 - 200)
     backHomeButton.name = "backHomeButton"
     backHomeButton.zPosition = 10
     addChild(backHomeButton)
@@ -88,12 +109,27 @@ class GameOverOverlay: SKNode {
   }
 
   func show() {
+    // Update score displays with current values
+    scoreLabel.text = "Score: \(GameState.shared.score)"
+    highScoreLabel.text = "Best: \(GameState.shared.highScore)"
+
+    // Check if this is a new high score and highlight it
+    if GameState.shared.score == GameState.shared.highScore, GameState.shared.score > 0 {
+      highScoreLabel.fontColor = SKColor.cyan
+      highScoreLabel.text = "NEW BEST: \(GameState.shared.highScore)"
+    } else {
+      highScoreLabel.fontColor = SKColor.yellow
+      highScoreLabel.text = "Best: \(GameState.shared.highScore)"
+    }
+
     isUserInteractionEnabled = true
 
     // Reset positions for animation
     crabDieSprite.position.y = overlaySize.height / 2 + 120
     ohNoLabel.alpha = 0
     youLoseLabel.alpha = 0
+    scoreLabel.alpha = 0
+    highScoreLabel.alpha = 0
     playAgainButton.alpha = 0
     backHomeButton.alpha = 0
 
@@ -118,6 +154,17 @@ class GameOverOverlay: SKNode {
       textFadeIn
     ]))
 
+    // Animate score displays
+    scoreLabel.run(SKAction.sequence([
+      SKAction.wait(forDuration: 0.4),
+      textFadeIn
+    ]))
+
+    highScoreLabel.run(SKAction.sequence([
+      SKAction.wait(forDuration: 0.5),
+      textFadeIn
+    ]))
+
     // Then animate crab
     crabDieSprite.run(SKAction.sequence([
       SKAction.wait(forDuration: 0.3),
@@ -126,12 +173,12 @@ class GameOverOverlay: SKNode {
 
     // Finally animate buttons
     playAgainButton.run(SKAction.sequence([
-      SKAction.wait(forDuration: 0.6),
+      SKAction.wait(forDuration: 0.7),
       buttonFadeIn
     ]))
 
     backHomeButton.run(SKAction.sequence([
-      SKAction.wait(forDuration: 0.7),
+      SKAction.wait(forDuration: 0.8),
       buttonFadeIn
     ]))
   }
@@ -162,8 +209,8 @@ class GameOverOverlay: SKNode {
   }
 
   private func animateButtonPress(_ button: SKNode, completion: @escaping () -> Void) {
-    let scaleDown = SKAction.scale(to: 0.38, duration: 0.2)
-    let scaleUp = SKAction.scale(to: 0.42, duration: 0.2)
+    let scaleDown = SKAction.scale(to: 0.38, duration: 0.1)
+    let scaleUp = SKAction.scale(to: 0.42, duration: 0.1)
     let sequence = SKAction.sequence([scaleDown, scaleUp, SKAction.run(completion)])
 
     button.run(sequence)
