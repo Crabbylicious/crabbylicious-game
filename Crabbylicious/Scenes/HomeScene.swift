@@ -18,6 +18,7 @@ class HomeScene: SKScene {
   private var titleShadow: TitleNode!
   private var topCloud: CloudNode!
   private var bottomCloud: CloudNode!
+  private var highScoreLabel: SKLabelNode!
 
   // Animation timing constants - easily adjustable
   private let exitAnimationDuration: TimeInterval = 1.5
@@ -82,8 +83,25 @@ class HomeScene: SKScene {
     playButton.zPosition = 10
     addChild(playButton)
 
+    // High Score display
+    highScoreLabel = SKLabelNode(fontNamed: "PressStart2P")
+    let highScore = GameState.shared.highScore
+    highScoreLabel.text = highScore > 0 ? "Best Score: \(highScore)" : "Best Score: 0"
+    highScoreLabel.fontSize = 14
+    highScoreLabel.fontColor = SKColor.yellow
+    highScoreLabel.position = CGPoint(x: gameArea.midX, y: gameArea.midY - 200)
+    highScoreLabel.zPosition = 10
+    highScoreLabel.alpha = 0 // Start hidden
+    addChild(highScoreLabel)
+
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
       self.playButton.fadeIn()
+
+      // Fade in high score label shortly after button
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        let fadeIn = SKAction.fadeIn(withDuration: 0.5)
+        self.highScoreLabel.run(fadeIn)
+      }
     }
 
     // Debug: Verify all nodes are properly initialized
@@ -93,6 +111,7 @@ class HomeScene: SKScene {
     print("   - topCloud: \(topCloud != nil ? "✓" : "✗")")
     print("   - bottomCloud: \(bottomCloud != nil ? "✓" : "✗")")
     print("   - playButton: \(playButton != nil ? "✓" : "✗")")
+    print("   - highScoreLabel: \(highScoreLabel != nil ? "✓" : "✗")")
   }
 
   override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {
@@ -146,7 +165,8 @@ class HomeScene: SKScene {
     guard let title,
           let titleShadow,
           let topCloud,
-          let bottomCloud
+          let bottomCloud,
+          let highScoreLabel
     else {
       print("❌ HomeScene: Some nodes are nil, skipping exit animation")
       // Still transition to game scene even if animation fails
@@ -162,6 +182,7 @@ class HomeScene: SKScene {
     let topCloudTarget = CGPoint(x: topCloud.position.x, y: topCloud.position.y + moveUpDistance)
     let bottomCloudTarget = CGPoint(x: bottomCloud.position.x, y: bottomCloud.position.y + moveUpDistance)
     let buttonTarget = CGPoint(x: playButton.position.x, y: playButton.position.y + moveUpDistance)
+    let highScoreTarget = CGPoint(x: highScoreLabel.position.x, y: highScoreLabel.position.y + moveUpDistance)
 
     // Create move actions with easing
     let moveAction = SKAction.move(to: titleTarget, duration: exitAnimationDuration)
@@ -179,6 +200,9 @@ class HomeScene: SKScene {
     let buttonMoveAction = SKAction.move(to: buttonTarget, duration: exitAnimationDuration)
     buttonMoveAction.timingMode = .easeInEaseOut
 
+    let highScoreMoveAction = SKAction.move(to: highScoreTarget, duration: exitAnimationDuration)
+    highScoreMoveAction.timingMode = .easeInEaseOut
+
     // Optional: Add slight delays for staggered effect
     let titleDelay = SKAction.wait(forDuration: 0.0)
     let cloudDelay = SKAction.wait(forDuration: 0.1)
@@ -190,6 +214,7 @@ class HomeScene: SKScene {
     topCloud.run(SKAction.sequence([cloudDelay, topCloudMoveAction]))
     bottomCloud.run(SKAction.sequence([cloudDelay, bottomCloudMoveAction]))
     playButton.run(SKAction.sequence([buttonDelay, buttonMoveAction]))
+    highScoreLabel.run(SKAction.sequence([buttonDelay, highScoreMoveAction]))
   }
 
   private func transitionToGameScene() {

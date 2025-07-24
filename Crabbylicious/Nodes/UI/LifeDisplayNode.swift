@@ -9,7 +9,7 @@ import SpriteKit
 
 class LifeDisplayNode: SKNode {
   private var heartNodes: [SKSpriteNode] = []
-  private let heartSize: CGSize = .init(width: 32, height: 32)
+  private let heartSize: CGSize = .init(width: 24, height: 24)
   private let heartSpacing: CGFloat = 8
 
   override init() {

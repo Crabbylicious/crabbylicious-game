@@ -24,6 +24,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   private var crabEntity: CrabEntity!
   private var recipeCard: RecipeCardNode!
   private var lifeDisplay: LifeDisplayNode!
+  private var scoreDisplay: ScoreDisplayNode!
   private var gameOverOverlay: GameOverOverlay!
 
   var catchingSystem: CatchingSystem!
@@ -87,8 +88,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     // Life display
     lifeDisplay = LifeDisplayNode()
     lifeDisplay.zPosition = 10
-    lifeDisplay.position = CGPoint(x: 100, y: size.height - 80)
+    lifeDisplay.position = CGPoint(x: 70, y: size.height - 90)
     addChild(lifeDisplay)
+
+    // Score display (above life display)
+    scoreDisplay = ScoreDisplayNode()
+    scoreDisplay.zPosition = 10
+    scoreDisplay.position = CGPoint(x: 25, y: size.height - 60)
+    addChild(scoreDisplay)
 
     // Game Over Overlay (initially hidden)
     gameOverOverlay = GameOverOverlay(size: size)
@@ -498,10 +505,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   private func showWrongIndicator(at position: CGPoint) {
-    let xMark = SKSpriteNode(imageNamed: "x_mark")
-    xMark.position = position
-    xMark.zPosition = 500
-    addChild(xMark)
+    // Create X label instead of image
+    let xLabel = SKLabelNode(fontNamed: "PressStart2P")
+    xLabel.text = "X"
+    xLabel.fontSize = 24
+    xLabel.fontColor = SKColor.red
+    xLabel.position = position
+    xLabel.zPosition = 500
+
+    // Add subtle shadow for better visibility
+    let shadowLabel = SKLabelNode(fontNamed: "PressStart2P")
+    shadowLabel.text = "X"
+    shadowLabel.fontSize = 24
+    shadowLabel.fontColor = SKColor.black
+    shadowLabel.position = CGPoint(x: position.x + 2, y: position.y - 2)
+    shadowLabel.zPosition = 499
+    shadowLabel.alpha = 0.7
+
+    addChild(shadowLabel)
+    addChild(xLabel)
 
     HapticManager.haptic.playFailureHaptic()
 
@@ -514,16 +536,82 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
       handleGameOver()
     }
 
-    xMark.run(SKAction.sequence([
-      wrongSound,
-      SKAction.fadeOut(withDuration: 0.6),
-      SKAction.removeFromParent()
-    ]))
+    // Animate the X label with sound
+    let scaleUp = SKAction.scale(to: 1.3, duration: 0.2)
+    let scaleDown = SKAction.scale(to: 1.0, duration: 0.2)
+    let fadeOut = SKAction.fadeOut(withDuration: 0.6)
+    let removeAction = SKAction.removeFromParent()
+
+    let scaleSequence = SKAction.sequence([scaleUp, scaleDown])
+    let fadeAndRemove = SKAction.sequence([fadeOut, removeAction])
+    let animation = SKAction.group([scaleSequence, fadeAndRemove])
+
+    let soundAndAnimation = SKAction.sequence([wrongSound, animation])
+
+    // Run animations on both labels
+    xLabel.run(soundAndAnimation)
+    shadowLabel.run(animation)
+  }
+
+  private func showScoreIndicator(at position: CGPoint, points: Int) {
+    // Create score label
+    let scoreLabel = SKLabelNode(fontNamed: "PressStart2P")
+    scoreLabel.text = "+\(points)"
+    scoreLabel.fontSize = 20
+    scoreLabel.fontColor = SKColor.green
+    scoreLabel.position = position
+    scoreLabel.zPosition = 500
+
+    // Add subtle shadow for better visibility
+    let shadowLabel = SKLabelNode(fontNamed: "PressStart2P")
+    shadowLabel.text = "+\(points)"
+    shadowLabel.fontSize = 20
+    shadowLabel.fontColor = SKColor.black
+    shadowLabel.position = CGPoint(x: position.x + 2, y: position.y - 2)
+    shadowLabel.zPosition = 499
+    shadowLabel.alpha = 0.7
+
+    addChild(shadowLabel)
+    addChild(scoreLabel)
+
+    // Animate the score label
+    let moveUp = SKAction.moveBy(x: 0, y: 50, duration: 0.8)
+    let fadeOut = SKAction.fadeOut(withDuration: 0.8)
+    let scaleUp = SKAction.scale(to: 1.2, duration: 0.2)
+    let scaleDown = SKAction.scale(to: 1.0, duration: 0.6)
+
+    let moveAndFade = SKAction.group([moveUp, fadeOut])
+    let scaleSequence = SKAction.sequence([scaleUp, scaleDown])
+    let animation = SKAction.group([moveAndFade, scaleSequence])
+
+    let removeAction = SKAction.removeFromParent()
+    let fullSequence = SKAction.sequence([animation, removeAction])
+
+    // Run animations on both labels
+    scoreLabel.run(fullSequence)
+    shadowLabel.run(fullSequence)
   }
 
   private func showCorrectIndicator(on node: SKNode) {
     HapticManager.haptic.playSuccessHaptic()
     SoundManager.sound.playCorrectSound()
+
+    // Add score for correct ingredient
+    let previousHighScore = GameState.shared.highScore
+    GameState.shared.addScore(5)
+
+    // Update score display
+    scoreDisplay.updateScoreDisplay()
+
+    // Check if we beat the high score
+    if GameState.shared.score > previousHighScore {
+      scoreDisplay.animateNewHighScore()
+    } else {
+      scoreDisplay.animateScoreIncrease()
+    }
+
+    // Show +5 score indicator at ingredient position
+    showScoreIndicator(at: node.position, points: 5)
 
     node.run(SKAction.sequence([
       SKAction.scale(to: 1.2, duration: 0.1),
@@ -548,6 +636,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     // Update UI
     recipeCard.updateRecipeDisplay()
     lifeDisplay.updateHeartDisplay()
+    scoreDisplay.updateScoreDisplay()
 
     // Re-enable player control
     if let playerControl = crabEntity.component(ofType: PlayerControlComponent.self) {
