@@ -575,6 +575,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
     HapticManager.haptic.playFailureHaptic()
 
+    // Add crab blinking effect
+    animateCrabBlinking()
+
     // Decrease life and update display
     GameState.shared.decreaseLife()
     lifeDisplay.animateLifeLoss()
@@ -599,6 +602,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     // Run animations on both labels
     xLabel.run(soundAndAnimation)
     shadowLabel.run(animation)
+  }
+
+  private func animateCrabBlinking() {
+    // Use the AnimationComponent to handle blinking - proper ECS approach
+    guard let animationComponent = crabEntity.component(ofType: AnimationComponent.self) else {
+      print("❌ Could not find animation component for crab blinking")
+      return
+    }
+
+    animationComponent.startBlinkingAnimation()
   }
 
   private func showScoreIndicator(at position: CGPoint, points: Int) {
