@@ -39,8 +39,8 @@ class GameState {
   // Falling speed system - now controls spawn rate instead of gravity
   var ingredientsCaughtThisRecipe: Int = 0
   private let baseSpawnInterval: TimeInterval = 2.0
-  private let intervalDecrement: TimeInterval = 0.21
-  private let minSpawnInterval: TimeInterval = 0.1
+  private let intervalDecrement: TimeInterval = 0.18
+  private let minSpawnInterval: TimeInterval = 0.3
   private let ingredientsPerSpeedIncrease: Int = 1
 
   private init() {
@@ -172,7 +172,7 @@ class GameState {
     currentRecipe = GameData.recipes[currentRecipeIndex]
     resetCollectedIngredients()
 
-    difficultyMultiplier += 1 // Increase difficulty
+    difficultyMultiplier += 2 // Increase difficulty
     print("🎉 Recipes completed! Increasing difficulty to \(difficultyMultiplier)")
 
     // Reset ingredient counter for new recipe and update spawn rate

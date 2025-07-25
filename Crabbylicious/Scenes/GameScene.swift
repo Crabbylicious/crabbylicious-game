@@ -109,7 +109,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 //    nextStageOverlay.zPosition = 1000 // High z-position to appear on top
 //    nextStageOverlay.alpha = 0
 //    addChild(nextStageOverlay)
-    
+
     // Game Over Overlay (initially hidden)
     gameOverOverlay = GameOverOverlay(size: size)
     gameOverOverlay.delegate = self
@@ -518,17 +518,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   func showNextStage() {
     // Clear all falling ingredients before showing the overlay
     clearAllIngredients()
-    
+
     nextStageOverlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
     nextStageOverlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
     nextStageOverlay.zPosition = 999
-    
+
     addChild(nextStageOverlay)
     nextStageOverlay.show()
-    
+
     run(SKAction.sequence([
       SKAction.wait(forDuration: 1.0),
-        SKAction.run { self.isPaused = true }
+      SKAction.run { self.isPaused = true }
     ]))
   }
 
