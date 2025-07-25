@@ -85,7 +85,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     recipeEntity = RecipeCardEntity(
       scene: self,
       size: size,
-      position: CGPoint(x: size.width / 2, y: size.height - 175)
+      position: CGPoint(x: size.width / 2, y: size.height - 210)
     )
 
     addEntity(recipeEntity) // Optional if you want systems to query it
@@ -94,13 +94,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     // Life display
     lifeDisplay = LifeDisplayNode()
     lifeDisplay.zPosition = 10
-    lifeDisplay.position = CGPoint(x: 70, y: size.height - 90)
+    lifeDisplay.position = CGPoint(x: 70, y: size.height - 125)
     addChild(lifeDisplay)
 
     // Score display (above life display)
     scoreDisplay = ScoreDisplayNode()
     scoreDisplay.zPosition = 10
-    scoreDisplay.position = CGPoint(x: 25, y: size.height - 60)
+    scoreDisplay.position = CGPoint(x: 25, y: size.height - 75)
     addChild(scoreDisplay)
 
 //    nextStageOverlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
