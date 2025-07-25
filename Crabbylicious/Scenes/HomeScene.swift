@@ -19,6 +19,7 @@ class HomeScene: SKScene {
   private var topCloud: CloudNode!
   private var bottomCloud: CloudNode!
   private var highScoreLabel: SKLabelNode!
+  private var highScoreShadow: SKLabelNode!
 
   // Animation timing constants - easily adjustable
   private let exitAnimationDuration: TimeInterval = 1.5
@@ -51,12 +52,12 @@ class HomeScene: SKScene {
     addChild(ground)
 
     title = TitleNode(size: CGSize(width: 300, height: 300))
-    let titleFinalPosition = CGPoint(x: gameArea.midX, y: gameArea.midY + 30)
+    let titleFinalPosition = CGPoint(x: gameArea.midX, y: gameArea.midY + 75)
     title.zPosition = 10
     addChild(title)
 
     titleShadow = TitleNode(size: CGSize(width: 300, height: 300))
-    titleShadow.position = CGPoint(x: gameArea.midX, y: gameArea.midY + 30)
+    titleShadow.position = CGPoint(x: gameArea.midX, y: gameArea.midY + 75)
     titleShadow.alpha = 0.5
     titleShadow.zPosition = 9
     addChild(titleShadow)
@@ -79,28 +80,39 @@ class HomeScene: SKScene {
     addChild(bottomCloud)
 
     playButton = ButtonNode(imageName: "buttonPlay")
-    playButton.position = CGPoint(x: gameArea.midX, y: gameArea.midY - 120)
+    playButton.position = CGPoint(x: gameArea.midX, y: gameArea.midY - 70)
     playButton.zPosition = 10
+    playButton.alpha = 0
     addChild(playButton)
 
     // High Score display
     highScoreLabel = SKLabelNode(fontNamed: "PressStart2P")
     let highScore = GameState.shared.highScore
-    highScoreLabel.text = highScore > 0 ? "Best Score: \(highScore)" : "Best Score: 0"
+    highScoreLabel.text = highScore > 0 ? "BEST SCORE: \(highScore)" : "BEST SCORE: 0"
     highScoreLabel.fontSize = 14
-    highScoreLabel.fontColor = SKColor.yellow
-    highScoreLabel.position = CGPoint(x: gameArea.midX, y: gameArea.midY - 200)
+    highScoreLabel.fontColor = .white
+    highScoreLabel.position = CGPoint(x: gameArea.midX, y: gameArea.midY - 150)
     highScoreLabel.zPosition = 10
     highScoreLabel.alpha = 0 // Start hidden
     addChild(highScoreLabel)
-
+    
+    highScoreShadow = SKLabelNode(fontNamed: "PressStart2P")
+    highScoreShadow.text = highScore > 0 ? "BEST SCORE: \(highScore)" : "BEST SCORE: 0"
+    highScoreShadow.fontSize = 14
+    highScoreShadow.fontColor = SKColor.black
+    highScoreShadow.position = CGPoint(x: gameArea.midX + 2, y: gameArea.midY - 152)
+    highScoreShadow.zPosition = 9
+    highScoreShadow.alpha = 0
+    addChild(highScoreShadow)
+    
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
       self.playButton.fadeIn()
 
-      // Fade in high score label shortly after button
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+      //Fade in high score label shortly after button
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
         let fadeIn = SKAction.fadeIn(withDuration: 0.5)
         self.highScoreLabel.run(fadeIn)
+        self.highScoreShadow.run(fadeIn)
       }
     }
 
@@ -166,7 +178,8 @@ class HomeScene: SKScene {
           let titleShadow,
           let topCloud,
           let bottomCloud,
-          let highScoreLabel
+          let highScoreLabel,
+          let highScoreShadow
     else {
       print("❌ HomeScene: Some nodes are nil, skipping exit animation")
       // Still transition to game scene even if animation fails
@@ -183,6 +196,7 @@ class HomeScene: SKScene {
     let bottomCloudTarget = CGPoint(x: bottomCloud.position.x, y: bottomCloud.position.y + moveUpDistance)
     let buttonTarget = CGPoint(x: playButton.position.x, y: playButton.position.y + moveUpDistance)
     let highScoreTarget = CGPoint(x: highScoreLabel.position.x, y: highScoreLabel.position.y + moveUpDistance)
+    let highScoreShadowTarget = CGPoint(x: highScoreShadow.position.x, y: highScoreShadow.position.y + moveUpDistance)
 
     // Create move actions with easing
     let moveAction = SKAction.move(to: titleTarget, duration: exitAnimationDuration)
@@ -202,6 +216,9 @@ class HomeScene: SKScene {
 
     let highScoreMoveAction = SKAction.move(to: highScoreTarget, duration: exitAnimationDuration)
     highScoreMoveAction.timingMode = .easeInEaseOut
+    
+    let highScoreShadowMoveAction = SKAction.move(to: highScoreShadowTarget, duration: exitAnimationDuration)
+    highScoreShadowMoveAction.timingMode = .easeInEaseOut
 
     // Optional: Add slight delays for staggered effect
     let titleDelay = SKAction.wait(forDuration: 0.0)
@@ -215,6 +232,7 @@ class HomeScene: SKScene {
     bottomCloud.run(SKAction.sequence([cloudDelay, bottomCloudMoveAction]))
     playButton.run(SKAction.sequence([buttonDelay, buttonMoveAction]))
     highScoreLabel.run(SKAction.sequence([buttonDelay, highScoreMoveAction]))
+    highScoreShadow.run(SKAction.sequence([buttonDelay, highScoreShadowMoveAction]))
   }
 
   private func transitionToGameScene() {
