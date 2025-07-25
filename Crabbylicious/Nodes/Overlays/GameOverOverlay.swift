@@ -171,6 +171,8 @@ class GameOverOverlay: SKNode {
       crabSlideDown
     ]))
 
+    SoundManager.sound.gameOverSound()
+
     // Finally animate buttons
     playAgainButton.run(SKAction.sequence([
       SKAction.wait(forDuration: 0.7),
@@ -197,10 +199,13 @@ class GameOverOverlay: SKNode {
     switch touchedNode.name {
     case "playAgainButton":
       animateButtonPress(touchedNode) {
+        SoundManager.sound.playInGameMusic()
+        SoundManager.sound.allButtonSound()
         self.delegate?.didTapPlayAgain()
       }
     case "backHomeButton":
       animateButtonPress(touchedNode) {
+        SoundManager.sound.allButtonSound()
         self.delegate?.didTapBackHome()
       }
     default:

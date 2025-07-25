@@ -75,6 +75,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
     catchingSystem = CatchingSystem(gameState: GameState.shared, scene: self)
 
+    SoundManager.sound.bubbleSound()
+
     // Add background and ground
     let background = BackgroundNode(size: size)
     addChild(background)
@@ -109,7 +111,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 //    nextStageOverlay.zPosition = 1000 // High z-position to appear on top
 //    nextStageOverlay.alpha = 0
 //    addChild(nextStageOverlay)
-    
+
     // Game Over Overlay (initially hidden)
     gameOverOverlay = GameOverOverlay(size: size)
     gameOverOverlay.delegate = self
@@ -238,6 +240,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   private func startActualGame() {
     print("🟢 Countdown finished - Game started!")
     gameStarted = true
+    // Mulai background music in-game
+    SoundManager.sound.playInGameMusic()
     print("🟢 Game fully started - ingredients will now spawn")
   }
 
@@ -401,6 +405,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
       let location = touch.location(in: self)
       let touchedNode = atPoint(location)
       if touchedNode == pauseButton {
+        SoundManager.sound.allButtonSound()
         pauseButton.handleButtonReleasedPause(button: pauseButton)
         showPauseOverlay()
         return
@@ -518,17 +523,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   func showNextStage() {
     // Clear all falling ingredients before showing the overlay
     clearAllIngredients()
-    
+
     nextStageOverlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
     nextStageOverlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
     nextStageOverlay.zPosition = 999
-    
+
     addChild(nextStageOverlay)
     nextStageOverlay.show()
-    
+    SoundManager.sound.stopInGameMusic()
+
     run(SKAction.sequence([
       SKAction.wait(forDuration: 1.0),
-        SKAction.run { self.isPaused = true }
+      SKAction.run { self.isPaused = true }
     ]))
   }
 
@@ -569,6 +575,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   private func handleGameOver() {
+    SoundManager.sound.stopInGameMusic()
     print("💀 Game Over! No lives remaining.")
 
     // Set game over flag to stop ingredient spawning
