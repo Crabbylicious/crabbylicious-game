@@ -200,10 +200,10 @@ class GameState {
   // MARK: - Smart Ingredient Selection
 
   /// Select ingredient using weighted random algorithm
-  /// - 70% weight: Needed ingredients (not yet fulfilled)
+  /// - 50% weight: Needed ingredients (not yet fulfilled)
   /// - 10% weight: Needed ingredients (already fulfilled)
   /// - 15% weight: Non-recipe ingredients
-  /// - 5% weight: Trap ingredients
+  /// - 25% weight: Trap ingredients
   func selectSmartIngredient() -> Ingredient {
     var weightedIngredients: [(ingredient: Ingredient, weight: Float)] = []
 
@@ -215,15 +215,15 @@ class GameState {
       let weight: Float
 
       if ingredient.isAbsurd {
-        // Trap ingredients: 5% weight
-        weight = 5.0
+        // Trap ingredients: 25% weight
+        weight = 25.0
       } else if let requiredAmount = recipe.ingredients[ingredient] {
         // This ingredient is in current recipe
         let collectedAmount = collectedIngredients[ingredient] ?? 0
 
         if collectedAmount < requiredAmount {
-          // Still needed: 70% weight
-          weight = 70.0
+          // Still needed: 50% weight
+          weight = 50.0
         } else {
           // Already fulfilled: 10% weight
           weight = 10.0
