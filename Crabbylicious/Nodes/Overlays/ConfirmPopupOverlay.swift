@@ -36,14 +36,16 @@ class ConfirmPopupOverlay: SKNode {
 
     // Yes button
     yesButton = ButtonNode(imageName: "ButtonYes", scale: 0.18)
-    yesButton.position = CGPoint(x: -popupSize.width / 4, y: -popupSize.height / 4)
+    yesButton.position = CGPoint(x: -popupSize.width / 4 + 10, y: -popupSize.height / 4 + 30)
+    yesButton.setScale(0.2)
     yesButton.name = "yesButton"
     yesButton.zPosition = 10
     addChild(yesButton)
 
     // No button
     noButton = ButtonNode(imageName: "ButtonNo", scale: 0.18)
-    noButton.position = CGPoint(x: popupSize.width / 4, y: -popupSize.height / 4)
+    noButton.position = CGPoint(x: popupSize.width / 4 - 10, y: -popupSize.height / 4 + 30)
+    noButton.setScale(0.2)
     noButton.name = "noButton"
     noButton.zPosition = 10
     addChild(noButton)
