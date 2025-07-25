@@ -329,7 +329,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
   private func updateIngredientSpawning(deltaTime: TimeInterval) {
     // Don't spawn ingredients if game over overlay is active
-    guard !gameOverActive else { return }
+    guard !gameOverActive, !gamePaused else { return }
 
     let gameState = GameState.shared
     gameState.ingredientSpawnTimer += deltaTime
@@ -458,7 +458,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   private func handleIngredientCaught(_ entity: GKEntity) {
     guard let ingredientComponent = entity.component(ofType: IngredientComponent.self),
           let spriteComponent = entity.component(ofType: SpriteComponent.self),
-          gameOverActive == false
+          gameOverActive == false,
+          gamePaused == false
     else {
       return
     }
@@ -516,9 +517,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   func showNextStage() {
-    // Clear all falling ingredients before showing the overlay
-    clearAllIngredients()
-
     nextStageOverlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
     nextStageOverlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
     nextStageOverlay.zPosition = 999
@@ -526,10 +524,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     addChild(nextStageOverlay)
     nextStageOverlay.show()
 
-    run(SKAction.sequence([
-      SKAction.wait(forDuration: 1.0),
-      SKAction.run { self.isPaused = true }
-    ]))
+    gamePaused = true
   }
 
   // Add this method to handle next stage transition
@@ -558,7 +553,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     }
 
     // Resume the game
-    isPaused = false
+    gamePaused = false
 
     print("🟢 GameScene: Next stage transition completed")
   }
