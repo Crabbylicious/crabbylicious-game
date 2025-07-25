@@ -673,7 +673,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     addChild(scoreLabel)
 
     // Animate the score label
-    let moveUp = SKAction.moveBy(x: 0, y: 50, duration: 0.8)
+    let moveUp = SKAction.moveBy(x: 0, y: 100, duration: 0.8)
     let fadeOut = SKAction.fadeOut(withDuration: 0.8)
     let scaleUp = SKAction.scale(to: 1.2, duration: 0.2)
     let scaleDown = SKAction.scale(to: 1.0, duration: 0.6)

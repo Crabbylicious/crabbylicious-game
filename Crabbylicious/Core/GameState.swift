@@ -172,7 +172,7 @@ class GameState {
     currentRecipe = GameData.recipes[currentRecipeIndex]
     resetCollectedIngredients()
 
-    difficultyMultiplier += 2 // Increase difficulty
+    difficultyMultiplier += 3 // Increase difficulty
     print("🎉 Recipes completed! Increasing difficulty to \(difficultyMultiplier)")
 
     // Reset ingredient counter for new recipe and update spawn rate
