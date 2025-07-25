@@ -30,7 +30,11 @@ class IngredientDisplayNode: SKNode {
   private func setupDisplay() {
     // Create ingredient sprite
     ingredientSprite = SKSpriteNode(imageNamed: ingredient.imageName)
-    ingredientSprite.size = CGSize(width: 40, height: 40)
+
+    // Use the ingredient's scale, but apply a base multiplier for the recipe card display
+    let baseSize: CGFloat = 400 // Base size for recipe card display
+    let scaledSize = baseSize * ingredient.scale
+    ingredientSprite.size = CGSize(width: scaledSize, height: scaledSize)
     ingredientSprite.position = CGPoint(x: 0, y: 8)
     addChild(ingredientSprite)
 
