@@ -346,7 +346,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   private func spawnRandomIngredient() {
     // Use smart ingredient selection instead of pure random
     let smartIngredient = GameState.shared.selectSmartIngredient()
-    let spawnX = CGFloat.random(in: gameArea.minX + 50 ... gameArea.maxX - 50)
+    let spawnX = CGFloat.random(in: gameArea.minX + 75 ... gameArea.maxX - 75)
     let spawnPosition = CGPoint(x: spawnX, y: size.height + 50)
 
     let ingredientEntity = IngredientEntity(scene: self, ingredient: smartIngredient, position: spawnPosition)
@@ -553,6 +553,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     }
 
     // Resume the game
+    clearAllIngredients()
     gamePaused = false
 
     print("🟢 GameScene: Next stage transition completed")
