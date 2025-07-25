@@ -19,7 +19,7 @@ class GameData {
   static let daging = Ingredient(imageName: "daging", name: "daging", isAbsurd: false, scale: 0.15)
   static let mie = Ingredient(imageName: "mie", name: "mie", isAbsurd: false, scale: 0.13)
   static let nasi = Ingredient(imageName: "nasi", name: "nasi", isAbsurd: false, scale: 0.15)
-  static let chili = Ingredient(imageName: "cabai", name: "cabai", isAbsurd: false, scale: 0.1)
+  static let chili = Ingredient(imageName: "Cabai", name: "cabai", isAbsurd: false, scale: 0.1)
 
   // Absurd ingredients (traps)
   static let trapFishBone = Ingredient(imageName: "fishBone", name: "fish bone", isAbsurd: true, scale: 0.09)
