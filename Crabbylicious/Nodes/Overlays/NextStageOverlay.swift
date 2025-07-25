@@ -124,44 +124,7 @@ class NextStageOverlay: SKNode {
       buttonFadeIn
     ]))
 
-//    let labelAnimation = SKAction.sequence([
-//      SKAction.wait(forDuration: 0.1),
-//      SKAction.fadeAlpha(to: 1.0, duration: 0.4)
-//    ])
-//
-//    // Animate dish movement
-//    let dishAnimation = SKAction.sequence([
-//      SKAction.wait(forDuration: 0.3),
-//      SKAction.moveTo(y: 30, duration: 0.5)
-//    ])
-//
-//    // Animate recipe label
-//    let recipeLabelAnimation = SKAction.sequence([
-//      SKAction.wait(forDuration: 0.4),
-//      SKAction.fadeAlpha(to: 1.0, duration: 0.4)
-//    ])
-//
-//    // Animate button
-//    let buttonAnimation = SKAction.sequence([
-//      SKAction.wait(forDuration: 0.5),
-//      SKAction.fadeAlpha(to: 1.0, duration: 0.3)
-//    ])
-//
-//    label.run(labelAnimation) {
-//      print("🟢 Label animation completed - alpha: \(self.label.alpha)")
-//    }
-//
-//    finishedDish.run(dishAnimation) {
-//      print("🟢 Dish animation completed - position: \(self.finishedDish.position)")
-//    }
-//
-//    recipeLabel.run(recipeLabelAnimation) {
-//      print("🟢 Recipe label animation completed - alpha: \(self.recipeLabel.alpha)")
-//    }
-//
-//    nextStage.run(buttonAnimation) {
-//      print("🟢 Button animation completed - alpha: \(self.nextStage.alpha)")
-//    }
+    SoundManager.sound.winSound()
   }
 
   private func handleNextStageButtonTapped() {
@@ -185,6 +148,8 @@ class NextStageOverlay: SKNode {
 
     for node in nodes {
       if let buttonNode = node as? ButtonNode {
+        SoundManager.sound.allButtonSound()
+        SoundManager.sound.playInGameMusic()
         buttonNode.handleButtonPressed(button: buttonNode)
       }
     }

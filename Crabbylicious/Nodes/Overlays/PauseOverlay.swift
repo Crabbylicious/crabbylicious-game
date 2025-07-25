@@ -104,10 +104,12 @@ class PauseOverlay: SKNode {
     switch touchedNode.name {
     case "resumeButton":
       animateButtonPress(touchedNode) {
+        SoundManager.sound.allButtonSound()
         self.delegate?.didTapResume()
       }
     case "backHomeButton":
       animateButtonPress(touchedNode) {
+        SoundManager.sound.allButtonSound()
         self.showConfirmPopup()
       }
     default:
