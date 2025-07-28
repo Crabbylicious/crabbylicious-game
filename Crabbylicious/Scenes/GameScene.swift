@@ -526,8 +526,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     SoundManager.sound.stopInGameMusic()
 
     run(SKAction.sequence([
-      SKAction.wait(forDuration: 1.0),
-      SKAction.run { self.isPaused = true }
+      SKAction.wait(forDuration: 1.75),
+        SKAction.run { self.isPaused = true }
     ]))
     gamePaused = true
   }
