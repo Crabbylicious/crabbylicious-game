@@ -16,10 +16,10 @@ class IngredientNode: SKSpriteNode {
     let texture = SKTexture(imageNamed: ingredient.imageName)
     super.init(texture: texture, color: .clear, size: texture.size())
 
-    setScale(0.1)
+    setScale(ingredient.scale)
 
     // Set up physics body for collision detection
-    physicsBody = SKPhysicsBody(circleOfRadius: size.width / 2)
+    physicsBody = SKPhysicsBody(circleOfRadius: 40)
     physicsBody?.categoryBitMask = PhysicsCategory.ingredient
     physicsBody?.contactTestBitMask = PhysicsCategory.basket
     physicsBody?.collisionBitMask = 0

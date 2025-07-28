@@ -77,10 +77,13 @@ class ConfirmPopupOverlay: SKNode {
     switch touchedNode.name {
     case "yesButton":
       animateButtonPress(touchedNode) {
+        SoundManager.sound.stopInGameMusic()
+        SoundManager.sound.allButtonSound()
         self.delegate?.didConfirmYes()
       }
     case "noButton":
       animateButtonPress(touchedNode) {
+        SoundManager.sound.allButtonSound()
         self.delegate?.didConfirmNo()
       }
     default:

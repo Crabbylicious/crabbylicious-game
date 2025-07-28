@@ -10,7 +10,7 @@ import SpriteKit
 class NextStageOverlay: SKNode {
   private var recipeCard: RecipeCardNode!
   private weak var gameScene: GameScene?
-  
+
   private var background: SKSpriteNode!
   private var congratulations: SKSpriteNode!
   private var border: SKSpriteNode!
@@ -27,9 +27,9 @@ class NextStageOverlay: SKNode {
   }
 
   @available(*, unavailable)
-  required init?(coder aDecoder: NSCoder) {
-    //super.init(coder: aDecoder)
-    return nil
+  required init?(coder _: NSCoder) {
+    // super.init(coder: aDecoder)
+    nil
   }
 
   private func setupOverlay(recipe: Recipe) {
@@ -93,9 +93,9 @@ class NextStageOverlay: SKNode {
   func show() {
     print("🟢 NextStageOverlay show() called")
     isUserInteractionEnabled = true
-    
+
     alpha = 1
-    
+
     border.alpha = 0
     congratulations.alpha = 0
     finishedDish.alpha = 0
@@ -103,17 +103,17 @@ class NextStageOverlay: SKNode {
     nextStage.alpha = 0
     finishedDish.alpha = 0
     finishedDish.position.y = border.position.y + 115
-    
+
     print("🟢 Starting animations...")
-    
+
     let fadeIn = SKAction.fadeIn(withDuration: 0.3)
     
     let crabSlideDown = SKAction.moveTo(y: border.position.y + 145, duration: 0.5)
     crabSlideDown.timingMode = .easeOut
-    
+
     let textFadeIn = SKAction.fadeIn(withDuration: 0.4)
     let buttonFadeIn = SKAction.fadeIn(withDuration: 0.3)
-    
+
     background.run(fadeIn) {
       print("🟢 Background animation completed")
     }
@@ -125,15 +125,16 @@ class NextStageOverlay: SKNode {
     
     congratulations.run(SKAction.sequence([
       SKAction.wait(forDuration: 0.6),
+
       textFadeIn
     ]))
-    
+
     finishedDish.run(SKAction.sequence([
       SKAction.wait(forDuration: 0.3),
       fadeIn,
       crabSlideDown
     ]))
-    
+
     recipeLabel.run(SKAction.sequence([
       SKAction.wait(forDuration: 0.7),
       textFadeIn
@@ -143,14 +144,16 @@ class NextStageOverlay: SKNode {
       SKAction.wait(forDuration: 0.8),
       textFadeIn
     ]))
-    
+
     nextStage.run(SKAction.sequence([
       SKAction.wait(forDuration: 1.0),
       buttonFadeIn
     ]))
-    
+
+    SoundManager.sound.winSound()
+
   }
-  
+
   private func handleNextStageButtonTapped() {
     print("🟢 Next Stage button tapped!")
 
@@ -172,6 +175,8 @@ class NextStageOverlay: SKNode {
 
     for node in nodes {
       if let buttonNode = node as? ButtonNode {
+        SoundManager.sound.allButtonSound()
+        SoundManager.sound.playInGameMusic()
         buttonNode.handleButtonPressed(button: buttonNode)
       }
     }

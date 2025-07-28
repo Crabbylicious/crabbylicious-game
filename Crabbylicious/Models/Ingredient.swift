@@ -12,4 +12,5 @@ struct Ingredient: Identifiable, Hashable {
   let imageName: String
   let name: String
   let isAbsurd: Bool
+  let scale: CGFloat
 }

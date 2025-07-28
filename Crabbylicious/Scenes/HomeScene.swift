@@ -43,6 +43,9 @@ class HomeScene: SKScene {
   override func didMove(to _: SKView) {
     _ = HapticManager.haptic
 
+    // Mulai background music lobby
+    SoundManager.sound.playLobbyMusic()
+
     let background = BackgroundNode(size: size)
     background.zPosition = 0
     addChild(background)
@@ -133,6 +136,7 @@ class HomeScene: SKScene {
 
     for node in nodes {
       if let buttonNode = node as? ButtonNode {
+        SoundManager.sound.startButtonSound()
         buttonNode.handleButtonPressed(button: buttonNode)
       }
     }
@@ -156,6 +160,8 @@ class HomeScene: SKScene {
   }
 
   private func startExitAnimationSequence() {
+    // Stop background music lobby
+    SoundManager.sound.stopLobbyMusic()
     // Disable further touches
     isUserInteractionEnabled = false
 

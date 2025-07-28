@@ -9,44 +9,55 @@ import Foundation
 
 class GameData {
   // Valid ingredients
-  static let cabbage = Ingredient(imageName: "kubis", name: "kubis", isAbsurd: false)
-  static let kacangPanjang = Ingredient(imageName: "kacangPanjang", name: "kacang panjang", isAbsurd: false)
-  static let kacang = Ingredient(imageName: "kacang", name: "kacang", isAbsurd: false)
-  static let krupuk = Ingredient(imageName: "krupuk", name: "krupuk", isAbsurd: false)
-  static let lontong = Ingredient(imageName: "lontong", name: "lontong", isAbsurd: false)
-  static let tahu = Ingredient(imageName: "tahu", name: "tahu", isAbsurd: false)
-  static let telor = Ingredient(imageName: "telor", name: "telor", isAbsurd: false)
+  static let cabbage = Ingredient(imageName: "kubis", name: "kubis", isAbsurd: false, scale: 0.1)
+  static let kacangPanjang = Ingredient(imageName: "kacangPanjang", name: "kacang panjang", isAbsurd: false, scale: 0.1)
+  static let kacang = Ingredient(imageName: "kacang", name: "kacang", isAbsurd: false, scale: 0.07)
+  static let krupuk = Ingredient(imageName: "krupuk", name: "krupuk", isAbsurd: false, scale: 0.12)
+  static let lontong = Ingredient(imageName: "lontong", name: "lontong", isAbsurd: false, scale: 0.11)
+  static let tahu = Ingredient(imageName: "tahu", name: "tahu", isAbsurd: false, scale: 0.1)
+  static let telor = Ingredient(imageName: "telor", name: "telor", isAbsurd: false, scale: 0.1)
+  static let daging = Ingredient(imageName: "daging", name: "daging", isAbsurd: false, scale: 0.15)
+  static let mie = Ingredient(imageName: "mie", name: "mie", isAbsurd: false, scale: 0.13)
+  static let nasi = Ingredient(imageName: "nasi", name: "nasi", isAbsurd: false, scale: 0.15)
+  static let chili = Ingredient(imageName: "Cabai", name: "cabai", isAbsurd: false, scale: 0.1)
 
   // Absurd ingredients (traps)
-  static let trapChili = Ingredient(imageName: "trapChilli", name: "trap chili", isAbsurd: true)
-  static let trapFishBone = Ingredient(imageName: "trapFishBone", name: "trap fish bone", isAbsurd: true)
+  static let trapFishBone = Ingredient(imageName: "fishBone", name: "fish bone", isAbsurd: true, scale: 0.09)
 
   static let recipes = [
     Recipe(name: "Gado-Gado", ingredients: [
       cabbage: 2,
       kacangPanjang: 2,
-      kacang: 1,
-      lontong: 2,
-      tahu: 1
-    ]),
-    Recipe(name: "Ketoprak", ingredients: [
+      kacang: 4,
       lontong: 3,
-      tahu: 2,
-      kacang: 2,
-      krupuk: 1
+      tahu: 3
     ]),
-    Recipe(name: "Nasi Gudeg", ingredients: [
+    Recipe(name: "Bakso", ingredients: [
+      daging: 4,
+      mie: 2,
+      cabbage: 1,
+      telor: 1,
+      krupuk: 2
+    ]),
+    Recipe(name: "Mie Instan", ingredients: [
+      mie: 4,
       telor: 2,
-      tahu: 1,
-      krupuk: 2,
-      cabbage: 1
+      cabbage: 1,
+      chili: 1
+    ]),
+    Recipe(name: "Ayam Geprek", ingredients: [
+      nasi: 3,
+      telor: 2,
+      cabbage: 1,
+      chili: 3,
+      krupuk: 2
     ])
   ]
 
   static let allIngredients = [
     // Valid ingredients
-    cabbage, kacangPanjang, kacang, krupuk, lontong, tahu, telor,
+    cabbage, kacangPanjang, kacang, krupuk, lontong, tahu, telor, daging, mie, nasi,
     // Absurd ingredients (traps)
-    trapChili, trapFishBone
+    chili, trapFishBone
   ]
 }

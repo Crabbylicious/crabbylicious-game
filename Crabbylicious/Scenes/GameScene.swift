@@ -75,6 +75,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
     catchingSystem = CatchingSystem(gameState: GameState.shared, scene: self)
 
+    SoundManager.sound.bubbleSound()
+
     // Add background and ground
     let background = BackgroundNode(size: size)
     addChild(background)
@@ -103,13 +105,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     scoreDisplay.position = CGPoint(x: 25, y: size.height - 75)
     addChild(scoreDisplay)
 
-//    nextStageOverlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
-//    //nextStageOverlay.delegate = self // Make sure GameScene conforms to NextStageOverlayDelegate
-//    nextStageOverlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
-//    nextStageOverlay.zPosition = 1000 // High z-position to appear on top
-//    nextStageOverlay.alpha = 0
-//    addChild(nextStageOverlay)
-    
     // Game Over Overlay (initially hidden)
     gameOverOverlay = GameOverOverlay(size: size)
     gameOverOverlay.delegate = self
@@ -238,6 +233,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   private func startActualGame() {
     print("🟢 Countdown finished - Game started!")
     gameStarted = true
+    // Mulai background music in-game
+    SoundManager.sound.playInGameMusic()
     print("🟢 Game fully started - ingredients will now spawn")
   }
 
@@ -329,7 +326,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
   private func updateIngredientSpawning(deltaTime: TimeInterval) {
     // Don't spawn ingredients if game over overlay is active
-    guard !gameOverActive else { return }
+    guard !gameOverActive, !gamePaused else { return }
 
     let gameState = GameState.shared
     gameState.ingredientSpawnTimer += deltaTime
@@ -346,7 +343,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   private func spawnRandomIngredient() {
     // Use smart ingredient selection instead of pure random
     let smartIngredient = GameState.shared.selectSmartIngredient()
-    let spawnX = CGFloat.random(in: gameArea.minX + 50 ... gameArea.maxX - 50)
+    let spawnX = CGFloat.random(in: gameArea.minX + 75 ... gameArea.maxX - 75)
     let spawnPosition = CGPoint(x: spawnX, y: size.height + 50)
 
     let ingredientEntity = IngredientEntity(scene: self, ingredient: smartIngredient, position: spawnPosition)
@@ -401,6 +398,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
       let location = touch.location(in: self)
       let touchedNode = atPoint(location)
       if touchedNode == pauseButton {
+        SoundManager.sound.allButtonSound()
         pauseButton.handleButtonReleasedPause(button: pauseButton)
         showPauseOverlay()
         return
@@ -458,7 +456,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   private func handleIngredientCaught(_ entity: GKEntity) {
     guard let ingredientComponent = entity.component(ofType: IngredientComponent.self),
           let spriteComponent = entity.component(ofType: SpriteComponent.self),
-          gameOverActive == false
+          gameOverActive == false,
+          gamePaused == false
     else {
       return
     }
@@ -518,18 +517,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   func showNextStage() {
     // Clear all falling ingredients before showing the overlay
     clearAllIngredients()
-    
     nextStageOverlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
     nextStageOverlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
     nextStageOverlay.zPosition = 999
-    
+
     addChild(nextStageOverlay)
     nextStageOverlay.show()
-    
+    SoundManager.sound.stopInGameMusic()
+
     run(SKAction.sequence([
       SKAction.wait(forDuration: 1.75),
         SKAction.run { self.isPaused = true }
     ]))
+    gamePaused = true
   }
 
   // Add this method to handle next stage transition
@@ -558,7 +558,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     }
 
     // Resume the game
-    isPaused = false
+    clearAllIngredients()
+    gamePaused = false
 
     print("🟢 GameScene: Next stage transition completed")
   }
@@ -569,6 +570,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   private func handleGameOver() {
+    SoundManager.sound.stopInGameMusic()
     print("💀 Game Over! No lives remaining.")
 
     // Set game over flag to stop ingredient spawning
@@ -677,7 +679,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     addChild(scoreLabel)
 
     // Animate the score label
-    let moveUp = SKAction.moveBy(x: 0, y: 50, duration: 0.8)
+    let moveUp = SKAction.moveBy(x: 0, y: 100, duration: 0.8)
     let fadeOut = SKAction.fadeOut(withDuration: 0.8)
     let scaleUp = SKAction.scale(to: 1.2, duration: 0.2)
     let scaleDown = SKAction.scale(to: 1.0, duration: 0.6)
