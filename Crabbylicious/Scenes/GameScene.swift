@@ -527,7 +527,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     nextStageOverlay.show()
     
     run(SKAction.sequence([
-      SKAction.wait(forDuration: 1.0),
+      SKAction.wait(forDuration: 1.75),
         SKAction.run { self.isPaused = true }
     ]))
   }

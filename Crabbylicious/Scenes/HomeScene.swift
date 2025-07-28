@@ -67,14 +67,14 @@ class HomeScene: SKScene {
 
     topCloud = CloudNode(position: CGPoint(
       x: gameArea.minX + 70 + (CloudNode.cloudSize.width / 2),
-      y: gameArea.maxY - 55 - (CloudNode.cloudSize.height / 2)
+      y: gameArea.maxY - 30 - (CloudNode.cloudSize.height / 2)
     ))
     topCloud.zPosition = 5
     addChild(topCloud)
 
     bottomCloud = CloudNode(position: CGPoint(
       x: gameArea.maxX - 70 - (CloudNode.cloudSize.width / 2),
-      y: gameArea.maxY - 151 - (CloudNode.cloudSize.height / 2)
+      y: gameArea.maxY - 120 - (CloudNode.cloudSize.height / 2)
     ))
     bottomCloud.zPosition = 5
     addChild(bottomCloud)
