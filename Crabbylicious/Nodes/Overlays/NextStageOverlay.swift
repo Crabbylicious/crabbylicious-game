@@ -60,7 +60,7 @@ class NextStageOverlay: SKNode {
     addChild(finishedDish)
 
     // recipe label
-    recipeLabel = SKLabelNode(text: "Mie Instan done")
+    recipeLabel = SKLabelNode(text: "\(GameState.shared.currentRecipe.name) done")
     recipeLabel.fontName = "Press Start 2P"
     recipeLabel.fontSize = 12
     recipeLabel.fontColor = .themeRed

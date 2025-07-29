@@ -20,6 +20,7 @@ class GameData {
   static let mie = Ingredient(imageName: "mie", name: "mie", isAbsurd: false, scale: 0.13)
   static let nasi = Ingredient(imageName: "nasi", name: "nasi", isAbsurd: false, scale: 0.15)
   static let chili = Ingredient(imageName: "Cabai", name: "cabai", isAbsurd: false, scale: 0.1)
+  static let ayam = Ingredient(imageName: "chicken", name: "ayam", isAbsurd: false, scale: 0.13)
 
   // Absurd ingredients (traps)
   static let trapFishBone = Ingredient(imageName: "fishBone", name: "fish bone", isAbsurd: true, scale: 0.09)
@@ -36,8 +37,8 @@ class GameData {
       daging: 4,
       mie: 2,
       cabbage: 1,
-      telor: 1,
-      krupuk: 2
+      tahu: 2,
+      lontong: 1
     ]),
     Recipe(name: "Mie Instan", ingredients: [
       mie: 4,
@@ -48,15 +49,15 @@ class GameData {
     Recipe(name: "Ayam Geprek", ingredients: [
       nasi: 3,
       telor: 2,
-      cabbage: 1,
+      ayam: 2,
       chili: 3,
-      krupuk: 2
+      krupuk: 1
     ])
   ]
 
   static let allIngredients = [
     // Valid ingredients
-    cabbage, kacangPanjang, kacang, krupuk, lontong, tahu, telor, daging, mie, nasi,
+    cabbage, kacangPanjang, kacang, krupuk, lontong, tahu, telor, daging, mie, ayam, nasi,
     // Absurd ingredients (traps)
     chili, trapFishBone
   ]
