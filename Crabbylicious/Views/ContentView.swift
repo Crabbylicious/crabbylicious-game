@@ -18,7 +18,8 @@ struct ContentView: View {
 
   var body: some View {
     SpriteView(scene: scene)
-      .ignoresSafeArea()
+      .edgesIgnoringSafeArea(.all)
+      .statusBar(hidden: true)
   }
 }
 
