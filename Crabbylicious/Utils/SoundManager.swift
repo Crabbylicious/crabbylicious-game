@@ -104,4 +104,8 @@ class SoundManager {
       print("Failed to play sound: \(error.localizedDescription)")
     }
   }
+
+  func stopSound() {
+    audioPlayer?.stop()
+  }
 }

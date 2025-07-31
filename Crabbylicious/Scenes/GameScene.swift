@@ -411,7 +411,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   // MARK: - Physics Contact Handling
 
   func didBegin(_ contact: SKPhysicsContact) {
-    guard gameStarted else { return } // Don't respond to touches during entrance
+    guard gameStarted, !gamePaused else { return } // Don't respond to touches during entrance
 
     var ingredientEntity: GKEntity?
     var basketEntity: GKEntity?
@@ -516,7 +516,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
   func showNextStage() {
     // Clear all falling ingredients before showing the overlay
-    clearAllIngredients()
     nextStageOverlay = NextStageOverlay(recipe: GameState.shared.currentRecipe, gameScene: self)
     nextStageOverlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
     nextStageOverlay.zPosition = 999
@@ -525,10 +524,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     nextStageOverlay.show()
     SoundManager.sound.stopInGameMusic()
 
-    run(SKAction.sequence([
-      SKAction.wait(forDuration: 1.75),
-        SKAction.run { self.isPaused = true }
-    ]))
     gamePaused = true
   }
 
@@ -558,6 +553,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     }
 
     // Resume the game
+    SoundManager.sound.stopSound()
     clearAllIngredients()
     gamePaused = false
 
