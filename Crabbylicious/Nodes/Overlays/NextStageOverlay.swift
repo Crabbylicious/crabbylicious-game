@@ -163,8 +163,6 @@ class NextStageOverlay: SKNode {
 
     // Resume the game if it was paused
     gameScene?.isPaused = false
-
-    print("🟢 Moved to next recipe: \(GameStateOld.shared.currentRecipe.name)")
   }
 
   override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {

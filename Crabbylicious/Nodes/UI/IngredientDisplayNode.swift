@@ -9,59 +9,45 @@ import GameplayKit
 import SpriteKit
 
 class IngredientDisplayNode: SKNode {
-  private let ingredient: Ingredient
-  private var count: Int
-
-  private var ingredientSprite: SKSpriteNode!
-  private var countLabel: SKLabelNode!
+  private let ingredientImageName: String
+  private let ingredientScale: CGFloat
+  private var ingredientCountNode: GameLabelNode
 
   init(ingredient: Ingredient, count: Int) {
-    self.ingredient = ingredient
-    self.count = count
     super.init()
-    setupDisplay()
+
+    ingredientImageName = ingredient.imageName
+    ingredientScale = ingredient.scale
+
+    let scaledSize = 400 * ingredientScale
+
+    let ingredientNode = SKSpriteNode(imageNamed: ingredientImageName)
+    ingredientNode.size = CGSize(width: scaledSize, height: scaledSize)
+    ingredientNode.position = CGPoint(x: 0, y: 8)
+
+    addChild(ingredientNode)
+
+    ingredientCountNode = GameLabelNode(text: "\(count)")
+
+    addChild(ingredientCountNode)
+  }
+
+  func updateCount(_ newCount: Int) {
+    ingredientCountNode.text = "\(newCount)"
+
+    if newCount == 0 {
+      let fadeAction = SKAction.fadeAlpha(to: 0.3, duration: 0.1)
+      run(fadeAction)
+    } else {
+      let scaleUp = SKAction.scale(to: 1.2, duration: 0.1)
+      let scaleDown = SKAction.scale(to: 1.0, duration: 0.1)
+      let bounce = SKAction.sequence([scaleUp, scaleDown])
+      ingredientCountNode.run(bounce)
+    }
   }
 
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
-  }
-
-  private func setupDisplay() {
-    // Create ingredient sprite
-    ingredientSprite = SKSpriteNode(imageNamed: ingredient.imageName)
-
-    // Use the ingredient's scale, but apply a base multiplier for the recipe card display
-    let baseSize: CGFloat = 400 // Base size for recipe card display
-    let scaledSize = baseSize * ingredient.scale
-    ingredientSprite.size = CGSize(width: scaledSize, height: scaledSize)
-    ingredientSprite.position = CGPoint(x: 0, y: 8)
-    addChild(ingredientSprite)
-
-    // Create count label
-    countLabel = SKLabelNode(text: "\(count)")
-    countLabel.fontName = "Press Start 2P"
-    countLabel.fontSize = 12
-    countLabel.fontColor = .black
-    countLabel.position = CGPoint(x: 0, y: -40)
-    countLabel.horizontalAlignmentMode = .center
-    addChild(countLabel)
-  }
-
-  func updateCount(_ newCount: Int) {
-    count = newCount
-    countLabel.text = "\(count)"
-
-    // Add visual feedback when count changes
-    if count == 0 {
-      let fadeAction = SKAction.fadeAlpha(to: 0.3, duration: 0.3)
-      run(fadeAction)
-    } else {
-      // Bounce effect when count updates
-      let scaleUp = SKAction.scale(to: 1.2, duration: 0.1)
-      let scaleDown = SKAction.scale(to: 1.0, duration: 0.1)
-      let bounce = SKAction.sequence([scaleUp, scaleDown])
-      countLabel.run(bounce)
-    }
   }
 }
