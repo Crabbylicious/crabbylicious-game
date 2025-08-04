@@ -9,24 +9,20 @@ import Foundation
 import SpriteKit
 
 class IngredientNode: SKSpriteNode {
-  let ingredient: Ingredient
-
   init(ingredient: Ingredient) {
-    self.ingredient = ingredient
     let texture = SKTexture(imageNamed: ingredient.imageName)
     super.init(texture: texture, color: .clear, size: texture.size())
 
     setScale(ingredient.scale)
 
-    // Set up physics body for collision detection
-    physicsBody = SKPhysicsBody(circleOfRadius: 40)
-    physicsBody?.categoryBitMask = PhysicsCategory.ingredient
-    physicsBody?.contactTestBitMask = PhysicsCategory.player
-    physicsBody?.collisionBitMask = 0
-    physicsBody?.affectedByGravity = true
-    physicsBody?.isDynamic = true
+    let physicsBody = SKPhysicsBody(circleOfRadius: 40)
+    physicsBody.categoryBitMask = PhysicsCategory.ingredient
+    physicsBody.contactTestBitMask = PhysicsCategory.player
+    physicsBody.collisionBitMask = 0
+    physicsBody.affectedByGravity = true
+    physicsBody.isDynamic = true
 
-    zPosition = 3
+    self.physicsBody = physicsBody
   }
 
   @available(*, unavailable)

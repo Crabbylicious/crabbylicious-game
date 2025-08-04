@@ -11,22 +11,24 @@ import SpriteKit
 
 class CrabNode: SKSpriteNode {
   init(size _: CGSize) {
-    let texture1 = SKTexture(imageNamed: "crab_1")
-    let texture2 = SKTexture(imageNamed: "crab_2")
+    let texture = SKTexture(imageNamed: "crab_1")
 
     super.init(texture: texture, color: .clear, size: texture.size())
     setScale(0.2)
-    zPosition = 3
 
     // Tambahkan physics body untuk deteksi kontak dengan ingredient
-    physicsBody = SKPhysicsBody(
+    let physicsBody = SKPhysicsBody(
       rectangleOf: CGSize(width: size.width * 0.7, height: size.height * 0.4),
       center: CGPoint(x: 0, y: -size.height * 0.15)
     )
-    physicsBody?.isDynamic = false // crab tidak terdorong oleh ingredient
-    physicsBody?.categoryBitMask = PhysicsCategory.player
-    physicsBody?.contactTestBitMask = PhysicsCategory.ingredient
-    physicsBody?.collisionBitMask = 0 // tidak saling dorong
+
+    physicsBody.categoryBitMask = PhysicsCategory.player
+    physicsBody.contactTestBitMask = PhysicsCategory.ingredient
+    physicsBody.collisionBitMask = 0 // tidak saling dorong
+    physicsBody.isDynamic = false // crab tidak terdorong oleh ingredient
+    physicsBody.affectedByGravity = false
+
+    self.physicsBody = physicsBody
   }
 
   @available(*, unavailable)
