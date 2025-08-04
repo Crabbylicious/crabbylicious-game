@@ -8,26 +8,24 @@
 import GameplayKit
 
 class ScoreComponent: GKComponent {
-  var score: Int = 0 {
-    didSet {
+  private var _score: Int = 0
+  var hasChanged: Bool = false // Track if score has changed since last system update
+
+  var score: Int {
+    get { _score }
+    set {
+      _score = newValue
       hasChanged = true
-      lastAddedPoints = score - oldValue
     }
   }
 
-  var hasChanged: Bool = false
-  var lastAddedPoints: Int = 0
-
-  func addPoints(_ points: Int) {
-    score += points
+  func addScore(_ points: Int) {
+    _score += points
+    hasChanged = true
   }
 
   func resetScore() {
-    score = 0
-  }
-
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
+    _score = 0
+    hasChanged = true
   }
 }

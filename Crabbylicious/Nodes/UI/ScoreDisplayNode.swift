@@ -70,7 +70,7 @@ class ScoreDisplayNode: SKNode {
   }
 
   func updateScoreDisplay() {
-    let currentScore = GameState.shared.score
+    let currentScore = GameStateOld.shared.score
     scoreLabel.text = "Score: \(currentScore)"
 
     // Update shadow text too
@@ -78,7 +78,7 @@ class ScoreDisplayNode: SKNode {
       shadowLabel.text = "Score: \(currentScore)"
     }
 
-    let currentHighScore = GameState.shared.highScore
+    let currentHighScore = GameStateOld.shared.highScore
     highScoreLabel.text = "High Score: \(currentHighScore)"
     highScoreShadowLabel.text = "High Score: \(currentHighScore)"
   }

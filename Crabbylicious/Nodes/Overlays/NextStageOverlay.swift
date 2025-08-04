@@ -60,7 +60,7 @@ class NextStageOverlay: SKNode {
     addChild(finishedDish)
 
     // recipe label
-    recipeLabel = SKLabelNode(text: "\(GameState.shared.currentRecipe.name) done")
+    recipeLabel = SKLabelNode(text: "\(GameStateOld.shared.currentRecipe.name) done")
     recipeLabel.fontName = "Press Start 2P"
     recipeLabel.fontSize = 12
     recipeLabel.fontColor = .themeRed
@@ -68,7 +68,7 @@ class NextStageOverlay: SKNode {
     recipeLabel.zPosition = 101
     addChild(recipeLabel)
 
-    scorelabel = SKLabelNode(text: "Score: \(GameState.shared.score)")
+    scorelabel = SKLabelNode(text: "Score: \(GameStateOld.shared.score)")
     scorelabel.fontName = "Press Start 2P"
     scorelabel.fontSize = 10
     scorelabel.fontColor = .gray
@@ -164,7 +164,7 @@ class NextStageOverlay: SKNode {
     // Resume the game if it was paused
     gameScene?.isPaused = false
 
-    print("🟢 Moved to next recipe: \(GameState.shared.currentRecipe.name)")
+    print("🟢 Moved to next recipe: \(GameStateOld.shared.currentRecipe.name)")
   }
 
   override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {

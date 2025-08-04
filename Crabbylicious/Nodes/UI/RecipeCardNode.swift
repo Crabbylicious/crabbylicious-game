@@ -42,8 +42,8 @@ class RecipeCardNode: SKSpriteNode {
     ingredientNodes.removeAll()
 
     // Calculate remaining ingredients manually
-    let currentRecipe = GameState.shared.currentRecipe
-    let collectedIngredients = GameState.shared.collectedIngredients
+    let currentRecipe = GameStateOld.shared.currentRecipe
+    let collectedIngredients = GameStateOld.shared.collectedIngredients
 
     print("🔍 DEBUG: Current recipe: \(currentRecipe.name)")
     print("🔍 DEBUG: Recipe ingredients: \(currentRecipe.ingredients)")
@@ -121,8 +121,8 @@ class RecipeCardNode: SKSpriteNode {
     print("🔍 DEBUG: Recipe card children: \(children.count)")
     print("🔍 DEBUG: Ingredient container children: \(ingredientContainer.children.count)")
     print("🔍 DEBUG: Ingredient nodes array: \(ingredientNodes.count)")
-    print("🔍 DEBUG: Current recipe: \(GameState.shared.currentRecipe.name)")
-    print("🔍 DEBUG: Collected ingredients: \(GameState.shared.collectedIngredients)")
+    print("🔍 DEBUG: Current recipe: \(GameStateOld.shared.currentRecipe.name)")
+    print("🔍 DEBUG: Collected ingredients: \(GameStateOld.shared.collectedIngredients)")
     print("🔍 DEBUG: ==============================")
   }
 

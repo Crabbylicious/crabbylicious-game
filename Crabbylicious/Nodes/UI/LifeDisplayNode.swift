@@ -23,7 +23,7 @@ class LifeDisplayNode: SKNode {
   }
 
   private func setupHeartDisplay() {
-    let maxLives = GameState.shared.maxLives
+    let maxLives = GameStateOld.shared.maxLives
     let totalWidth = CGFloat(maxLives) * heartSize.width + CGFloat(maxLives - 1) * heartSpacing
     let startX = -totalWidth / 2 + heartSize.width / 2
 
@@ -44,7 +44,7 @@ class LifeDisplayNode: SKNode {
   }
 
   func updateHeartDisplay() {
-    let currentLives = GameState.shared.lives
+    let currentLives = GameStateOld.shared.lives
 
     for (index, heartNode) in heartNodes.enumerated() {
       if index < currentLives {
@@ -56,9 +56,9 @@ class LifeDisplayNode: SKNode {
   }
 
   func animateLifeLoss() {
-    guard GameState.shared.lives < heartNodes.count else { return }
+    guard GameStateOld.shared.lives < heartNodes.count else { return }
 
-    let lostHeartIndex = GameState.shared.lives // Index of the heart that was lost
+    let lostHeartIndex = GameStateOld.shared.lives // Index of the heart that was lost
     let heartNode = heartNodes[lostHeartIndex]
 
     // Animate the heart loss

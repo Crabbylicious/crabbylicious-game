@@ -9,6 +9,6 @@ import Foundation
 
 enum PhysicsCategory {
   static let none: UInt32 = 0
-  static let basket: UInt32 = 1
+  static let player: UInt32 = 1
   static let ingredient: UInt32 = 2
 }

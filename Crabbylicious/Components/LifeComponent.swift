@@ -10,29 +10,22 @@ import GameplayKit
 // MARK: - LifeComponent
 
 class LifeComponent: GKComponent {
-  var lives: Int = 3 {
-    didSet { hasChanged = true }
-  }
-
-  var maxLives: Int = 3
+  private let maxLives: UInt8 = 3
   var hasChanged: Bool = false
+  var currentLives: UInt8 = 3
 
   func loseLife() {
-    if lives > 0 {
-      lives -= 1
+    if currentLives > 0 {
+      currentLives -= 1
+      hasChanged = true
     }
   }
 
   func resetLives() {
-    lives = maxLives
+    currentLives = maxLives
   }
 
   func isGameOver() -> Bool {
-    lives <= 0
-  }
-
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
+    currentLives <= 0
   }
 }

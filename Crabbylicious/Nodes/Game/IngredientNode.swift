@@ -21,7 +21,7 @@ class IngredientNode: SKSpriteNode {
     // Set up physics body for collision detection
     physicsBody = SKPhysicsBody(circleOfRadius: 40)
     physicsBody?.categoryBitMask = PhysicsCategory.ingredient
-    physicsBody?.contactTestBitMask = PhysicsCategory.basket
+    physicsBody?.contactTestBitMask = PhysicsCategory.player
     physicsBody?.collisionBitMask = 0
     physicsBody?.affectedByGravity = true
     physicsBody?.isDynamic = true

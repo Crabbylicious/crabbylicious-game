@@ -90,7 +90,7 @@ class HomeScene: SKScene {
 
     // High Score display
     highScoreLabel = SKLabelNode(fontNamed: "PressStart2P")
-    let highScore = GameState.shared.highScore
+    let highScore = GameStateOld.shared.highScore
     highScoreLabel.text = highScore > 0 ? "BEST SCORE: \(highScore)" : "BEST SCORE: 0"
     highScoreLabel.fontSize = 14
     highScoreLabel.fontColor = .white
