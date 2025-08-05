@@ -243,7 +243,7 @@ class HomeScene: SKScene {
 
   private func transitionToGameScene() {
     let screenSize = UIScreen.main.bounds.size
-    let gameScene = GameScene(size: screenSize)
+    let gameScene = GameSceneOld(size: screenSize)
 
     // No fade transition since backgrounds match
     view?.presentScene(gameScene)

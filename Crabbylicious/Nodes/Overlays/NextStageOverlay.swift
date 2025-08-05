@@ -9,7 +9,7 @@ import SpriteKit
 
 class NextStageOverlay: SKNode {
   private var recipeCard: RecipeCardNode!
-  private weak var gameScene: GameScene?
+  private weak var gameScene: GameSceneOld?
 
   private var background: SKSpriteNode!
   private var congratulations: SKSpriteNode!
@@ -19,7 +19,7 @@ class NextStageOverlay: SKNode {
   private var scorelabel: SKLabelNode!
   private var nextStage: ButtonNode!
 
-  init(recipe: Recipe, gameScene: GameScene) {
+  init(recipe: Recipe, gameScene: GameSceneOld) {
     super.init()
     self.gameScene = gameScene
     setupOverlay(recipe: recipe)

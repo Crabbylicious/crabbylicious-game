@@ -33,11 +33,9 @@ class EntityFactory {
   static func createIngredient(ingredient: Ingredient, position: CGPoint) -> GKEntity {
     let entity = GKEntity()
 
-    // Create ingredient node (using your existing IngredientNode)
     let ingredientNode = IngredientNode(ingredient: ingredient)
     ingredientNode.position = position
 
-    // Add components
     entity.addComponent(SpriteComponent(node: ingredientNode, layer: .gameplay))
     entity.addComponent(IngredientComponent(ingredient: ingredient))
     entity.addComponent(LifecycleComponent())
@@ -48,13 +46,13 @@ class EntityFactory {
   // MARK: - Button Entity
 
   static func createButton(
-    nodeType: ButtonNodeType,
+    buttonNodeType: ButtonNodeType,
     position: CGPoint,
     onTap: @escaping () -> Void
   ) -> GKEntity {
     let entity = GKEntity()
 
-    let buttonNode = createButtonNode(type: nodeType)
+    let buttonNode = createButtonNode(type: buttonNodeType)
     buttonNode.position = position
 
     entity.addComponent(SpriteComponent(node: buttonNode, layer: .ui))
@@ -67,10 +65,10 @@ class EntityFactory {
 
   // MARK: - Recipe Card Entity
 
-  static func createRecipeCard(position: CGPoint, size: CGSize) -> GKEntity {
+  static func createRecipeCard(position: CGPoint) -> GKEntity {
     let entity = GKEntity()
 
-    let recipeCardNode = RecipeCardNode(size)
+    let recipeCardNode = RecipeCardNode(recipe: GameData.recipes[0])
     recipeCardNode.position = position
 
     entity.addComponent(SpriteComponent(node: recipeCardNode, layer: .ui))
@@ -84,11 +82,9 @@ class EntityFactory {
   static func createScoreDisplay(position: CGPoint) -> GKEntity {
     let entity = GKEntity()
 
-    // Create score display node (using your existing ScoreDisplayNode)
     let scoreDisplayNode = ScoreDisplayNode()
     scoreDisplayNode.position = position
 
-    // Add components
     entity.addComponent(SpriteComponent(node: scoreDisplayNode, layer: .ui))
     entity.addComponent(ScoreComponent())
 
@@ -100,28 +96,44 @@ class EntityFactory {
   static func createLifeDisplay(position: CGPoint) -> GKEntity {
     let entity = GKEntity()
 
-    // Create life display node (using your existing LifeDisplayNode)
     let lifeDisplayNode = LifeDisplayNode()
     lifeDisplayNode.position = position
 
-    // Add components
     entity.addComponent(SpriteComponent(node: lifeDisplayNode, layer: .ui))
     entity.addComponent(LifeComponent())
 
     return entity
   }
 
-  // MARK: - Bubble Background Entity
+  // MARK: - Background Entity
 
   static func createBubbleBackground(size: CGSize, position: CGPoint) -> GKEntity {
     let entity = GKEntity()
 
-    // Create bubble background node
     let bubbleNode = BubbleBackgroundNode(size: size)
     bubbleNode.position = position
 
-    // Add components
     entity.addComponent(SpriteComponent(node: bubbleNode, layer: .background))
+
+    return entity
+  }
+
+  static func createBackground(size: CGSize) -> GKEntity {
+    let entity = GKEntity()
+
+    let backgroundNode = BackgroundNode(size: size)
+
+    entity.addComponent(SpriteComponent(node: backgroundNode, layer: .background))
+
+    return entity
+  }
+
+  static func createGround(size: CGSize) -> GKEntity {
+    let entity = GKEntity()
+
+    let groundNode = GroundNode(size: size)
+
+    entity.addComponent(SpriteComponent(node: groundNode, layer: .background))
 
     return entity
   }
