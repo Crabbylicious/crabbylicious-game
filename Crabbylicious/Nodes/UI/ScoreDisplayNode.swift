@@ -13,7 +13,9 @@ class ScoreDisplayNode: SKNode {
 
   override init() {
     scoreLabel = GameLabelNode(text: "Score: 0", withShadow: true)
+    scoreLabel.position = CGPoint(x: -30, y: 10)
     highScoreLabel = GameLabelNode(text: "High Score: 0", withShadow: true)
+    highScoreLabel.position = CGPoint(x: 0, y: -10)
     super.init()
     name = "scoreDisplay"
     addChild(scoreLabel)

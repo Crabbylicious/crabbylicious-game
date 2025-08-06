@@ -21,9 +21,10 @@ class IngredientDisplayNode: SKNode {
 
     let ingredientNode = SKSpriteNode(imageNamed: ingredientImageName)
     ingredientNode.size = CGSize(width: scaledSize, height: scaledSize)
-    ingredientNode.position = CGPoint(x: 0, y: 8)
+    ingredientNode.position = CGPoint(x: 0, y: 15)
 
     ingredientCountNode = GameLabelNode(text: "\(count)")
+    ingredientCountNode.position = CGPoint(x: 0, y: -15)
 
     super.init()
     addChild(ingredientNode)

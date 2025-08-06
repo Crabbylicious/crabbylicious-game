@@ -19,7 +19,7 @@ class SpriteComponent: GKComponent {
   let node: SKNode
 
   enum RenderLayer: CGFloat {
-    case background = 08
+    case background = 0
     case gameplay = 10
     case ui = 20
   }

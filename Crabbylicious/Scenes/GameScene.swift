@@ -62,7 +62,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
 
     // 4. Score display entity
     scoreDisplayEntity = EntityFactory.createScoreDisplay(
-      position: CGPoint(x: 25, y: size.height - 75)
+      position: CGPoint(x: 90, y: size.height - 120)
     )
     if let spriteComponent = scoreDisplayEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
@@ -71,7 +71,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     // 5. Pause button entity
     let pauseButtonEntity = EntityFactory.createButton(
       buttonNodeType: .pause,
-      position: CGPoint(x: 25, y: size.height - 100),
+      position: CGPoint(x: size.width - 50, y: size.height - 75),
       onTap: {
         // .. handle pause here
       }
@@ -82,7 +82,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
 
     // 6. Create Recipe Card entity
     let recipeCardEntity = EntityFactory.createRecipeCard(
-      position: CGPoint(x: size.width / 2, y: size.height - 100)
+      position: CGPoint(x: size.width / 2, y: size.height - 210)
     )
     if let spriteComponent = recipeCardEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
@@ -90,7 +90,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
 
     // 7. Create Life Display entity
     let lifeDisplayEntity = EntityFactory.createLifeDisplay(
-      position: CGPoint(x: size.width / 2, y: size.height - 120)
+      position: CGPoint(x: 60, y: size.height - 80)
     )
     if let spriteComponent = lifeDisplayEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)

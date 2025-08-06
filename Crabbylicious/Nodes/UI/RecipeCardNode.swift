@@ -10,15 +10,17 @@ import SpriteKit
 
 class RecipeCardNode: SKNode {
   private let cardBackground: SKSpriteNode
-  private var ingredients: [Ingredient: IngredientDisplayNode]!
+  private var ingredients: [Ingredient: IngredientDisplayNode]
 
   init(recipe: Recipe) {
     cardBackground = SKSpriteNode(imageNamed: "card")
-    cardBackground.setScale(0.6)
-    cardBackground.alpha = 0.5
+    ingredients = [:] // Initialize as empty dictionary
 
     super.init()
     name = "recipeCard"
+
+    cardBackground.setScale(0.6)
+    cardBackground.alpha = 0.5
     addChild(cardBackground)
 
     for (ingredient, count) in recipe.ingredients {
@@ -26,6 +28,8 @@ class RecipeCardNode: SKNode {
       ingredients[ingredient] = ingredientNode
       addChild(ingredientNode)
     }
+
+    layoutIngredients()
   }
 
   func updateRecipe(_ recipe: Recipe) {
@@ -36,10 +40,24 @@ class RecipeCardNode: SKNode {
       ingredients[ingredient] = ingredientNode
       addChild(ingredientNode)
     }
+
+    layoutIngredients()
   }
 
   func updateIngredientCount(_ ingredient: Ingredient, _ count: Int) {
     ingredients[ingredient]?.updateCount(count)
+  }
+
+  private func layoutIngredients() {
+    let spacing: CGFloat = 60
+    let startX = -CGFloat(ingredients.count - 1) * spacing / 2
+
+    for (index, (_, node)) in ingredients.enumerated() {
+      node.position = CGPoint(
+        x: startX + CGFloat(index) * spacing,
+        y: 0
+      )
+    }
   }
 
   @available(*, unavailable)
