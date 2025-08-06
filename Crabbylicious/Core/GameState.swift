@@ -52,7 +52,6 @@ class GameState {
   func decreaseLife() {
     if lives > 0 {
       lives -= 1
-      print("💔 Life lost! Lives remaining: \(lives)")
     }
   }
 
@@ -68,19 +67,15 @@ class GameState {
 
   func addScore(_ points: Int) {
     score += points
-    print("🎯 Score increased by \(points)! Total score: \(score)")
 
     // Check if we beat the high score
     if score > highScore {
-      let oldHighScore = highScore
       highScore = score
-      print("🏆 NEW HIGH SCORE! Old: \(oldHighScore), New: \(highScore)")
     }
   }
 
   func resetScore() {
     score = 0
-    print("🔄 Score reset to 0")
   }
 
   func isNewHighScore() -> Bool {
@@ -103,8 +98,6 @@ class GameState {
 
     // Clear collected ingredients
     collectedIngredients.removeAll()
-
-    print("🔄 Game reset - starting fresh!")
   }
 
   func getCurrentSpawnInterval() -> TimeInterval {
@@ -121,12 +114,6 @@ class GameState {
     // Apply minimum interval limit (don't spawn too fast)
     let finalInterval = max(totalInterval, minSpawnInterval)
 
-    print("🔧 Spawn Interval Calculation:")
-    print("   - Base: \(baseSpawnInterval)s")
-    print("   - Difficulty reduction: \(difficultyReduction)s (multiplier: \(difficultyMultiplier))")
-    print("   - Ingredient reduction: \(ingredientReduction)s (caught: \(ingredientsCaughtThisRecipe))")
-    print("   - Final interval: \(finalInterval)s")
-
     return finalInterval
   }
 
@@ -136,17 +123,6 @@ class GameState {
 
     // Increment the counter for spawn rate calculation
     ingredientsCaughtThisRecipe += 1
-    print("🥬 Collected \(ingredient.name) (Total this recipe: \(ingredientsCaughtThisRecipe))")
-
-    // Check if we should increase spawn rate
-    if ingredientsCaughtThisRecipe % ingredientsPerSpeedIncrease == 0 {
-      let newInterval = getCurrentSpawnInterval()
-      print("⚡ Spawn rate increased! New interval: \(newInterval)s")
-    }
-
-    print("Added \(ingredient.name). Now have: \(collectedIngredients[ingredient]!)")
-    print("Recipe needs: \(currentRecipe.ingredients)")
-    print("Currently have: \(collectedIngredients)")
   }
 
   func isRecipeComplete() -> Bool {
@@ -173,12 +149,9 @@ class GameState {
     resetCollectedIngredients()
 
     difficultyMultiplier += 3 // Increase difficulty
-    print("🎉 Recipes completed! Increasing difficulty to \(difficultyMultiplier)")
 
     // Reset ingredient counter for new recipe and update spawn rate
     ingredientsCaughtThisRecipe = 0
-    let newInterval = getCurrentSpawnInterval()
-    print("🍽️ New recipe: \(currentRecipe.name) | Spawn interval: \(newInterval)s")
   }
 
   func resetCollectedIngredients() {

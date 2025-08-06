@@ -36,7 +36,6 @@ class RecipeCardNode: SKSpriteNode {
   }
 
   func updateRecipeDisplay() {
-    print("🔍 DEBUG: RecipeCardNode - updateRecipeDisplay called")
     // Clear existing ingredient nodes
     ingredientNodes.forEach { $0.removeFromParent() }
     ingredientNodes.removeAll()
@@ -45,17 +44,10 @@ class RecipeCardNode: SKSpriteNode {
     let currentRecipe = GameState.shared.currentRecipe
     let collectedIngredients = GameState.shared.collectedIngredients
 
-    print("🔍 DEBUG: Current recipe: \(currentRecipe.name)")
-    print("🔍 DEBUG: Recipe ingredients: \(currentRecipe.ingredients)")
-    print("🔍 DEBUG: Collected ingredients: \(collectedIngredients)")
-
-    print("🔍 DEBUG: Clearing \(ingredientNodes.count) existing ingredient nodes")
     for node in ingredientNodes {
-      print("🔍 DEBUG: Removing ingredient node: \(node)")
       node.removeFromParent()
     }
     ingredientNodes.removeAll()
-    print("🔍 DEBUG: All ingredient nodes cleared")
 
     var remainingIngredients: [Ingredient: Int] = [:]
     var totalRemaining = 0
@@ -79,7 +71,7 @@ class RecipeCardNode: SKSpriteNode {
 
     // Create ingredient display nodes
     var index = 0
-    for (ingredient, required) in currentRecipe.ingredients {
+    for (ingredient, _) in currentRecipe.ingredients {
       let remaining = remainingIngredients[ingredient] ?? 0
 
       let row = index / maxItemsPerRow
@@ -101,29 +93,12 @@ class RecipeCardNode: SKSpriteNode {
   }
 
   func forceRefreshDisplay() {
-    print("🔍 DEBUG: Force refresh display called")
-
     // Remove all children from ingredient container
     ingredientContainer.removeAllChildren()
     ingredientNodes.removeAll()
 
-    print("🔍 DEBUG: Ingredient container cleared, children count: \(ingredientContainer.children.count)")
-
     // Call regular update
     updateRecipeDisplay()
-
-    print("🔍 DEBUG: Force refresh completed")
-  }
-
-  // Method to verify the current state (for debugging)
-  func debugCurrentState() {
-    print("🔍 DEBUG: === RecipeCardNode Current State ===")
-    print("🔍 DEBUG: Recipe card children: \(children.count)")
-    print("🔍 DEBUG: Ingredient container children: \(ingredientContainer.children.count)")
-    print("🔍 DEBUG: Ingredient nodes array: \(ingredientNodes.count)")
-    print("🔍 DEBUG: Current recipe: \(GameState.shared.currentRecipe.name)")
-    print("🔍 DEBUG: Collected ingredients: \(GameState.shared.collectedIngredients)")
-    print("🔍 DEBUG: ==============================")
   }
 
   @available(*, unavailable)

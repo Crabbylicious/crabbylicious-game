@@ -45,7 +45,6 @@ class AnimationComponent: GKComponent {
 
   func startBlinkingAnimation() {
     guard let crabNode else {
-      print("❌ AnimationComponent: No crab node reference for blinking animation")
       return
     }
 

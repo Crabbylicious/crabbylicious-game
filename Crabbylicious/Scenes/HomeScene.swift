@@ -98,7 +98,7 @@ class HomeScene: SKScene {
     highScoreLabel.zPosition = 10
     highScoreLabel.alpha = 0 // Start hidden
     addChild(highScoreLabel)
-    
+
     highScoreShadow = SKLabelNode(fontNamed: "PressStart2P")
     highScoreShadow.text = highScore > 0 ? "BEST SCORE: \(highScore)" : "BEST SCORE: 0"
     highScoreShadow.fontSize = 14
@@ -107,26 +107,17 @@ class HomeScene: SKScene {
     highScoreShadow.zPosition = 9
     highScoreShadow.alpha = 0
     addChild(highScoreShadow)
-    
+
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
       self.playButton.fadeIn()
 
-      //Fade in high score label shortly after button
+      // Fade in high score label shortly after button
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
         let fadeIn = SKAction.fadeIn(withDuration: 0.5)
         self.highScoreLabel.run(fadeIn)
         self.highScoreShadow.run(fadeIn)
       }
     }
-
-    // Debug: Verify all nodes are properly initialized
-    print("🟢 HomeScene nodes initialized:")
-    print("   - title: \(title != nil ? "✓" : "✗")")
-    print("   - titleShadow: \(titleShadow != nil ? "✓" : "✗")")
-    print("   - topCloud: \(topCloud != nil ? "✓" : "✗")")
-    print("   - bottomCloud: \(bottomCloud != nil ? "✓" : "✗")")
-    print("   - playButton: \(playButton != nil ? "✓" : "✗")")
-    print("   - highScoreLabel: \(highScoreLabel != nil ? "✓" : "✗")")
   }
 
   override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {
@@ -222,7 +213,7 @@ class HomeScene: SKScene {
 
     let highScoreMoveAction = SKAction.move(to: highScoreTarget, duration: exitAnimationDuration)
     highScoreMoveAction.timingMode = .easeInEaseOut
-    
+
     let highScoreShadowMoveAction = SKAction.move(to: highScoreShadowTarget, duration: exitAnimationDuration)
     highScoreShadowMoveAction.timingMode = .easeInEaseOut
 

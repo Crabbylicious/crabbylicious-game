@@ -39,13 +39,13 @@ class NextStageOverlay: SKNode {
     background.name = "nextStageBackground"
     background.position = .zero
     addChild(background)
-    
+
     border = SKSpriteNode(imageNamed: "BorderCongrats")
     border.zPosition = 101
     border.position = CGPoint(x: 0, y: -55)
     border.setScale(0.4)
     addChild(border)
-    
+
     congratulations = SKSpriteNode(imageNamed: "TextCongratulations")
     congratulations.zPosition = 101
     congratulations.position = CGPoint(x: border.position.x, y: border.position.y + 290)
@@ -75,7 +75,7 @@ class NextStageOverlay: SKNode {
     scorelabel.position = CGPoint(x: 0, y: border.position.y - 35)
     scorelabel.zPosition = 101
     addChild(scorelabel)
-    
+
     // Menu Button
     nextStage = ButtonNode(imageName: "ButtonNextStage")
     nextStage.name = "nextStageButton"
@@ -91,7 +91,6 @@ class NextStageOverlay: SKNode {
   }
 
   func show() {
-    print("🟢 NextStageOverlay show() called")
     isUserInteractionEnabled = true
 
     alpha = 1
@@ -104,25 +103,21 @@ class NextStageOverlay: SKNode {
     finishedDish.alpha = 0
     finishedDish.position.y = border.position.y + 115
 
-    print("🟢 Starting animations...")
-
     let fadeIn = SKAction.fadeIn(withDuration: 0.3)
-    
+
     let crabSlideDown = SKAction.moveTo(y: border.position.y + 145, duration: 0.5)
     crabSlideDown.timingMode = .easeOut
 
     let textFadeIn = SKAction.fadeIn(withDuration: 0.4)
     let buttonFadeIn = SKAction.fadeIn(withDuration: 0.3)
 
-    background.run(fadeIn) {
-      print("🟢 Background animation completed")
-    }
-    
+    background.run(fadeIn) {}
+
     border.run(SKAction.sequence([
       SKAction.wait(forDuration: 0.2),
       fadeIn
     ]))
-    
+
     congratulations.run(SKAction.sequence([
       SKAction.wait(forDuration: 0.6),
 
@@ -139,7 +134,7 @@ class NextStageOverlay: SKNode {
       SKAction.wait(forDuration: 0.7),
       textFadeIn
     ]))
-    
+
     scorelabel.run(SKAction.sequence([
       SKAction.wait(forDuration: 0.8),
       textFadeIn
@@ -151,21 +146,16 @@ class NextStageOverlay: SKNode {
     ]))
 
     SoundManager.sound.winSound()
-
   }
 
   private func handleNextStageButtonTapped() {
-    print("🟢 Next Stage button tapped!")
-
     gameScene?.proceedToNextStage()
-    
+
     // Remove this overlay
     removeFromParent()
 
     // Resume the game if it was paused
     gameScene?.isPaused = false
-
-    print("🟢 Moved to next recipe: \(GameState.shared.currentRecipe.name)")
   }
 
   override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {

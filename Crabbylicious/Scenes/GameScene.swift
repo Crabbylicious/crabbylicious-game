@@ -48,15 +48,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   private var gamePaused = false
 
   override init(size: CGSize) {
-    print("🟢 ECSGameScene: Initializing...")
-
     let maxAspectRatio: CGFloat = 16.0 / 9.0
     let playableWidth = size.height / maxAspectRatio
     let margin = (size.width - playableWidth) / 2
     gameArea = CGRect(x: margin, y: 0, width: playableWidth, height: size.height)
 
     super.init(size: size)
-    print("🟢 ECSGameScene: Super init completed")
   }
 
   @available(*, unavailable)
@@ -70,8 +67,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
     // Set consistent gravity - no more dynamic changes
     physicsWorld.gravity = CGVector(dx: 0, dy: -2) // Nice, consistent falling speed
-
-    print("🟢 ProperECSGameScene: didMove called")
 
     catchingSystem = CatchingSystem(gameState: GameState.shared, scene: self)
 
@@ -123,10 +118,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     pauseButton.zPosition = 100
     addChild(pauseButton)
 
-    // Test GameState
-    let gameState = GameState.shared
-    print("🟢 GameState recipe: \(gameState.currentRecipe.name)")
-
     // Create crab entity positioned OFF-SCREEN to the left
     let crabStartPosition = CGPoint(x: gameArea.minX - 100, y: size.height * 0.13)
     let crabFinalPosition = CGPoint(x: size.width / 2, y: size.height * 0.13)
@@ -138,8 +129,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     if let playerControl = crabEntity.component(ofType: PlayerControlComponent.self) {
       playerControl.isControllable = false
     }
-
-    print("🟢 Crab created off-screen, starting entrance animation...")
 
     // Start the entrance sequence
     startCrabEntranceAnimation(to: crabFinalPosition)
@@ -156,10 +145,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     bubbleNode1.position = CGPoint(x: size.width / 2, y: -bubbleNode1.size.height / 2)
     bubbleNode2.position = CGPoint(x: size.width / 2, y: bubbleNode1.position.y - bubbleNode1.size.height + overlapY)
 
-    print("🟢 GameScene: Starting bubbles from below screen")
-    print("   - Bubble 1: \(bubbleNode1.position)")
-    print("   - Bubble 2: \(bubbleNode2.position)")
-
     addChild(bubbleNode1)
     addChild(bubbleNode2)
 
@@ -173,8 +158,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   private func startBubbleEntranceAnimation(nodes: [BubbleBackgroundNode]) {
-    print("🟢 Starting fast bubble entrance animation")
-
     // Calculate how much to move up to fill screen
     let fastMoveDistance: CGFloat = size.height + nodes[0].size.height
 
@@ -187,7 +170,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
       fastMoveUp.timingMode = .easeOut
 
       node.run(fastMoveUp) {
-        print("🟢 Bubble fast entrance completed - switching to normal speed")
         // Mark that entrance is done (when first bubble completes)
         if node == nodes.first {
           self.bubbleEntranceCompleted = true
@@ -197,8 +179,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   private func startCountdownSequence() {
-    print("🟢 Starting countdown sequence...")
-
     // Wait a moment after crab entrance, then start countdown
     DispatchQueue.main.asyncAfter(deadline: .now() + countdownPause) {
       self.showCountdownNumber(3)
@@ -206,8 +186,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   private func showCountdownNumber(_ number: Int) {
-    print("🟢 Showing countdown: \(number)")
-
     // Create countdown node at center of screen
     let countdownPosition = CGPoint(x: size.width / 2, y: size.height / 2)
     let countdownNode = CountdownNode(number: number, position: countdownPosition)
@@ -231,18 +209,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   private func startActualGame() {
-    print("🟢 Countdown finished - Game started!")
     gameStarted = true
     // Mulai background music in-game
     SoundManager.sound.playInGameMusic()
-    print("🟢 Game fully started - ingredients will now spawn")
   }
 
   private func startCrabEntranceAnimation(to finalPosition: CGPoint) {
     guard let spriteComponent = crabEntity.component(ofType: SpriteComponent.self),
           let animationComponent = crabEntity.component(ofType: AnimationComponent.self)
     else {
-      print("❌ Missing components for crab entrance")
       return
     }
 
@@ -258,7 +233,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
       // Run the move action
       spriteComponent.node.run(moveAction) {
         // Animation completed
-        print("🟢 Crab entrance completed!")
 
         // Stop walking animation
         animationComponent.stopWalkingAnimation()
@@ -350,19 +324,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
     // Simply add entity - systems will find it automatically!
     addEntity(ingredientEntity)
-    print("🟢 Spawned smart ingredient: \(smartIngredient.name)")
   }
 
   // MARK: - Entity Management (Clean!)
 
   func addEntity(_ entity: GKEntity) {
-    print("🟢 Adding entity to EntityManager...")
     entityManager.addEntity(entity)
-    print("🟢 Entity added - systems will find it automatically!")
   }
 
   func removeEntity(_ entity: GKEntity) {
-    print("🟢 Removing entity from EntityManager...")
     entityManager.removeEntity(entity)
   }
 
@@ -467,7 +437,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
     // Absurd (non-recipe) ingredient
     if ingredient.isAbsurd {
-      print("Game Over - Caught absurd ingredient!")
       // Handle game over
       showWrongIndicator(at: spriteNode.position)
       removeEntity(entity)
@@ -480,32 +449,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     let requiredAmount = recipe.ingredients.first(where: { $0.0 == ingredient })?.1 ?? 0
     let currentAmount = GameState.shared.collectedIngredients[ingredient] ?? 0
 
-    print("🐛 DEBUG - Ingredient: \(ingredient.name)")
-    print("🐛 DEBUG - Required: \(requiredAmount), Current: \(currentAmount)")
-
     if requiredAmount > 0, currentAmount < requiredAmount {
       // ✅ Correct and still needed
       GameState.shared.addCollectedIngredient(ingredient)
       recipeCard.updateRecipeDisplay()
-      print(" 👀 Right ingredient caught!")
 
       spriteNode.removeFromParent()
       removeEntity(entity)
 
-      // Optional: Correct indicator animation
+      // Correct indicator animation
       showCorrectIndicator(on: spriteNode)
 
       if GameState.shared.isRecipeComplete() {
-        print("Collected: \(GameState.shared.collectedIngredients)")
-        print("Current Recipe: \(GameState.shared.currentRecipe.ingredients)")
-
-        print("Recipe Complete!")
         handleRecipeComplete()
       }
 
     } else {
-      // ❌ Wrong: either not in recipe or already fulfilled
-      print(" 👀 Wrong ingredient caught!")
       showWrongIndicator(at: spriteNode.position)
 
       // Remove the ingredient visually
@@ -529,35 +488,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
   // Add this method to handle next stage transition
   func proceedToNextStage() {
-    print("🟢 GameScene: Proceeding to next stage...")
-
-    // Debug current state before transition
-    recipeCard?.debugCurrentState()
-
     // Move to next recipe and reset ingredients
     GameState.shared.moveToNextRecipe()
-    print("🔍 DEBUG: New recipe in GameScene: \(GameState.shared.currentRecipe.name)")
-    print("🔍 DEBUG: Collected ingredients after reset: \(GameState.shared.collectedIngredients)")
 
     // Force refresh the recipe card display
     if let recipeCard {
-      print("🔍 DEBUG: Force refreshing recipe card from GameScene...")
       recipeCard.forceRefreshDisplay()
-
-      // Debug state after refresh
-      recipeCard.debugCurrentState()
-
-      print("🔍 DEBUG: Recipe card force refreshed")
-    } else {
-      print("❌ ERROR: Recipe card is nil in GameScene!")
     }
 
     // Resume the game
     SoundManager.sound.stopSound()
     clearAllIngredients()
     gamePaused = false
-
-    print("🟢 GameScene: Next stage transition completed")
   }
 
   private func handleRecipeComplete() {
@@ -567,7 +509,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
   private func handleGameOver() {
     SoundManager.sound.stopInGameMusic()
-    print("💀 Game Over! No lives remaining.")
 
     // Set game over flag to stop ingredient spawning
     gameOverActive = true
@@ -646,7 +587,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   private func animateCrabBlinking() {
     // Use the AnimationComponent to handle blinking - proper ECS approach
     guard let animationComponent = crabEntity.component(ofType: AnimationComponent.self) else {
-      print("❌ Could not find animation component for crab blinking")
       return
     }
 
@@ -722,8 +662,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   // MARK: - GameOverOverlayDelegate
 
   func didTapPlayAgain() {
-    print("🔄 Play Again tapped")
-
     // Hide overlay
     gameOverOverlay.hide()
 
@@ -745,13 +683,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
 
     // Clear any remaining ingredients from screen
     clearAllIngredients()
-
-    print("✅ Game restarted successfully")
   }
 
   func didTapBackHome() {
-    print("🏠 Back Home tapped")
-
     // Hide overlay first
     gameOverOverlay.hide()
 
@@ -771,8 +705,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
   }
 
   private func transitionToHomeScene() {
-    print("🏠 Transitioning to HomeScene...")
-
     // Ensure game is fully paused during transition
     gameStarted = false
     isPaused = true
@@ -782,8 +714,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, GameOverOverlayDelegate {
     // Use a fade transition for smooth experience
     let transition = SKTransition.fade(withDuration: 0.5)
     view?.presentScene(homeScene, transition: transition)
-
-    print("✅ Successfully transitioned to HomeScene")
   }
 
   func showPauseOverlay() {

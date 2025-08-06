@@ -24,7 +24,7 @@ class BubbleBackgroundSystem {
       let nodes = bubbleComponent.nodes
       guard nodes.count == 2 else { continue }
 
-      for (idx, node) in nodes.enumerated() {
+      for (_, node) in nodes.enumerated() {
         // Goyang kiri-kanan
         let offsetX = amplitude * sin(2 * .pi * freq * elapsed)
 
