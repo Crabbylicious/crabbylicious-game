@@ -21,12 +21,16 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
 
   // MARK: - Scene Lifecycle
 
-  override func didMove(to _: SKView) {
+  override func didMove(to view: SKView) {
     print("🎮 GameScene: Setting up game...")
+
+    SceneCoordinator.shared.setView(view)
 
     setupPhysics()
     setupEntities()
     setupSystems()
+
+    AnimationManager.shared.animateSceneEntrance(for: self)
 
     isInitialSetupComplete = true
 
@@ -41,12 +45,14 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
   func setupEntities() {
     // 1. Background entity
     let backgroundEntity = EntityFactory.createBackground(size: size)
+    entityManager.addEntity(backgroundEntity) // ADD TO MANAGER
     if let spriteComponent = backgroundEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
     }
 
     // 2. Ground entity
     let groundEntity = EntityFactory.createGround(size: size)
+    entityManager.addEntity(groundEntity) // ADD TO MANAGER
     if let spriteComponent = groundEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
     }
@@ -56,6 +62,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
       position: CGPoint(x: size.width / 2, y: size.height * 0.13),
       gameArea: frame
     )
+    entityManager.addEntity(crabEntity)
     if let spriteComponent = crabEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
     }
@@ -64,6 +71,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     scoreDisplayEntity = EntityFactory.createScoreDisplay(
       position: CGPoint(x: 90, y: size.height - 120)
     )
+    entityManager.addEntity(scoreDisplayEntity)
     if let spriteComponent = scoreDisplayEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
     }
@@ -76,6 +84,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
         // .. handle pause here
       }
     )
+    entityManager.addEntity(pauseButtonEntity)
     if let spriteComponent = pauseButtonEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
     }
@@ -84,6 +93,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     let recipeCardEntity = EntityFactory.createRecipeCard(
       position: CGPoint(x: size.width / 2, y: size.height - 210)
     )
+    entityManager.addEntity(recipeCardEntity)
     if let spriteComponent = recipeCardEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
     }
@@ -92,6 +102,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     let lifeDisplayEntity = EntityFactory.createLifeDisplay(
       position: CGPoint(x: 60, y: size.height - 80)
     )
+    entityManager.addEntity(lifeDisplayEntity)
     if let spriteComponent = lifeDisplayEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
     }
@@ -130,14 +141,19 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
 
     let location = touch.location(in: self)
 
+    print("🎯 Touch began at: \(location)")
+
     // Find the entity at touch location
     if let touchedEntity = findEntityAtPoint(location),
        let interaction = touchedEntity.component(ofType: InteractionComponent.self),
        interaction.isEnabled
     {
+      print("✅ Found entity with interaction component")
       // Store reference to currently touched entity
       currentTouchedEntity = touchedEntity
       interaction.handleTouchBegan(at: location)
+    } else {
+      print("⚠️ No interactive entity found at touch location")
     }
   }
 
@@ -200,31 +216,45 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
           let scoreDisplay = scoreDisplayEntity
     else {
       print("⚠️ Could not find entities for collision")
+      print("  - Ingredient entity: \(ingredientEntity != nil ? "Found" : "Not found")")
+      print("  - Crab entity: \(crabEntity != nil ? "Found" : "Not found")")
       return
     }
 
     guard let ingredientComponent = ingredient.component(ofType: IngredientComponent.self),
-          let ingredientSprite = ingredient.component(ofType: SpriteComponent.self),
           let ingredientLifecycle = ingredient.component(ofType: LifecycleComponent.self),
           let scoreComponent = scoreDisplay.component(ofType: ScoreComponent.self),
           let crabSprite = crab.component(ofType: SpriteComponent.self) else { return }
 
+    print("🎯 Caught ingredient: \(ingredientComponent.ingredient.name)")
     scoreComponent.addScore(5)
 
-    // Trigger basket animation
+    // Play sound and haptic
+    SoundManager.sound.playCorrectSound()
+    HapticManager.haptic.playSuccessHaptic()
+
+    // Trigger basket animation if available
     crabSprite.playAnimation(name: "catch")
 
-    // Play fruit caught animation, then remove
-    ingredientSprite.playAnimation(name: "caught") {
-      ingredientLifecycle.markForRemoval()
-    }
+    // Mark ingredient for removal
+    ingredientLifecycle.markForRemoval()
   }
 
   // MARK: - Helper Methods
 
   private func findEntityAtPoint(_ location: CGPoint) -> GKEntity? {
     let touchedNode = atPoint(location)
-    return findEntityForNode(touchedNode)
+
+    // Check the touched node and all its parents
+    var currentNode: SKNode? = touchedNode
+    while let node = currentNode {
+      if let entity = findEntityForNode(node) {
+        return entity
+      }
+      currentNode = node.parent
+    }
+
+    return nil
   }
 
   /// Find entity that owns a specific SKNode
@@ -235,7 +265,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
 
     for entity in allEntities {
       if let spriteComponent = entity.component(ofType: SpriteComponent.self),
-         spriteComponent.node === node
+         spriteComponent.node === node || spriteComponent.node === node.parent
       {
         return entity
       }

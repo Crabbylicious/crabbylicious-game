@@ -17,7 +17,7 @@ class ButtonNode: SKSpriteNode {
     super.init(texture: texture, color: .clear, size: texture.size())
 
     self.alpha = alpha
-    name = "button_\(imageName)"
+    name = imageName
 
     setScale(scale)
   }

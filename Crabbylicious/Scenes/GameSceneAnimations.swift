@@ -17,14 +17,14 @@ extension AnimationManager {
     for entity in entities {
       if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
         switch spriteComponent.name {
-        case "basket":
-          animate(spriteComponent.node, with: .slideIn(direction: .fromBottom, duration: 0.6), delay: 0.9)
+        case "crab":
+          animate(spriteComponent.node, with: .slideIn(direction: .fromLeft, duration: 0.6), delay: 0.1)
 
-        case "scoreLabel":
+        case "scoreDisplay":
           animate(spriteComponent.node, with: .slideIn(direction: .fromRight, duration: 0.5), delay: 0.1)
 
-        case "pauseButton":
-          animate(spriteComponent.node, with: .scaleIn(duration: 0.4), delay: 0.8)
+        case "ButtonPause":
+          animate(spriteComponent.node, with: .slideIn(direction: .fromRight, duration: 0.5), delay: 0.1)
 
         default:
           break
