@@ -139,7 +139,7 @@ class AnimationManager {
     guard let scene = node.scene else { return SKAction() }
 
     let originalPosition = node.position
-    var startPosition: CGPoint = switch direction {
+    let startPosition: CGPoint = switch direction {
     case .fromLeft:
       CGPoint(x: -node.frame.width, y: originalPosition.y)
     case .fromRight:
@@ -162,7 +162,7 @@ class AnimationManager {
   private func createSlideOutAction(direction: SlideDirection, duration: TimeInterval, for node: SKNode) -> SKAction {
     guard let scene = node.scene else { return SKAction() }
 
-    var endPosition: CGPoint = switch direction {
+    let endPosition: CGPoint = switch direction {
     case .toLeft:
       CGPoint(x: -node.frame.width, y: node.position.y)
     case .toRight:

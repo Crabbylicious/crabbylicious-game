@@ -45,7 +45,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
   func setupEntities() {
     // 1. Background entity
     let backgroundEntity = EntityFactory.createBackground(size: size)
-    entityManager.addEntity(backgroundEntity) // ADD TO MANAGER
+    entityManager.addEntity(backgroundEntity)
     if let spriteComponent = backgroundEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
     }
@@ -54,7 +54,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     let groundEntity = EntityFactory.createGround(
       position: CGPoint(x: size.width / 2, y: 40)
     )
-    entityManager.addEntity(groundEntity) // ADD TO MANAGER
+    entityManager.addEntity(groundEntity)
     if let spriteComponent = groundEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
     }

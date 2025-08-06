@@ -12,6 +12,7 @@ class IngredientNode: SKSpriteNode {
   init(ingredient: Ingredient) {
     let texture = SKTexture(imageNamed: ingredient.imageName)
     super.init(texture: texture, color: .clear, size: texture.size())
+    zPosition = 5
 
     setScale(ingredient.scale)
 
