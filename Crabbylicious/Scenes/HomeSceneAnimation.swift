@@ -11,7 +11,6 @@ extension AnimationManager {
   // MARK: - Home Scene Animations
 
   func animateHomeSceneEntrance(_ scene: HomeScene, completion: (() -> Void)?) {
-
     // Find and animate entities
     let entities = scene.entityManager.getEntitiesWith(componentType: SpriteComponent.self)
 
@@ -43,7 +42,6 @@ extension AnimationManager {
   }
 
   func animateHomeSceneExit(_ scene: HomeScene, completion: (() -> Void)?) {
-
     // Find and animate entities
     let entities = scene.entityManager.getEntitiesWith(componentType: SpriteComponent.self)
 

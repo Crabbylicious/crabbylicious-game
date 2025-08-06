@@ -112,7 +112,7 @@ class GameOverOverlay: SKNode {
     highScoreLabel.text = "Best Score: \(gameState.highScore)"
 
     // Check if this is a new high score and highlight it
-    if gameState.currentScore == gameState.highScore && gameState.currentScore > 0 {
+    if gameState.currentScore == gameState.highScore, gameState.currentScore > 0 {
       highScoreLabel.fontColor = SKColor.cyan
       highScoreLabel.text = "NEW BEST: \(gameState.highScore)"
     } else {

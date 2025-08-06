@@ -14,7 +14,7 @@ class SpawningSystem: System {
   func update(deltaTime: TimeInterval, context: GameContext) {
     // Only spawn if game is in playing state
     guard context.gameState.state == .playing else { return }
-    
+
     spawnTimer += deltaTime
 
     if spawnTimer >= spawnInterval {
@@ -30,14 +30,14 @@ class SpawningSystem: System {
     let spawnY = context.scene.frame.maxY + margin
 
     // Get ingredient using smart selection if recipe component exists
-    var ingredientData: Ingredient
-    
-    if let recipeEntity = context.entityManager.getEntitiesWith(componentType: CurrentRecipeComponent.self).first,
-       let recipeComponent = recipeEntity.component(ofType: CurrentRecipeComponent.self) {
-      ingredientData = recipeComponent.selectSmartIngredient()
+    var ingredientData: Ingredient = if let recipeEntity = context.entityManager
+      .getEntitiesWith(componentType: CurrentRecipeComponent.self).first,
+      let recipeComponent = recipeEntity.component(ofType: CurrentRecipeComponent.self)
+    {
+      recipeComponent.selectSmartIngredient()
     } else {
       // Fallback to random selection
-      ingredientData = GameData.allIngredients.randomElement() ?? GameData.allIngredients[0]
+      GameData.allIngredients.randomElement() ?? GameData.allIngredients[0]
     }
 
     let ingredient = EntityFactory.createIngredient(
@@ -46,20 +46,21 @@ class SpawningSystem: System {
     )
 
     context.entityManager.addEntity(ingredient)
-    
+
     // Add to scene
     if let spriteComponent = ingredient.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(context.scene)
     }
   }
-  
+
   private func getSmartIngredient(context: GameContext) -> Ingredient {
     // Try to get smart ingredient from recipe component
     if let recipeEntity = context.entityManager.getEntitiesWith(componentType: CurrentRecipeComponent.self).first,
-       let recipeComponent = recipeEntity.component(ofType: CurrentRecipeComponent.self) {
+       let recipeComponent = recipeEntity.component(ofType: CurrentRecipeComponent.self)
+    {
       return recipeComponent.selectSmartIngredient()
     }
-    
+
     // Fallback to random ingredient
     return GameData.allIngredients.randomElement() ?? GameData.allIngredients[0]
   }

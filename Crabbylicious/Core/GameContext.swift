@@ -12,8 +12,13 @@ struct GameContext {
   let entityManager: EntityManager
   let sceneCoordinator: SceneCoordinator
   let gameState: GameState
-  
-  init(scene: SKScene, entityManager: EntityManager, sceneCoordinator: SceneCoordinator, gameState: GameState = GameState.shared) {
+
+  init(
+    scene: SKScene,
+    entityManager: EntityManager,
+    sceneCoordinator: SceneCoordinator,
+    gameState: GameState = GameState.shared
+  ) {
     self.scene = scene
     self.entityManager = entityManager
     self.sceneCoordinator = sceneCoordinator

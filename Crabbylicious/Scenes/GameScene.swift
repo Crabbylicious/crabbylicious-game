@@ -13,12 +13,12 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
 
   let entityManager: EntityManager = .init()
   let systemManager: SystemManager = .init()
-  let gameState: GameState = GameState.shared
+  let gameState: GameState = .shared
 
   private var lastUpdateTime: TimeInterval = 0
   private var isInitialSetupComplete = false
   private var currentTouchedEntity: GKEntity?
-  
+
   private var scoreDisplayEntity: GKEntity!
   private var lifeDisplayEntity: GKEntity!
   private var crabEntity: GKEntity!
@@ -27,7 +27,6 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
   // MARK: - Scene Lifecycle
 
   override func didMove(to view: SKView) {
-
     SceneCoordinator.shared.setView(view)
 
     setupPhysics()
@@ -37,7 +36,6 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     AnimationManager.shared.animateSceneEntrance(for: self)
 
     isInitialSetupComplete = true
-
   }
 
   private func setupPhysics() {
@@ -119,7 +117,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
       ScoreAndLifeNodeUpdateSystem(),
       OverlayManagementSystem(),
       RenderingSystem(scene: self),
-      LifecycleSystem(), 
+      LifecycleSystem()
     ])
   }
 
@@ -208,7 +206,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
 
   func didBegin(_ contact: SKPhysicsContact) {
     guard gameState.state == .playing else { return }
-    
+
     var ingredientEntity: GKEntity?
 
     // Determine which body is ingredient and which is crab/ground
@@ -229,59 +227,58 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
           let recipeComponent = recipeCardEntity.component(ofType: CurrentRecipeComponent.self),
           let spriteComponent = recipeCardEntity.component(ofType: SpriteComponent.self),
           let recipeCardNode = spriteComponent.node as? RecipeCardNode else { return }
-    
+
     let isNeededIngredient = recipeComponent.currentRecipe.ingredients[ingredientComponent.ingredient] != nil
     let collectedCount = recipeComponent.collectedIngredients[ingredientComponent.ingredient] ?? 0
     let requiredCount = recipeComponent.currentRecipe.ingredients[ingredientComponent.ingredient] ?? 0
-    
-    if isNeededIngredient && collectedCount < requiredCount {
+
+    if isNeededIngredient, collectedCount < requiredCount {
       // This ingredient is needed and we haven't collected enough yet
       recipeComponent.caughtIngredient(ingredientComponent.ingredient)
-      
+
       // Update the visual display
       let remainingCount = max(0, requiredCount - (collectedCount + 1))
       recipeCardNode.updateIngredientCount(ingredientComponent.ingredient, remainingCount)
-      
+
       // Add points for correct ingredient
       if let scoreComponent = scoreDisplayEntity.component(ofType: ScoreComponent.self) {
         scoreComponent.addScore(10)
       }
-      
+
       SoundManager.sound.playCorrectSound()
       HapticManager.haptic.playSuccessHaptic()
-      
+
     } else {
       // Wrong ingredient or already have enough
       if let lifeComponent = lifeDisplayEntity.component(ofType: LifeComponent.self) {
         lifeComponent.loseLife()
-        
+
         if lifeComponent.isGameOver() {
           gameState.gameOver()
         }
       }
-      
+
       SoundManager.sound.playWrongSound()
       HapticManager.haptic.playFailureHaptic()
     }
-    
+
     // Check if recipe is completed
     if recipeComponent.isRecipeCompleted {
       gameState.completeRecipe()
-      
-      
+
       // Prepare for next recipe
       gameState.currentRecipeIndex = (gameState.currentRecipeIndex + 1) % GameData.recipes.count
       let nextRecipe = GameData.recipes[gameState.currentRecipeIndex]
-      
+
       // Reset recipe component for next recipe
       recipeComponent.updateRecipe(nextRecipe)
       recipeCardNode.updateRecipe(nextRecipe)
-      
+
       // Play completion sound
       SoundManager.sound.playCorrectSound()
       HapticManager.haptic.playSuccessHaptic()
     }
-    
+
     // Trigger crab animation if available
     crabSprite.playAnimation(name: "catch")
 

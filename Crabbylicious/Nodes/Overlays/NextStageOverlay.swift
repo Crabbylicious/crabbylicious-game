@@ -105,7 +105,6 @@ class NextStageOverlay: SKNode {
     finishedDish.alpha = 0
     finishedDish.position.y = border.position.y + 115
 
-
     let fadeIn = SKAction.fadeIn(withDuration: 0.3)
 
     let crabSlideDown = SKAction.moveTo(y: border.position.y + 145, duration: 0.5)
@@ -151,8 +150,7 @@ class NextStageOverlay: SKNode {
     SoundManager.sound.winSound()
   }
 
-
-    override func touchesEnded(_ touches: Set<UITouch>, with _: UIEvent?) {
+  override func touchesEnded(_ touches: Set<UITouch>, with _: UIEvent?) {
     guard let touch = touches.first else { return }
     let location = touch.location(in: self)
     let touchedNode = atPoint(location)
@@ -168,7 +166,7 @@ class NextStageOverlay: SKNode {
       break
     }
   }
-  
+
   private func animateButtonPress(_ button: SKNode, completion: @escaping () -> Void) {
     let scaleDown = SKAction.scale(to: 0.22, duration: 0.1)
     let scaleUp = SKAction.scale(to: 0.25, duration: 0.1)

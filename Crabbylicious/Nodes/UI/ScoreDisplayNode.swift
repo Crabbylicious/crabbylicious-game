@@ -31,7 +31,7 @@ class ScoreDisplayNode: SKNode {
     scoreLabel.text = "Score: \(score)"
     animateScoreIncrease()
   }
-  
+
   func updateHighScore(_ highScore: Int) {
     highScoreLabel.text = "High Score: \(highScore)"
   }

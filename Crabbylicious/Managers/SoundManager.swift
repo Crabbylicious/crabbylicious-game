@@ -19,7 +19,7 @@ class SoundManager {
   func playCorrectSound() {
     playSound(named: "soundBenar", withExtension: "wav")
   }
-  
+
   func playWrongSound() {
     playSound(named: "soundSalah", withExtension: "wav")
   }

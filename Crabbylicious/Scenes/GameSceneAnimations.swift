@@ -9,7 +9,6 @@ import Foundation
 
 extension AnimationManager {
   func animateGameSceneEntrance(_ scene: GameScene, completion: (() -> Void)? = nil) {
-
     // Find and animate entities
     let entities = scene.entityManager.getEntitiesWith(componentType: SpriteComponent.self)
 
@@ -38,7 +37,6 @@ extension AnimationManager {
   }
 
   func animateGameSceneExit(_ scene: GameScene, completion: (() -> Void)?) {
-
     let entities = scene.entityManager.getEntitiesWith(componentType: SpriteComponent.self)
 
     for entity in entities {
