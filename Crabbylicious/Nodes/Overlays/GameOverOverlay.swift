@@ -106,18 +106,19 @@ class GameOverOverlay: SKNode {
   }
 
   func show() {
-    // Update score displays with current values
-    scoreLabel.text = "Score: xxx"
-    highScoreLabel.text = "Best Score: yyy"
+    // Update score displays with current values from GameState
+    let gameState = GameState.shared
+    scoreLabel.text = "Score: \(gameState.currentScore)"
+    highScoreLabel.text = "Best Score: \(gameState.highScore)"
 
-//    // Check if this is a new high score and highlight it
-//    if GameStateOld.shared.score == GameStateOld.shared.highScore, GameStateOld.shared.score > 0 {
-//      // highScoreLabel.fontColor = SKColor.cyan
-//      highScoreLabel.text = "NEW BEST: \(GameStateOld.shared.highScore)"
-//    } else {
-//      // highScoreLabel.fontColor = SKColor.yellow
-//      highScoreLabel.text = "Best Score: \(GameStateOld.shared.highScore)"
-//    }
+    // Check if this is a new high score and highlight it
+    if gameState.currentScore == gameState.highScore && gameState.currentScore > 0 {
+      highScoreLabel.fontColor = SKColor.cyan
+      highScoreLabel.text = "NEW BEST: \(gameState.highScore)"
+    } else {
+      highScoreLabel.fontColor = SKColor.gray
+      highScoreLabel.text = "Best Score: \(gameState.highScore)"
+    }
 
     isUserInteractionEnabled = true
 
@@ -186,7 +187,7 @@ class GameOverOverlay: SKNode {
     run(fadeOut)
   }
 
-  override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {
+  override func touchesEnded(_ touches: Set<UITouch>, with _: UIEvent?) {
     guard let touch = touches.first else { return }
     let location = touch.location(in: self)
     let touchedNode = atPoint(location)

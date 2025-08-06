@@ -33,6 +33,7 @@ class RecipeCardNode: SKNode {
   }
 
   func updateRecipe(_ recipe: Recipe) {
+    ingredients.forEach { $0.value.removeFromParent() }
     ingredients.removeAll()
 
     for (ingredient, count) in recipe.ingredients {

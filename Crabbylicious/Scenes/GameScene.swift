@@ -13,17 +13,20 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
 
   let entityManager: EntityManager = .init()
   let systemManager: SystemManager = .init()
+  let gameState: GameState = GameState.shared
 
   private var lastUpdateTime: TimeInterval = 0
   private var isInitialSetupComplete = false
   private var currentTouchedEntity: GKEntity?
+  
   private var scoreDisplayEntity: GKEntity!
+  private var lifeDisplayEntity: GKEntity!
   private var crabEntity: GKEntity!
+  private var recipeCardEntity: GKEntity!
 
   // MARK: - Scene Lifecycle
 
   override func didMove(to view: SKView) {
-    print("🎮 GameScene: Setting up game...")
 
     SceneCoordinator.shared.setView(view)
 
@@ -35,7 +38,6 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
 
     isInitialSetupComplete = true
 
-    print("✅ GameScene: Setup complete!")
   }
 
   private func setupPhysics() {
@@ -79,7 +81,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
       spriteComponent.addToScene(self)
     }
 
-    // 5. Pause button entity
+    // 5. Pause Button entity
     let pauseButtonEntity = EntityFactory.createButton(
       buttonNodeType: .pause,
       position: CGPoint(x: size.width - 50, y: size.height - 75),
@@ -92,8 +94,8 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
       spriteComponent.addToScene(self)
     }
 
-    // 6. Create Recipe Card entity
-    let recipeCardEntity = EntityFactory.createRecipeCard(
+    // 6. Recipe Card Entity
+    recipeCardEntity = EntityFactory.createRecipeCard(
       position: CGPoint(x: size.width / 2, y: size.height - 210)
     )
     entityManager.addEntity(recipeCardEntity)
@@ -102,7 +104,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     }
 
     // 7. Create Life Display entity
-    let lifeDisplayEntity = EntityFactory.createLifeDisplay(
+    lifeDisplayEntity = EntityFactory.createLifeDisplay(
       position: CGPoint(x: 60, y: size.height - 80)
     )
     entityManager.addEntity(lifeDisplayEntity)
@@ -111,28 +113,27 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     }
   }
 
-  func setupSystems() {
+  private func setupSystems() {
     systemManager.addSystems([
       SpawningSystem(),
+      ScoreAndLifeNodeUpdateSystem(),
+      OverlayManagementSystem(),
       RenderingSystem(scene: self),
-      LifecycleSystem()
+      LifecycleSystem(), 
     ])
   }
 
   override func update(_ currentTime: TimeInterval) {
-    if lastUpdateTime == 0 {
-      lastUpdateTime = currentTime
-    }
-    let deltaTime = currentTime - lastUpdateTime
+    let deltaTime = lastUpdateTime > 0 ? currentTime - lastUpdateTime : 0
     lastUpdateTime = currentTime
 
-    let context = GameContext(
-      scene: self,
-      entityManager: entityManager,
-      sceneCoordinator: SceneCoordinator.shared
-    )
-
     if isInitialSetupComplete {
+      let context = GameContext(
+        scene: self,
+        entityManager: entityManager,
+        sceneCoordinator: SceneCoordinator.shared,
+        gameState: gameState
+      )
       systemManager.update(deltaTime: deltaTime, context: context)
     }
   }
@@ -143,8 +144,6 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     guard let touch = touches.first else { return }
 
     let location = touch.location(in: self)
-
-    print("🎯 Touch began at: \(location)")
     if location.y < size.height * 0.7 {
       // interaction in game area
       if let interaction = crabEntity.component(ofType: InteractionComponent.self) {
@@ -208,9 +207,11 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
   // MARK: - HANDLE CONTACT
 
   func didBegin(_ contact: SKPhysicsContact) {
+    guard gameState.state == .playing else { return }
+    
     var ingredientEntity: GKEntity?
 
-    // Determine which body is fruit and which is basket
+    // Determine which body is ingredient and which is crab/ground
     if contact.bodyA.categoryBitMask == PhysicsCategory.ingredient {
       ingredientEntity = findEntityForNode(contact.bodyA.node)
     } else if contact.bodyB.categoryBitMask == PhysicsCategory.ingredient {
@@ -218,22 +219,70 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     }
 
     guard let ingredient = ingredientEntity,
-          let scoreDisplay = scoreDisplayEntity
+          let ingredientComponent = ingredient.component(ofType: IngredientComponent.self)
     else {
       return
     }
 
     guard let ingredientLifecycle = ingredient.component(ofType: LifecycleComponent.self),
-          let scoreComponent = scoreDisplay.component(ofType: ScoreComponent.self),
-          let crabSprite = crabEntity.component(ofType: SpriteComponent.self) else { return }
-
-    scoreComponent.addScore(5)
-
-    // Play sound and haptic
-    SoundManager.sound.playCorrectSound()
-    HapticManager.haptic.playSuccessHaptic()
-
-    // Trigger basket animation if available
+          let crabSprite = crabEntity.component(ofType: SpriteComponent.self),
+          let recipeComponent = recipeCardEntity.component(ofType: CurrentRecipeComponent.self),
+          let spriteComponent = recipeCardEntity.component(ofType: SpriteComponent.self),
+          let recipeCardNode = spriteComponent.node as? RecipeCardNode else { return }
+    
+    let isNeededIngredient = recipeComponent.currentRecipe.ingredients[ingredientComponent.ingredient] != nil
+    let collectedCount = recipeComponent.collectedIngredients[ingredientComponent.ingredient] ?? 0
+    let requiredCount = recipeComponent.currentRecipe.ingredients[ingredientComponent.ingredient] ?? 0
+    
+    if isNeededIngredient && collectedCount < requiredCount {
+      // This ingredient is needed and we haven't collected enough yet
+      recipeComponent.caughtIngredient(ingredientComponent.ingredient)
+      
+      // Update the visual display
+      let remainingCount = max(0, requiredCount - (collectedCount + 1))
+      recipeCardNode.updateIngredientCount(ingredientComponent.ingredient, remainingCount)
+      
+      // Add points for correct ingredient
+      if let scoreComponent = scoreDisplayEntity.component(ofType: ScoreComponent.self) {
+        scoreComponent.addScore(10)
+      }
+      
+      SoundManager.sound.playCorrectSound()
+      HapticManager.haptic.playSuccessHaptic()
+      
+    } else {
+      // Wrong ingredient or already have enough
+      if let lifeComponent = lifeDisplayEntity.component(ofType: LifeComponent.self) {
+        lifeComponent.loseLife()
+        
+        if lifeComponent.isGameOver() {
+          gameState.gameOver()
+        }
+      }
+      
+      SoundManager.sound.playWrongSound()
+      HapticManager.haptic.playFailureHaptic()
+    }
+    
+    // Check if recipe is completed
+    if recipeComponent.isRecipeCompleted {
+      gameState.completeRecipe()
+      
+      
+      // Prepare for next recipe
+      gameState.currentRecipeIndex = (gameState.currentRecipeIndex + 1) % GameData.recipes.count
+      let nextRecipe = GameData.recipes[gameState.currentRecipeIndex]
+      
+      // Reset recipe component for next recipe
+      recipeComponent.updateRecipe(nextRecipe)
+      recipeCardNode.updateRecipe(nextRecipe)
+      
+      // Play completion sound
+      SoundManager.sound.playCorrectSound()
+      HapticManager.haptic.playSuccessHaptic()
+    }
+    
+    // Trigger crab animation if available
     crabSprite.playAnimation(name: "catch")
 
     // Mark ingredient for removal

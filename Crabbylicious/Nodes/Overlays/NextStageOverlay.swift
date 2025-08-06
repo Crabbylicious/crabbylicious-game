@@ -7,10 +7,14 @@
 
 import SpriteKit
 
-class NextStageOverlay: SKNode {
-  private var recipeCard: RecipeCardNode!
-  private weak var gameScene: GameScene?
+protocol NextStageOverlayDelegate: AnyObject {
+  func didTapNextStage()
+}
 
+class NextStageOverlay: SKNode {
+  weak var delegate: NextStageOverlayDelegate?
+
+  private var recipeCard: RecipeCardNode!
   private var background: SKSpriteNode!
   private var congratulations: SKSpriteNode!
   private var border: SKSpriteNode!
@@ -19,11 +23,12 @@ class NextStageOverlay: SKNode {
   private var scorelabel: SKLabelNode!
   private var nextStage: ButtonNode!
 
-  init(recipe: Recipe, gameScene: GameScene) {
+  private let overlaySize: CGSize
+
+  init(recipe: Recipe, size: CGSize) {
+    overlaySize = size
     super.init()
-    self.gameScene = gameScene
     setupOverlay(recipe: recipe)
-    isUserInteractionEnabled = true
   }
 
   @available(*, unavailable)
@@ -37,12 +42,12 @@ class NextStageOverlay: SKNode {
     background = SKSpriteNode(color: UIColor.black.withAlphaComponent(0.6), size: CGSize(width: 1000, height: 1000))
     background.zPosition = 100
     background.name = "nextStageBackground"
-    background.position = .zero
+    background.position = CGPoint(x: overlaySize.width / 2, y: overlaySize.height / 2)
     addChild(background)
 
     border = SKSpriteNode(imageNamed: "BorderCongrats")
     border.zPosition = 101
-    border.position = CGPoint(x: 0, y: -55)
+    border.position = CGPoint(x: background.position.x, y: background.position.y - 55)
     border.setScale(0.4)
     addChild(border)
 
@@ -54,6 +59,7 @@ class NextStageOverlay: SKNode {
 
     // Crab with the finished dish
     finishedDish = SKSpriteNode(imageNamed: recipe.name)
+    finishedDish.position = CGPoint(x: border.position.x, y: 0)
     finishedDish.name = "finishedDish"
     finishedDish.setScale(0.5)
     finishedDish.zPosition = 102
@@ -64,7 +70,7 @@ class NextStageOverlay: SKNode {
     recipeLabel.fontName = "Press Start 2P"
     recipeLabel.fontSize = 12
     recipeLabel.fontColor = .themeRed
-    recipeLabel.position = CGPoint(x: 0, y: border.position.y - 15)
+    recipeLabel.position = CGPoint(x: overlaySize.width / 2, y: border.position.y - 15)
     recipeLabel.zPosition = 101
     addChild(recipeLabel)
 
@@ -72,14 +78,14 @@ class NextStageOverlay: SKNode {
     scorelabel.fontName = "Press Start 2P"
     scorelabel.fontSize = 10
     scorelabel.fontColor = .gray
-    scorelabel.position = CGPoint(x: 0, y: border.position.y - 35)
+    scorelabel.position = CGPoint(x: overlaySize.width / 2, y: border.position.y - 35)
     scorelabel.zPosition = 101
     addChild(scorelabel)
 
     // Menu Button
     nextStage = ButtonNode(imageName: "ButtonNextStage")
     nextStage.name = "nextStageButton"
-    nextStage.position = CGPoint(x: 0, y: border.position.y - 80)
+    nextStage.position = CGPoint(x: overlaySize.width / 2, y: border.position.y - 50)
     nextStage.setScale(0.25)
     nextStage.zPosition = 101
 
@@ -87,7 +93,6 @@ class NextStageOverlay: SKNode {
   }
 
   func show() {
-    print("🟢 NextStageOverlay show() called")
     isUserInteractionEnabled = true
 
     alpha = 1
@@ -100,7 +105,6 @@ class NextStageOverlay: SKNode {
     finishedDish.alpha = 0
     finishedDish.position.y = border.position.y + 115
 
-    print("🟢 Starting animations...")
 
     let fadeIn = SKAction.fadeIn(withDuration: 0.3)
 
@@ -110,9 +114,7 @@ class NextStageOverlay: SKNode {
     let textFadeIn = SKAction.fadeIn(withDuration: 0.4)
     let buttonFadeIn = SKAction.fadeIn(withDuration: 0.3)
 
-    background.run(fadeIn) {
-      print("🟢 Background animation completed")
-    }
+    background.run(fadeIn)
 
     border.run(SKAction.sequence([
       SKAction.wait(forDuration: 0.2),
@@ -149,41 +151,28 @@ class NextStageOverlay: SKNode {
     SoundManager.sound.winSound()
   }
 
-  private func handleNextStageButtonTapped() {
-    print("🟢 Next Stage button tapped!")
 
-//    gameScene?.proceedToNextStage()
-
-    // Remove this overlay
-    removeFromParent()
-
-    // Resume the game if it was paused
-    gameScene?.isPaused = false
-  }
-
-  override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {
+    override func touchesEnded(_ touches: Set<UITouch>, with _: UIEvent?) {
     guard let touch = touches.first else { return }
     let location = touch.location(in: self)
-    let nodes = nodes(at: location)
+    let touchedNode = atPoint(location)
 
-    for node in nodes {
-      if let buttonNode = node as? ButtonNode {
-        SoundManager.sound.allButtonSound()
+    switch touchedNode.name {
+    case "nextStageButton":
+      animateButtonPress(touchedNode) {
         SoundManager.sound.playInGameMusic()
-        // ... handle buton presed
+        SoundManager.sound.allButtonSound()
+        self.delegate?.didTapNextStage()
       }
+    default:
+      break
     }
   }
-
-  override func touchesEnded(_ touches: Set<UITouch>, with _: UIEvent?) {
-    guard let touch = touches.first else { return }
-    let location = touch.location(in: self)
-    let nodes = nodes(at: location)
-
-    for node in nodes {
-      if let buttonNode = node as? ButtonNode {
-        // ... handle buton released
-      }
-    }
+  
+  private func animateButtonPress(_ button: SKNode, completion: @escaping () -> Void) {
+    let scaleDown = SKAction.scale(to: 0.22, duration: 0.1)
+    let scaleUp = SKAction.scale(to: 0.25, duration: 0.1)
+    let sequence = SKAction.sequence([scaleDown, scaleUp, SKAction.run(completion)])
+    button.run(sequence)
   }
 }

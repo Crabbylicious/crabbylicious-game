@@ -27,11 +27,11 @@ class GameData {
 
   static let recipes = [
     Recipe(name: "Gado-Gado", ingredients: [
-      cabbage: 2,
-      kacangPanjang: 2,
-      kacang: 4,
-      lontong: 3,
-      tahu: 3
+      cabbage: 1
+//      kacangPanjang: 2,
+//      kacang: 4,
+//      lontong: 3,
+//      tahu: 3
     ]),
     Recipe(name: "Bakso", ingredients: [
       daging: 4,

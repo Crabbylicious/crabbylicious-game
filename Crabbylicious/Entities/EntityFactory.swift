@@ -68,7 +68,7 @@ class EntityFactory {
   static func createRecipeCard(position: CGPoint) -> GKEntity {
     let entity = GKEntity()
 
-    let recipeCardNode = RecipeCardNode(recipe: GameData.recipes[0])
+    let recipeCardNode = RecipeCardNode(recipe: GameData.recipes[GameState.shared.currentRecipeIndex])
     recipeCardNode.position = position
 
     entity.addComponent(SpriteComponent(node: recipeCardNode, layer: .ui))

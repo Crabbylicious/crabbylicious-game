@@ -32,7 +32,7 @@ class LifeDisplayNode: SKNode {
     }
   }
 
-  func updateHeartDisplay(_ newLives: Int) {
+  func updateHeartDisplay(_ newLives: UInt8) {
     for (index, heartNode) in heartNodes.enumerated() {
       if index < newLives {
         heartNode.texture = SKTexture(imageNamed: "heartFull")

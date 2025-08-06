@@ -27,6 +27,15 @@ class ScoreDisplayNode: SKNode {
     fatalError("init(coder:) has not been implemented")
   }
 
+  func updateScore(_ score: Int) {
+    scoreLabel.text = "Score: \(score)"
+    animateScoreIncrease()
+  }
+  
+  func updateHighScore(_ highScore: Int) {
+    highScoreLabel.text = "High Score: \(highScore)"
+  }
+
   func updateScoreDisplay(_ score: Int) {
     scoreLabel.text = "Score: \(score)"
 

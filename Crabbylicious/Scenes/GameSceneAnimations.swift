@@ -9,7 +9,6 @@ import Foundation
 
 extension AnimationManager {
   func animateGameSceneEntrance(_ scene: GameScene, completion: (() -> Void)? = nil) {
-    print("🎬 Starting GameScene entrance animation")
 
     // Find and animate entities
     let entities = scene.entityManager.getEntitiesWith(componentType: SpriteComponent.self)
@@ -34,13 +33,11 @@ extension AnimationManager {
 
     // Complete after all animations
     DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-      print("✅ GameScene entrance animation completed")
       completion?()
     }
   }
 
   func animateGameSceneExit(_ scene: GameScene, completion: (() -> Void)?) {
-    print("🎬 Starting GameScene exit animation")
 
     let entities = scene.entityManager.getEntitiesWith(componentType: SpriteComponent.self)
 
@@ -53,7 +50,6 @@ extension AnimationManager {
     }
 
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-      print("✅ GameScene exit animation completed")
       completion?()
     }
   }

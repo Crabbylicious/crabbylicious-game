@@ -11,7 +11,6 @@ extension AnimationManager {
   // MARK: - Home Scene Animations
 
   func animateHomeSceneEntrance(_ scene: HomeScene, completion: (() -> Void)?) {
-    print("🎬 Starting HomeScene entrance animation")
 
     // Find and animate entities
     let entities = scene.entityManager.getEntitiesWith(componentType: SpriteComponent.self)
@@ -39,13 +38,11 @@ extension AnimationManager {
 
     // Complete after all animations
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-      print("✅ GameScene entrance animation completed")
       completion?()
     }
   }
 
   func animateHomeSceneExit(_ scene: HomeScene, completion: (() -> Void)?) {
-    print("🎬 Starting HomeScene exit animation")
 
     // Find and animate entities
     let entities = scene.entityManager.getEntitiesWith(componentType: SpriteComponent.self)
@@ -71,7 +68,6 @@ extension AnimationManager {
       }
       // Complete after all animations
       DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-        print("✅ GameScene entrance animation completed")
         completion?()
       }
     }
