@@ -128,10 +128,10 @@ class EntityFactory {
     return entity
   }
 
-  static func createGround(size: CGSize) -> GKEntity {
+  static func createGround(position: CGPoint) -> GKEntity {
     let entity = GKEntity()
 
-    let groundNode = GroundNode(size: size)
+    let groundNode = GroundNode(position: position)
 
     entity.addComponent(SpriteComponent(node: groundNode, layer: .background))
 
@@ -151,10 +151,7 @@ class EntityFactory {
   static func createCloud(position: CGPoint, name: String) -> GKEntity {
     let entity = GKEntity()
 
-    let cloudNode = SKSpriteNode(imageNamed: "cloud")
-
-    cloudNode.name = name
-    cloudNode.position = position
+    let cloudNode = CloudNode(position: position, name: name)
 
     entity.addComponent(SpriteComponent(node: cloudNode, layer: .background))
 

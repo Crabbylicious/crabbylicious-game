@@ -9,14 +9,15 @@ import GameplayKit
 import SpriteKit
 
 class GroundNode: SKSpriteNode {
-  init(size: CGSize) {
+  init(position: CGPoint) {
     let texture = SKTexture(imageNamed: "ground")
-    super.init(texture: texture, color: .clear, size: size)
+    super.init(texture: texture, color: .clear, size: texture.size())
 
     // Position the ground at the bottom of the screen
     name = "ground"
-    position = CGPoint(x: size.width / 2, y: self.size.height / 2)
+    self.position = position
     zPosition = 2
+    setScale(0.35)
   }
 
   @available(*, unavailable)

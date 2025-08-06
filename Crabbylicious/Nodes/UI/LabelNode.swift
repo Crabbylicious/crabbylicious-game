@@ -56,7 +56,6 @@ class GameLabelNode: SKLabelNode {
     verticalAlignmentMode = .center
 
     if withShadow {
-      print("adding shadow for (\(text))")
       addShadow()
     }
   }

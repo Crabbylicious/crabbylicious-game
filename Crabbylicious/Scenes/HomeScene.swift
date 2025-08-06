@@ -28,7 +28,9 @@ class HomeScene: SKScene, BaseScene {
     }
 
     // 2. Ground entity
-    let groundEntity = EntityFactory.createGround(size: size)
+    let groundEntity = EntityFactory.createGround(
+      position: CGPoint(x: size.width / 2, y: 40)
+    )
     entityManager.addEntity(groundEntity)
     if let spriteComponent = groundEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
