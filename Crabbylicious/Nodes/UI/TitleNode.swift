@@ -9,9 +9,11 @@ import GameplayKit
 import SpriteKit
 
 class TitleNode: SKSpriteNode {
-  init(size: CGSize) {
+  init(position: CGPoint) {
     let texture = SKTexture(imageNamed: "title")
-    super.init(texture: texture, color: .clear, size: size)
+    super.init(texture: texture, color: .clear, size: texture.size())
+    self.position = position
+    name = "title"
   }
 
   @available(*, unavailable)

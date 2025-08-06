@@ -13,6 +13,7 @@ class BubbleBackgroundNode: SKSpriteNode {
     let texture = SKTexture(imageNamed: "BubbleBackground")
     let dimention = CGSize(width: 1080, height: 1920)
     super.init(texture: texture, color: .clear, size: dimention)
+    name = "bubbleBackground"
     position = CGPoint(x: size.width / 2, y: size.height / 2)
     zPosition = 1
   }

@@ -9,4 +9,5 @@ import Foundation
 
 class GameState {
   var state: GameStateEnum = .playing
+  var highScore: Int = 0 // .. will read and update from userDefaults or any other persisten storage
 }

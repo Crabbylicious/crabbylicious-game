@@ -76,8 +76,8 @@ class AnimationManager {
   func animateSceneEntrance(for scene: SKScene, completion: (() -> Void)? = nil) {
     if scene is HomeScene {
       animateHomeSceneEntrance(scene as! HomeScene, completion: completion)
-    } else if scene is GameSceneOld {
-      animateGameSceneEntrance(scene as! GameSceneOld, completion: completion)
+    } else if scene is GameScene {
+      animateGameSceneEntrance(scene as! GameScene, completion: completion)
     }
   }
 
@@ -86,8 +86,8 @@ class AnimationManager {
   func animateSceneExit(for scene: SKScene, completion: (() -> Void)? = nil) {
     if scene is HomeScene {
       animateHomeSceneExit(scene as! HomeScene, completion: completion)
-    } else if scene is GameSceneOld {
-      animateGameSceneExit(scene as! GameSceneOld, completion: completion)
+    } else if scene is GameScene {
+      animateGameSceneExit(scene as! GameScene, completion: completion)
     }
   }
 

@@ -19,6 +19,7 @@ class GameLabelNode: SKLabelNode {
                    withShadow: Bool = false)
   {
     self.init()
+    name = "label_\(text)"
     setupLabel(text: text, size: size, color: color, alignment: alignment, withShadow: withShadow)
   }
 

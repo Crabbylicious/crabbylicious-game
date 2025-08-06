@@ -17,6 +17,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
   private var lastUpdateTime: TimeInterval = 0
   private var isInitialSetupComplete = false
   private var currentTouchedEntity: GKEntity?
+  private var scoreDisplayEntity: GKEntity!
 
   // MARK: - Scene Lifecycle
 
@@ -60,7 +61,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     }
 
     // 4. Score display entity
-    let scoreDisplayEntity = EntityFactory.createScoreDisplay(
+    scoreDisplayEntity = EntityFactory.createScoreDisplay(
       position: CGPoint(x: 25, y: size.height - 75)
     )
     if let spriteComponent = scoreDisplayEntity.component(ofType: SpriteComponent.self) {
@@ -182,39 +183,40 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
   // MARK: - HANDLE CONTACT
 
   func didBegin(_ contact: SKPhysicsContact) {
-    var fruitEntity: GKEntity?
-    var basketEntity: GKEntity?
+    var ingredientEntity: GKEntity?
+    var crabEntity: GKEntity?
 
     // Determine which body is fruit and which is basket
     if contact.bodyA.categoryBitMask == PhysicsCategory.ingredient {
-      fruitEntity = findEntityForNode(contact.bodyA.node)
-      basketEntity = findEntityForNode(contact.bodyB.node)
+      ingredientEntity = findEntityForNode(contact.bodyA.node)
+      crabEntity = findEntityForNode(contact.bodyB.node)
     } else if contact.bodyB.categoryBitMask == PhysicsCategory.ingredient {
-      fruitEntity = findEntityForNode(contact.bodyB.node)
-      basketEntity = findEntityForNode(contact.bodyA.node)
+      ingredientEntity = findEntityForNode(contact.bodyB.node)
+      crabEntity = findEntityForNode(contact.bodyA.node)
     }
 
-    guard let fruit = fruitEntity,
-          let basket = basketEntity
+    guard let ingredient = ingredientEntity,
+          let crab = crabEntity,
+          let scoreDisplay = scoreDisplayEntity
     else {
       print("⚠️ Could not find entities for collision")
       return
     }
 
-    guard let fruitComponent = fruit.component(ofType: IngredientComponent.self),
-          let fruitSprite = fruit.component(ofType: SpriteComponent.self),
-          let fruitLifecycle = fruit.component(ofType: LifecycleComponent.self),
-          let scoreComponent = basket.component(ofType: ScoreComponent.self),
-          let basketSprite = basket.component(ofType: SpriteComponent.self) else { return }
+    guard let ingredientComponent = ingredient.component(ofType: IngredientComponent.self),
+          let ingredientSprite = ingredient.component(ofType: SpriteComponent.self),
+          let ingredientLifecycle = ingredient.component(ofType: LifecycleComponent.self),
+          let scoreComponent = scoreDisplay.component(ofType: ScoreComponent.self),
+          let crabSprite = crab.component(ofType: SpriteComponent.self) else { return }
 
     scoreComponent.addScore(5)
 
     // Trigger basket animation
-    basketSprite.playAnimation(name: "catch")
+    crabSprite.playAnimation(name: "catch")
 
     // Play fruit caught animation, then remove
-    fruitSprite.playAnimation(name: "caught") {
-      fruitLifecycle.markForRemoval()
+    ingredientSprite.playAnimation(name: "caught") {
+      ingredientLifecycle.markForRemoval()
     }
   }
 

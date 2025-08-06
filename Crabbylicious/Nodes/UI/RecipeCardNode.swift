@@ -10,14 +10,15 @@ import SpriteKit
 
 class RecipeCardNode: SKNode {
   private let cardBackground: SKSpriteNode
-  private var ingredients: [Ingredient: IngredientDisplayNode]
+  private var ingredients: [Ingredient: IngredientDisplayNode]!
 
   init(recipe: Recipe) {
-    super.init()
     cardBackground = SKSpriteNode(imageNamed: "card")
     cardBackground.setScale(0.6)
     cardBackground.alpha = 0.5
 
+    super.init()
+    name = "recipeCard"
     addChild(cardBackground)
 
     for (ingredient, count) in recipe.ingredients {

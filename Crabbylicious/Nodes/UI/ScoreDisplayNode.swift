@@ -12,11 +12,10 @@ class ScoreDisplayNode: SKNode {
   private var highScoreLabel: GameLabelNode
 
   override init() {
-    super.init()
-
     scoreLabel = GameLabelNode(text: "Score: 0", withShadow: true)
     highScoreLabel = GameLabelNode(text: "High Score: 0", withShadow: true)
-
+    super.init()
+    name = "scoreDisplay"
     addChild(scoreLabel)
     addChild(highScoreLabel)
   }

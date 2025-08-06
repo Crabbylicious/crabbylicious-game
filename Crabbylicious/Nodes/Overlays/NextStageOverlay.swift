@@ -9,7 +9,7 @@ import SpriteKit
 
 class NextStageOverlay: SKNode {
   private var recipeCard: RecipeCardNode!
-  private weak var gameScene: GameSceneOld?
+  private weak var gameScene: GameScene?
 
   private var background: SKSpriteNode!
   private var congratulations: SKSpriteNode!
@@ -19,7 +19,7 @@ class NextStageOverlay: SKNode {
   private var scorelabel: SKLabelNode!
   private var nextStage: ButtonNode!
 
-  init(recipe: Recipe, gameScene: GameSceneOld) {
+  init(recipe: Recipe, gameScene: GameScene) {
     super.init()
     self.gameScene = gameScene
     setupOverlay(recipe: recipe)
@@ -60,7 +60,7 @@ class NextStageOverlay: SKNode {
     addChild(finishedDish)
 
     // recipe label
-    recipeLabel = SKLabelNode(text: "\(GameStateOld.shared.currentRecipe.name) done")
+    recipeLabel = SKLabelNode(text: "xxx done")
     recipeLabel.fontName = "Press Start 2P"
     recipeLabel.fontSize = 12
     recipeLabel.fontColor = .themeRed
@@ -68,7 +68,7 @@ class NextStageOverlay: SKNode {
     recipeLabel.zPosition = 101
     addChild(recipeLabel)
 
-    scorelabel = SKLabelNode(text: "Score: \(GameStateOld.shared.score)")
+    scorelabel = SKLabelNode(text: "Score: xxx")
     scorelabel.fontName = "Press Start 2P"
     scorelabel.fontSize = 10
     scorelabel.fontColor = .gray
@@ -82,10 +82,6 @@ class NextStageOverlay: SKNode {
     nextStage.position = CGPoint(x: 0, y: border.position.y - 80)
     nextStage.setScale(0.25)
     nextStage.zPosition = 101
-
-    nextStage.onButtonTapped = { [weak self] in
-      self?.handleNextStageButtonTapped()
-    }
 
     addChild(nextStage)
   }
@@ -156,7 +152,7 @@ class NextStageOverlay: SKNode {
   private func handleNextStageButtonTapped() {
     print("🟢 Next Stage button tapped!")
 
-    gameScene?.proceedToNextStage()
+//    gameScene?.proceedToNextStage()
 
     // Remove this overlay
     removeFromParent()
@@ -174,7 +170,7 @@ class NextStageOverlay: SKNode {
       if let buttonNode = node as? ButtonNode {
         SoundManager.sound.allButtonSound()
         SoundManager.sound.playInGameMusic()
-        buttonNode.handleButtonPressed(button: buttonNode)
+        // ... handle buton presed
       }
     }
   }
@@ -186,7 +182,7 @@ class NextStageOverlay: SKNode {
 
     for node in nodes {
       if let buttonNode = node as? ButtonNode {
-        buttonNode.handleButtonReleased(button: buttonNode)
+        // ... handle buton released
       }
     }
   }

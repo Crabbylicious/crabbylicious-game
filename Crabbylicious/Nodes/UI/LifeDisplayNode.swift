@@ -14,6 +14,7 @@ class LifeDisplayNode: SKNode {
 
   override init() {
     super.init()
+    name = "lifeDisplay"
 
     let totalWidth = 3 * heartSize.width + 2 * heartSpacing
     let startX = -totalWidth / 2 + heartSize.width / 2

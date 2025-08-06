@@ -9,9 +9,5 @@ import GameplayKit
 import SpriteKit
 
 protocol BaseScene: SKScene {
-  var entityManager: EntityManager { get }
-  var systemManager: SystemManager { get }
-
-  func setupSystems()
   func setupEntities()
 }

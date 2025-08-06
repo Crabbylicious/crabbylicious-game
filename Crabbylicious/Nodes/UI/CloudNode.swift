@@ -9,9 +9,10 @@ import GameplayKit
 import SpriteKit
 
 class CloudNode: SKSpriteNode {
-  init(position: CGPoint) {
+  init(position: CGPoint, name: String) {
     let texture = SKTexture(imageNamed: "cloud")
     super.init(texture: texture, color: .clear, size: CGSize(width: 193, height: 193))
+    self.name = name
     self.position = position
   }
 

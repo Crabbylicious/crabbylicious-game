@@ -16,7 +16,7 @@ class LifecycleSystem: System {
             let lifecycle = entity.component(ofType: LifecycleComponent.self) else { continue }
 
       // Remove entities that fall below screen
-      if spriteComponent.position.y < context.gameArea.minY - 100 {
+      if spriteComponent.position.y < context.scene.frame.minY - 100 {
         lifecycle.markForRemoval()
       }
     }

@@ -14,8 +14,6 @@ class IngredientDisplayNode: SKNode {
   private var ingredientCountNode: GameLabelNode
 
   init(ingredient: Ingredient, count: Int) {
-    super.init()
-
     ingredientImageName = ingredient.imageName
     ingredientScale = ingredient.scale
 
@@ -25,10 +23,10 @@ class IngredientDisplayNode: SKNode {
     ingredientNode.size = CGSize(width: scaledSize, height: scaledSize)
     ingredientNode.position = CGPoint(x: 0, y: 8)
 
-    addChild(ingredientNode)
-
     ingredientCountNode = GameLabelNode(text: "\(count)")
 
+    super.init()
+    addChild(ingredientNode)
     addChild(ingredientCountNode)
   }
 

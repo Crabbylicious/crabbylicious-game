@@ -138,6 +138,39 @@ class EntityFactory {
     return entity
   }
 
+  static func createTitle(position: CGPoint) -> GKEntity {
+    let entity = GKEntity()
+
+    let titleNode = TitleNode(position: position)
+
+    entity.addComponent(SpriteComponent(node: titleNode, layer: .background))
+
+    return entity
+  }
+
+  static func createCloud(position: CGPoint, name: String) -> GKEntity {
+    let entity = GKEntity()
+
+    let cloudNode = SKSpriteNode(imageNamed: "cloud")
+
+    cloudNode.name = name
+    cloudNode.position = position
+
+    entity.addComponent(SpriteComponent(node: cloudNode, layer: .background))
+
+    return entity
+  }
+
+  static func createCurrentHighScore(position _: CGPoint) -> GKEntity {
+    let entity = GKEntity()
+
+    let currentHighScoreLabelNode = GameLabelNode(text: "Current Highscore : xxx")
+
+    entity.addComponent(SpriteComponent(node: currentHighScoreLabelNode, layer: .background))
+
+    return entity
+  }
+
   // MARK: - Helper Methods
 
   private static func createButtonNode(type: ButtonNodeType) -> SKSpriteNode {

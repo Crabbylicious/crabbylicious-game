@@ -13,11 +13,11 @@ class ButtonNode: SKSpriteNode {
 
   init(imageName: String, scale: CGFloat = 0.4, alpha: CGFloat = 1.0) {
     let texture = SKTexture(imageNamed: imageName)
-
     initialScale = scale
-    self.alpha = alpha
-
     super.init(texture: texture, color: .clear, size: texture.size())
+
+    self.alpha = alpha
+    name = "button_\(imageName)"
 
     setScale(scale)
   }

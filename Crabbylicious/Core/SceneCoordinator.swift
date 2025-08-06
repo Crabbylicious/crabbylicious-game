@@ -46,12 +46,11 @@ class SceneCoordinator {
     transition: SKTransition,
     view: SKView
   ) {
-    let newScene: SKScene
-    switch sceneType {
+    let newScene: SKScene = switch sceneType {
     case .home:
-//      newScene = HomeScene()
+      HomeScene()
     case .game:
-//      newScene = GameScene()
+      GameScene()
     }
 
     newScene.size = view.bounds.size

@@ -67,7 +67,7 @@ class GameOverOverlay: SKNode {
 
     // Current Score label
     scoreLabel = SKLabelNode(fontNamed: "PressStart2P")
-    scoreLabel.text = "Score: \(GameStateOld.shared.score)"
+    scoreLabel.text = "Score: xxx"
     scoreLabel.fontSize = 12
     scoreLabel.fontColor = .themeRed
     scoreLabel.position = CGPoint(x: border.position.x, y: border.position.y + 30)
@@ -76,7 +76,7 @@ class GameOverOverlay: SKNode {
 
     // High Score label
     highScoreLabel = SKLabelNode(fontNamed: "PressStart2P")
-    let highScore = GameStateOld.shared.highScore
+    let highScore = 999
     highScoreLabel.text = "Best Score: \(highScore)"
     highScoreLabel.fontSize = 10
     highScoreLabel.fontColor = SKColor.gray
@@ -107,17 +107,17 @@ class GameOverOverlay: SKNode {
 
   func show() {
     // Update score displays with current values
-    scoreLabel.text = "Score: \(GameStateOld.shared.score)"
-    highScoreLabel.text = "Best Score: \(GameStateOld.shared.highScore)"
+    scoreLabel.text = "Score: xxx"
+    highScoreLabel.text = "Best Score: yyy"
 
-    // Check if this is a new high score and highlight it
-    if GameStateOld.shared.score == GameStateOld.shared.highScore, GameStateOld.shared.score > 0 {
-      // highScoreLabel.fontColor = SKColor.cyan
-      highScoreLabel.text = "NEW BEST: \(GameStateOld.shared.highScore)"
-    } else {
-      // highScoreLabel.fontColor = SKColor.yellow
-      highScoreLabel.text = "Best Score: \(GameStateOld.shared.highScore)"
-    }
+//    // Check if this is a new high score and highlight it
+//    if GameStateOld.shared.score == GameStateOld.shared.highScore, GameStateOld.shared.score > 0 {
+//      // highScoreLabel.fontColor = SKColor.cyan
+//      highScoreLabel.text = "NEW BEST: \(GameStateOld.shared.highScore)"
+//    } else {
+//      // highScoreLabel.fontColor = SKColor.yellow
+//      highScoreLabel.text = "Best Score: \(GameStateOld.shared.highScore)"
+//    }
 
     isUserInteractionEnabled = true
 
