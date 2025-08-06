@@ -18,6 +18,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
   private var isInitialSetupComplete = false
   private var currentTouchedEntity: GKEntity?
   private var scoreDisplayEntity: GKEntity!
+  private var crabEntity: GKEntity!
 
   // MARK: - Scene Lifecycle
 
@@ -60,7 +61,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     }
 
     // 3. Crab entity (player)
-    let crabEntity = EntityFactory.createCrab(
+    crabEntity = EntityFactory.createCrab(
       position: CGPoint(x: size.width / 2, y: size.height * 0.13),
       gameArea: frame
     )
@@ -144,18 +145,24 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     let location = touch.location(in: self)
 
     print("🎯 Touch began at: \(location)")
+    if location.y < size.height * 0.7 {
+      // interaction in game area
+      if let interaction = crabEntity.component(ofType: InteractionComponent.self) {
+        currentTouchedEntity = crabEntity
+        interaction.handleTouchBegan(at: location)
+      }
 
-    // Find the entity at touch location
-    if let touchedEntity = findEntityAtPoint(location),
-       let interaction = touchedEntity.component(ofType: InteractionComponent.self),
-       interaction.isEnabled
-    {
-      print("✅ Found entity with interaction component")
-      // Store reference to currently touched entity
-      currentTouchedEntity = touchedEntity
-      interaction.handleTouchBegan(at: location)
     } else {
-      print("⚠️ No interactive entity found at touch location")
+      // handle button touch
+      // Find the entity at touch location
+      if let touchedEntity = findEntityAtPoint(location),
+         let interaction = touchedEntity.component(ofType: InteractionComponent.self),
+         interaction.isEnabled
+      {
+        // Store reference to currently touched entity
+        currentTouchedEntity = touchedEntity
+        interaction.handleTouchBegan(at: location)
+      }
     }
   }
 
@@ -202,33 +209,24 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
 
   func didBegin(_ contact: SKPhysicsContact) {
     var ingredientEntity: GKEntity?
-    var crabEntity: GKEntity?
 
     // Determine which body is fruit and which is basket
     if contact.bodyA.categoryBitMask == PhysicsCategory.ingredient {
       ingredientEntity = findEntityForNode(contact.bodyA.node)
-      crabEntity = findEntityForNode(contact.bodyB.node)
     } else if contact.bodyB.categoryBitMask == PhysicsCategory.ingredient {
       ingredientEntity = findEntityForNode(contact.bodyB.node)
-      crabEntity = findEntityForNode(contact.bodyA.node)
     }
 
     guard let ingredient = ingredientEntity,
-          let crab = crabEntity,
           let scoreDisplay = scoreDisplayEntity
     else {
-      print("⚠️ Could not find entities for collision")
-      print("  - Ingredient entity: \(ingredientEntity != nil ? "Found" : "Not found")")
-      print("  - Crab entity: \(crabEntity != nil ? "Found" : "Not found")")
       return
     }
 
-    guard let ingredientComponent = ingredient.component(ofType: IngredientComponent.self),
-          let ingredientLifecycle = ingredient.component(ofType: LifecycleComponent.self),
+    guard let ingredientLifecycle = ingredient.component(ofType: LifecycleComponent.self),
           let scoreComponent = scoreDisplay.component(ofType: ScoreComponent.self),
-          let crabSprite = crab.component(ofType: SpriteComponent.self) else { return }
+          let crabSprite = crabEntity.component(ofType: SpriteComponent.self) else { return }
 
-    print("🎯 Caught ingredient: \(ingredientComponent.ingredient.name)")
     scoreComponent.addScore(5)
 
     // Play sound and haptic
