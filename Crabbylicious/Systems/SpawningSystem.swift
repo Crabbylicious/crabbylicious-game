@@ -30,15 +30,7 @@ class SpawningSystem: System {
     let spawnY = context.scene.frame.maxY + margin
 
     // Get ingredient using smart selection if recipe component exists
-    var ingredientData: Ingredient = if let recipeEntity = context.entityManager
-      .getEntitiesWith(componentType: CurrentRecipeComponent.self).first,
-      let recipeComponent = recipeEntity.component(ofType: CurrentRecipeComponent.self)
-    {
-      recipeComponent.selectSmartIngredient()
-    } else {
-      // Fallback to random selection
-      GameData.allIngredients.randomElement() ?? GameData.allIngredients[0]
-    }
+    let ingredientData: Ingredient = getSmartIngredient(context: context)
 
     let ingredient = EntityFactory.createIngredient(
       ingredient: ingredientData,
