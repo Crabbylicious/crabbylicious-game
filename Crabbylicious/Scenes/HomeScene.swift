@@ -69,7 +69,7 @@ class HomeScene: SKScene, BaseScene {
       buttonNodeType: .play,
       position: CGPoint(x: 200, y: 300),
       onTap: {
-        // ... handle play button here
+        // ..
       }
     )
     entityManager.addEntity(playButtonEntity)

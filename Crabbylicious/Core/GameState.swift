@@ -54,6 +54,14 @@ class GameState: ObservableObject {
     shouldShowNextStageOverlay = true
   }
 
+  func pauseGame() {
+    state = .paused
+  }
+
+  func resumeGame() {
+    state = .playing
+  }
+
   private func loadHighScore() {
     highScore = UserDefaults.standard.integer(forKey: "HighScore")
   }

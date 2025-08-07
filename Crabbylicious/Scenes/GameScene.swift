@@ -8,7 +8,7 @@
 import GameplayKit
 import SpriteKit
 
-class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
+class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDelegate {
   // MARK: - Core ECS Components
 
   let entityManager: EntityManager = .init()
@@ -23,6 +23,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
   private var lifeDisplayEntity: GKEntity!
   private var crabEntity: GKEntity!
   private var recipeCardEntity: GKEntity!
+  private var pauseOverlay: PauseOverlay?
 
   // MARK: - Scene Lifecycle
 
@@ -83,8 +84,8 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     let pauseButtonEntity = EntityFactory.createButton(
       buttonNodeType: .pause,
       position: CGPoint(x: size.width - 50, y: size.height - 75),
-      onTap: {
-        // .. handle pause here
+      onTap: { [weak self] in
+        self?.handlePauseButtonTap()
       }
     )
     entityManager.addEntity(pauseButtonEntity)
@@ -122,6 +123,9 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
   }
 
   override func update(_ currentTime: TimeInterval) {
+    // Don't update systems if paused
+    guard gameState.state != .paused else { return }
+
     let deltaTime = lastUpdateTime > 0 ? currentTime - lastUpdateTime : 0
     lastUpdateTime = currentTime
 
@@ -142,17 +146,9 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     guard let touch = touches.first else { return }
 
     let location = touch.location(in: self)
-    if location.y < size.height * 0.7 {
-      // interaction in game area
-      if let interaction = crabEntity.component(ofType: InteractionComponent.self),
-         let spriteComponent = crabEntity.component(ofType: SpriteComponent.self)
-      {
-        currentTouchedEntity = crabEntity
-        interaction.handleTouchBegan(at: location)
-        spriteComponent.playAnimation(name: "walk")
-      }
 
-    } else {
+    // Always allow button touches (pause button should work when paused)
+    if location.y >= size.height * 0.7 {
       // handle button touch
       // Find the entity at touch location
       if let touchedEntity = findEntityAtPoint(location),
@@ -162,6 +158,21 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
         // Store reference to currently touched entity
         currentTouchedEntity = touchedEntity
         interaction.handleTouchBegan(at: location)
+      }
+      return
+    }
+
+    // Only process game area touches if not paused
+    guard gameState.state != .paused else { return }
+
+    if location.y < size.height * 0.7 {
+      // interaction in game area
+      if let interaction = crabEntity.component(ofType: InteractionComponent.self),
+         let spriteComponent = crabEntity.component(ofType: SpriteComponent.self)
+      {
+        currentTouchedEntity = crabEntity
+        interaction.handleTouchBegan(at: location)
+        spriteComponent.playAnimation(name: "walk")
       }
     }
   }
@@ -325,5 +336,46 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     }
 
     return nil
+  }
+
+  // MARK: - Pause Functionality
+
+  private func handlePauseButtonTap() {
+    guard gameState.state == .playing else { return }
+
+    gameState.pauseGame()
+    showPauseOverlay()
+  }
+
+  private func showPauseOverlay() {
+    guard pauseOverlay == nil else { return }
+
+    pauseOverlay = PauseOverlay(size: size)
+    pauseOverlay?.delegate = self
+    pauseOverlay?.zPosition = 1000
+    addChild(pauseOverlay!)
+    pauseOverlay?.show()
+  }
+
+  private func hidePauseOverlay() {
+    pauseOverlay?.hide()
+    pauseOverlay?.removeFromParent()
+    pauseOverlay = nil
+
+    gameState.resumeGame()
+  }
+
+  // MARK: - PauseOverlayDelegate
+
+  func didTapResume() {
+    hidePauseOverlay()
+  }
+
+  func didTapBackHome() {
+    hidePauseOverlay()
+    gameState.resetGameState() // Reset the game state when going home
+    SoundManager.sound.stopInGameMusic()
+    SoundManager.sound.playLobbyMusic()
+    SceneCoordinator.shared.transitionWithAnimation(to: .home)
   }
 }
