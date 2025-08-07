@@ -68,8 +68,8 @@ class HomeScene: SKScene, BaseScene {
     let playButtonEntity = EntityFactory.createButton(
       buttonNodeType: .play,
       position: CGPoint(x: 200, y: 300),
-      onTap: {
-        // ..
+      onTap: { [weak self] in
+        self?.handlePlayButtonTap()
       }
     )
     entityManager.addEntity(playButtonEntity)
@@ -85,6 +85,17 @@ class HomeScene: SKScene, BaseScene {
     if let spriteComponent = currentHighScoreEntity.component(ofType: SpriteComponent.self) {
       spriteComponent.addToScene(self)
     }
+  }
+
+  private func handlePlayButtonTap() {
+    // Play button sound
+    SoundManager.sound.startButtonSound()
+
+    // Start in-game music before transition
+    SoundManager.sound.playInGameMusic()
+
+    // Use seamless transition
+    SceneCoordinator.shared.transitionSeamlessly(to: .game)
   }
 
   override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {
@@ -103,7 +114,7 @@ class HomeScene: SKScene, BaseScene {
     let touchedNode = atPoint(location)
 
     if touchedNode.name == "playButton" {
-      SceneCoordinator.shared.transitionWithAnimation(to: .game)
+      handlePlayButtonTap()
     }
   }
 }

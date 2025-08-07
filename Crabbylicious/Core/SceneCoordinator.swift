@@ -41,6 +41,21 @@ class SceneCoordinator {
     }
   }
 
+  func transitionSeamlessly(to sceneType: SceneType) {
+    guard let view = currentView else { return }
+
+    // Get current scene for seamless transition
+    if let currentScene = view.scene {
+      print("🎬 Starting seamless scene transition")
+
+      // For seamless transitions, we don't use SKTransition
+      performSeamlessTransition(from: currentScene, to: sceneType, view: view)
+    } else {
+      // Fallback to regular transition
+      performTransition(to: sceneType, transition: SKTransition.crossFade(withDuration: 0.1), view: view)
+    }
+  }
+
   private func performTransition(
     to sceneType: SceneType,
     transition: SKTransition,
@@ -60,5 +75,32 @@ class SceneCoordinator {
     view.presentScene(newScene, transition: transition)
 
     // Animate new scene entrance - already handled on each scene
+  }
+
+  private func performSeamlessTransition(
+    from currentScene: SKScene,
+    to sceneType: SceneType,
+    view: SKView
+  ) {
+    // Create new scene
+    let newScene: SKScene = switch sceneType {
+    case .home:
+      HomeScene()
+    case .game:
+      GameScene()
+    }
+
+    newScene.size = view.bounds.size
+    newScene.scaleMode = .aspectFill
+
+    // Perform seamless transition animation
+    AnimationManager.shared.animateSeamlessTransition(
+      from: currentScene,
+      to: newScene,
+      completion: {
+        // Present new scene with very quick cross-fade for seamless effect
+        view.presentScene(newScene)
+      }
+    )
   }
 }

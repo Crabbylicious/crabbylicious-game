@@ -15,6 +15,7 @@ class EntityFactory {
 
     let crabNode = CrabNode(size: CGSize(width: 100, height: 100))
     crabNode.position = position
+    crabNode.name = "crab"
 
     let spriteComponent = SpriteComponent(node: crabNode, layer: .gameplay)
     // Catch celebration
@@ -74,6 +75,26 @@ class EntityFactory {
     let buttonNode = createButtonNode(type: buttonNodeType)
     buttonNode.position = position
 
+    // Set appropriate name based on button type
+    switch buttonNodeType {
+    case .play:
+      buttonNode.name = "playButton"
+    case .pause:
+      buttonNode.name = "pauseButton"
+    case .resume:
+      buttonNode.name = "resumeButton"
+    case .backHome:
+      buttonNode.name = "backHomeButton"
+    case .playAgain:
+      buttonNode.name = "playAgainButton"
+    case .nextStage:
+      buttonNode.name = "nextStageButton"
+    case .yes:
+      buttonNode.name = "yesButton"
+    case .no:
+      buttonNode.name = "noButton"
+    }
+
     entity.addComponent(SpriteComponent(node: buttonNode, layer: .ui))
 
     let tapInteraction = InteractionComponent.button(onTap: onTap)
@@ -89,6 +110,7 @@ class EntityFactory {
 
     let recipeCardNode = RecipeCardNode(recipe: GameData.recipes[GameState.shared.currentRecipeIndex])
     recipeCardNode.position = position
+    recipeCardNode.name = "recipeCard"
 
     entity.addComponent(SpriteComponent(node: recipeCardNode, layer: .ui))
     entity.addComponent(CurrentRecipeComponent(recipe: GameData.recipes[0]))
@@ -103,6 +125,7 @@ class EntityFactory {
 
     let scoreDisplayNode = ScoreDisplayNode()
     scoreDisplayNode.position = position
+    scoreDisplayNode.name = "scoreDisplay"
 
     entity.addComponent(SpriteComponent(node: scoreDisplayNode, layer: .ui))
     entity.addComponent(ScoreComponent())
@@ -117,6 +140,7 @@ class EntityFactory {
 
     let lifeDisplayNode = LifeDisplayNode()
     lifeDisplayNode.position = position
+    lifeDisplayNode.name = "lifeDisplay"
 
     entity.addComponent(SpriteComponent(node: lifeDisplayNode, layer: .ui))
     entity.addComponent(LifeComponent())
@@ -192,7 +216,7 @@ class EntityFactory {
   private static func createButtonNode(type: ButtonNodeType) -> SKSpriteNode {
     switch type {
     case .play:
-      ButtonNode(imageName: "buttonPlay")
+      ButtonNode(imageName: "buttonPlay", scale: 0.4)
     case .pause:
       ButtonNode(imageName: "ButtonPause", scale: 0.08)
     case .resume:

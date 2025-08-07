@@ -16,13 +16,24 @@ extension AnimationManager {
       if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
         switch spriteComponent.name {
         case "crab":
-          animate(spriteComponent.node, with: .slideIn(direction: .fromLeft, duration: 0.6), delay: 0.1)
+          // Crab slides in from bottom for smooth transition
+          animate(spriteComponent.node, with: .slideIn(direction: .fromBottom, duration: 0.4), delay: 0.1)
 
         case "scoreDisplay":
-          animate(spriteComponent.node, with: .slideIn(direction: .fromRight, duration: 0.5), delay: 0.1)
+          // Score display fades in quickly
+          animate(spriteComponent.node, with: .fadeIn(duration: 0.3), delay: 0.1)
 
-        case "ButtonPause":
-          animate(spriteComponent.node, with: .slideIn(direction: .fromRight, duration: 0.5), delay: 0.1)
+        case "lifeDisplay":
+          // Life display fades in quickly
+          animate(spriteComponent.node, with: .fadeIn(duration: 0.3), delay: 0.15)
+
+        case "ButtonPause", "pauseButton":
+          // Pause button slides in from top
+          animate(spriteComponent.node, with: .slideIn(direction: .fromTop, duration: 0.3), delay: 0.1)
+
+        case "recipeCard":
+          // Recipe card slides in from top
+          animate(spriteComponent.node, with: .slideIn(direction: .fromTop, duration: 0.4), delay: 0.2)
 
         default:
           break
@@ -31,7 +42,7 @@ extension AnimationManager {
     }
 
     // Complete after all animations
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
       completion?()
     }
   }
