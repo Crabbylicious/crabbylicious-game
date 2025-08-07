@@ -52,7 +52,17 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
       spriteComponent.addToScene(self)
     }
 
-    // 2. Ground entity
+    // 2. Bubble Background entity
+    let bubbleBackgroundEntity = EntityFactory.createBubbleBackground(
+      size: size,
+      position: CGPoint(x: size.width / 2, y: 0) // Start from bottom off-screen
+    )
+    entityManager.addEntity(bubbleBackgroundEntity)
+    if let spriteComponent = bubbleBackgroundEntity.component(ofType: SpriteComponent.self) {
+      spriteComponent.addToScene(self)
+    }
+
+    // 3. Ground entity
     let groundEntity = EntityFactory.createGround(
       position: CGPoint(x: size.width / 2, y: 40)
     )
@@ -61,7 +71,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
       spriteComponent.addToScene(self)
     }
 
-    // 3. Crab entity (player)
+    // 4. Crab entity (player)
     crabEntity = EntityFactory.createCrab(
       position: CGPoint(x: size.width / 2, y: size.height * 0.13),
       gameArea: frame
@@ -71,7 +81,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
       spriteComponent.addToScene(self)
     }
 
-    // 4. Score display entity
+    // 5. Score display entity
     scoreDisplayEntity = EntityFactory.createScoreDisplay(
       position: CGPoint(x: 90, y: size.height - 120)
     )
@@ -80,7 +90,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
       spriteComponent.addToScene(self)
     }
 
-    // 5. Pause Button entity
+    // 6. Pause Button entity
     let pauseButtonEntity = EntityFactory.createButton(
       buttonNodeType: .pause,
       position: CGPoint(x: size.width - 50, y: size.height - 75),
@@ -93,7 +103,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
       spriteComponent.addToScene(self)
     }
 
-    // 6. Recipe Card Entity
+    // 7. Recipe Card Entity
     recipeCardEntity = EntityFactory.createRecipeCard(
       position: CGPoint(x: size.width / 2, y: size.height - 210)
     )
@@ -102,7 +112,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
       spriteComponent.addToScene(self)
     }
 
-    // 7. Create Life Display entity
+    // 8. Create Life Display entity
     lifeDisplayEntity = EntityFactory.createLifeDisplay(
       position: CGPoint(x: 60, y: size.height - 80)
     )
@@ -114,6 +124,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
 
   private func setupSystems() {
     systemManager.addSystems([
+      BubbleBackgroundSystem(),
       SpawningSystem(),
       ScoreAndLifeNodeUpdateSystem(),
       OverlayManagementSystem(),

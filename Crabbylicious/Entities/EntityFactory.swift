@@ -155,8 +155,10 @@ class EntityFactory {
 
     let bubbleNode = BubbleBackgroundNode(size: size)
     bubbleNode.position = position
+    bubbleNode.name = "bubbleBackground"
 
     entity.addComponent(SpriteComponent(node: bubbleNode, layer: .background))
+    entity.addComponent(BubbleBackgroundComponent(nodes: [bubbleNode]))
 
     return entity
   }
