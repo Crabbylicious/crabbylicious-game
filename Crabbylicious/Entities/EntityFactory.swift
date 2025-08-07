@@ -16,7 +16,26 @@ class EntityFactory {
     let crabNode = CrabNode(size: CGSize(width: 100, height: 100))
     crabNode.position = position
 
-    entity.addComponent(SpriteComponent(node: crabNode, layer: .gameplay))
+    let spriteComponent = SpriteComponent(node: crabNode, layer: .gameplay)
+    // Catch celebration
+    let celebrate = SKAction.sequence([
+      SKAction.scale(to: 0.22, duration: 0.1),
+      SKAction.scale(to: 0.2, duration: 0.1)
+    ])
+    spriteComponent.preloadAnimation(name: "catch", action: celebrate)
+
+    // walk animation
+    let animateAction = SKAction.animate(
+      with: [SKTexture(imageNamed: "crab_1"), SKTexture(imageNamed: "crab_2")],
+      timePerFrame: 0.15,
+      resize: false,
+      restore: false
+    )
+
+    let walkAction = SKAction.repeatForever(animateAction)
+    spriteComponent.preloadAnimation(name: "walk", action: walkAction)
+
+    entity.addComponent(spriteComponent)
 
     let dragInteraction = InteractionComponent.draggable { newPosition in
       let constrainedX = max(gameArea.minX + 50, min(gameArea.maxX - 50, newPosition.x))

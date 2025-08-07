@@ -144,9 +144,12 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
     let location = touch.location(in: self)
     if location.y < size.height * 0.7 {
       // interaction in game area
-      if let interaction = crabEntity.component(ofType: InteractionComponent.self) {
+      if let interaction = crabEntity.component(ofType: InteractionComponent.self),
+         let spriteComponent = crabEntity.component(ofType: SpriteComponent.self)
+      {
         currentTouchedEntity = crabEntity
         interaction.handleTouchBegan(at: location)
+        spriteComponent.playAnimation(name: "walk")
       }
 
     } else {
@@ -181,9 +184,11 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
 
     // Handle touch end for the currently touched entity
     if let currentEntity = currentTouchedEntity,
-       let interaction = currentEntity.component(ofType: InteractionComponent.self)
+       let interaction = currentEntity.component(ofType: InteractionComponent.self),
+       let spriteComponent = currentEntity.component(ofType: SpriteComponent.self)
     {
       interaction.handleTouchEnded(at: location)
+      spriteComponent.stopAnimation(withKey: "walk")
     }
 
     // Clear the reference
@@ -193,9 +198,11 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate {
   override func touchesCancelled(_: Set<UITouch>, with _: UIEvent?) {
     // Handle touch cancellation
     if let currentEntity = currentTouchedEntity,
-       let interaction = currentEntity.component(ofType: InteractionComponent.self)
+       let interaction = currentEntity.component(ofType: InteractionComponent.self),
+       let spriteComponent = currentEntity.component(ofType: SpriteComponent.self)
     {
       interaction.handleTouchCancelled()
+      spriteComponent.stopAnimation(withKey: "walk")
     }
 
     // Clear the reference

@@ -128,13 +128,13 @@ class SpriteComponent: GKComponent {
     animations[name] = action
   }
 
-  func playAnimation(name: String, completion: (() -> Void)? = nil) {
+  func playAnimation(name: String) {
     guard let action = animations[name] else {
       print("⚠️ Animation '\(name)' not found")
       return
     }
 
-    node.run(action, completion: completion ?? {})
+    node.run(action, withKey: name)
   }
 
   func playAnimation(_ action: SKAction, withKey key: String? = nil, completion: (() -> Void)? = nil) {

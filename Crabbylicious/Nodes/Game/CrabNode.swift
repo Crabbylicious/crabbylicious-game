@@ -10,7 +10,7 @@ import GameplayKit
 import SpriteKit
 
 class CrabNode: SKSpriteNode {
-  init(size _: CGSize) {
+  init(size: CGSize) {
     let texture = SKTexture(imageNamed: "crab_1")
 
     super.init(texture: texture, color: .clear, size: texture.size())
