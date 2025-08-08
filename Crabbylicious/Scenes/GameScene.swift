@@ -43,6 +43,9 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
   private func setupPhysics() {
     physicsWorld.contactDelegate = self
     physicsWorld.gravity = CGVector(dx: 0, dy: -2)
+
+    // Enable physics body visualization for debugging
+    view?.showsPhysics = true
   }
 
   func setupEntities() {
@@ -232,16 +235,20 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
     guard gameState.state == .playing else { return }
 
     var ingredientEntity: GKEntity?
+    var ingredientNode: SKNode?
 
     // Determine which body is ingredient and which is crab/ground
     if contact.bodyA.categoryBitMask == PhysicsCategory.ingredient {
       ingredientEntity = findEntityForNode(contact.bodyA.node)
+      ingredientNode = contact.bodyA.node
     } else if contact.bodyB.categoryBitMask == PhysicsCategory.ingredient {
       ingredientEntity = findEntityForNode(contact.bodyB.node)
+      ingredientNode = contact.bodyB.node
     }
 
     guard let ingredient = ingredientEntity,
-          let ingredientComponent = ingredient.component(ofType: IngredientComponent.self)
+          let ingredientComponent = ingredient.component(ofType: IngredientComponent.self),
+          let ingredientSKNode = ingredientNode
     else {
       return
     }
@@ -266,7 +273,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
 
       // Add points for correct ingredient
       if let scoreComponent = scoreDisplayEntity.component(ofType: ScoreComponent.self) {
-        scoreComponent.addScore(10)
+        scoreComponent.addScore(5)
       }
 
       // Increment total ingredients caught counter for dynamic difficulty

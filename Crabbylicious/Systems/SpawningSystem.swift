@@ -10,7 +10,7 @@ import Foundation
 class SpawningSystem: System {
   private var spawnTimer: TimeInterval = 0
   private let baseSpawnInterval: TimeInterval = 2.0
-  private let minSpawnInterval: TimeInterval = 0.25 // Minimum spawn interval to prevent it becoming too fast
+  private let minSpawnInterval: TimeInterval = 0.3 // Minimum spawn interval to prevent it becoming too fast
   private var lastLoggedInterval: TimeInterval = 0.0 // Track last logged interval for debug
 
   func update(deltaTime: TimeInterval, context: GameContext) {
@@ -31,10 +31,10 @@ class SpawningSystem: System {
     let currentLevel = context.gameState.currentLevel
 
     // Reduce spawn interval for every ingredients caught
-    let ingredientReduction = Double(ingredientsCaught) * 0.15
+    let ingredientReduction = Double(ingredientsCaught) * 0.18
 
     // Additional reduction based on level progression
-    let levelReduction = Double(currentLevel - 1) * 0.15
+    let levelReduction = Double(currentLevel - 1) * 0.18
 
     // Calculate the final spawn interval
     let dynamicInterval = baseSpawnInterval - ingredientReduction - levelReduction

@@ -18,10 +18,11 @@ class CrabNode: SKSpriteNode {
     name = "crab"
     zPosition = 5
 
-    // Tambahkan physics body untuk deteksi kontak dengan ingredient
+    // Create physics body only for the upper portion of the crab (top shell area)
+    // This ensures ingredients are only caught when they land on top, not from sides
     let physicsBody = SKPhysicsBody(
-      rectangleOf: CGSize(width: size.width * 0.7, height: size.height * 0.4),
-      center: CGPoint(x: 0, y: -size.height * 0.15)
+      rectangleOf: CGSize(width: size.width * 0.8, height: size.height * 0.05), // Smaller height, focused on top
+      center: CGPoint(x: 0, y: size.height * 0.5) // Positioned at the top of the crab
     )
 
     physicsBody.categoryBitMask = PhysicsCategory.player

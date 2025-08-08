@@ -46,6 +46,7 @@ class GameState: ObservableObject {
 
   func nextLevel() {
     currentLevel += 1
+    totalIngredientsCaught = 0
     shouldShowNextStageOverlay = false
     state = .playing
   }
