@@ -15,6 +15,7 @@ class GameState: ObservableObject {
   @Published var highScore: Int = 0 // .. will read and update from userDefaults or any other persistent storage
   @Published var currentLevel: Int = 1
   @Published var currentRecipeIndex: Int = 0
+  @Published var totalIngredientsCaught: Int = 0 // Track total ingredients caught for dynamic difficulty
   @Published var shouldShowNextStageOverlay: Bool = false
   @Published var shouldShowGameOverOverlay: Bool = false
 
@@ -30,9 +31,14 @@ class GameState: ObservableObject {
     }
   }
 
+  func incrementIngredientsCaught() {
+    totalIngredientsCaught += 1
+  }
+
   func resetGameState() {
     currentScore = 0
     currentLevel = 1
+    totalIngredientsCaught = 0
     state = .playing
     shouldShowNextStageOverlay = false
     shouldShowGameOverOverlay = false

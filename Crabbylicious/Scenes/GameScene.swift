@@ -269,6 +269,9 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
         scoreComponent.addScore(10)
       }
 
+      // Increment total ingredients caught counter for dynamic difficulty
+      gameState.incrementIngredientsCaught()
+
       SoundManager.sound.playCorrectSound()
       HapticManager.haptic.playSuccessHaptic()
 
@@ -281,6 +284,9 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
           gameState.gameOver()
         }
       }
+
+      // Even wrong ingredients count towards difficulty progression
+      gameState.incrementIngredientsCaught()
 
       SoundManager.sound.playWrongSound()
       HapticManager.haptic.playFailureHaptic()
