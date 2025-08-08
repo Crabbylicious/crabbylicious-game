@@ -153,12 +153,19 @@ class EntityFactory {
   static func createBubbleBackground(size: CGSize, position: CGPoint) -> GKEntity {
     let entity = GKEntity()
 
-    let bubbleNode = BubbleBackgroundNode(size: size)
-    bubbleNode.position = position
-    bubbleNode.name = "bubbleBackground"
+    // Create two bubble background nodes for seamless transitions
+    let bubbleNode1 = BubbleBackgroundNode(size: size)
+    bubbleNode1.position = position
+    bubbleNode1.name = "bubbleBackground1"
 
-    entity.addComponent(SpriteComponent(node: bubbleNode, layer: .background))
-    entity.addComponent(BubbleBackgroundComponent(nodes: [bubbleNode]))
+    let bubbleNode2 = BubbleBackgroundNode(size: size)
+    // Position the second bubble directly below the first one with some spacing
+    // Using the actual node size (1920 height) for proper spacing
+    bubbleNode2.position = CGPoint(x: position.x, y: position.y - 1920)
+    bubbleNode2.name = "bubbleBackground2"
+
+    entity.addComponent(SpriteComponent(node: bubbleNode1, layer: .background))
+    entity.addComponent(BubbleBackgroundComponent(nodes: [bubbleNode1, bubbleNode2]))
 
     return entity
   }

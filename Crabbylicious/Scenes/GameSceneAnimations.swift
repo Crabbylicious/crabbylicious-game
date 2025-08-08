@@ -15,7 +15,7 @@ extension AnimationManager {
     for entity in entities {
       if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
         switch spriteComponent.name {
-        case "bubbleBackground":
+        case "bubbleBackground1", "bubbleBackground2":
           // Bubble background slides up from bottom to fill the scene
           animate(spriteComponent.node, with: .slideIn(direction: .fromBottom, duration: 0.8), delay: 0.0)
 

@@ -59,7 +59,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
     // 2. Bubble Background entity
     let bubbleBackgroundEntity = EntityFactory.createBubbleBackground(
       size: size,
-      position: CGPoint(x: size.width / 2, y: size.height) // Start from bottom off-screen
+      position: CGPoint(x: size.width / 2, y: 0) // Start from below screen
     )
     entityManager.addEntity(bubbleBackgroundEntity)
     if let spriteComponent = bubbleBackgroundEntity.component(ofType: SpriteComponent.self) {
