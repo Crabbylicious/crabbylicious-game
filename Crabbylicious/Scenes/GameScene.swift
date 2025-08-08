@@ -22,6 +22,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
   private var scoreDisplayEntity: GKEntity!
   private var lifeDisplayEntity: GKEntity!
   private var crabEntity: GKEntity!
+  private var pauseButtonEntity: GKEntity!
   private var recipeCardEntity: GKEntity!
   private var pauseOverlay: PauseOverlay?
 
@@ -55,7 +56,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
     // 2. Bubble Background entity
     let bubbleBackgroundEntity = EntityFactory.createBubbleBackground(
       size: size,
-      position: CGPoint(x: size.width / 2, y: 0) // Start from bottom off-screen
+      position: CGPoint(x: size.width / 2, y: size.height) // Start from bottom off-screen
     )
     entityManager.addEntity(bubbleBackgroundEntity)
     if let spriteComponent = bubbleBackgroundEntity.component(ofType: SpriteComponent.self) {
@@ -91,7 +92,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
     }
 
     // 6. Pause Button entity
-    let pauseButtonEntity = EntityFactory.createButton(
+    pauseButtonEntity = EntityFactory.createButton(
       buttonNodeType: .pause,
       position: CGPoint(x: size.width - 50, y: size.height - 75),
       onTap: { [weak self] in
@@ -157,17 +158,12 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
     guard let touch = touches.first else { return }
 
     let location = touch.location(in: self)
-
     // Always allow button touches (pause button should work when paused)
-    if location.y >= size.height * 0.7 {
+    if location.y >= size.height * 0.9, location.x >= size.width * 0.8 {
       // handle button touch
       // Find the entity at touch location
-      if let touchedEntity = findEntityAtPoint(location),
-         let interaction = touchedEntity.component(ofType: InteractionComponent.self),
-         interaction.isEnabled
-      {
-        // Store reference to currently touched entity
-        currentTouchedEntity = touchedEntity
+      if let interaction = pauseButtonEntity.component(ofType: InteractionComponent.self) {
+        currentTouchedEntity = pauseButtonEntity
         interaction.handleTouchBegan(at: location)
       }
       return
@@ -190,8 +186,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
 
   override func touchesMoved(_ touches: Set<UITouch>, with _: UIEvent?) {
     guard let touch = touches.first,
-          let currentEntity = currentTouchedEntity,
-          let interaction = currentEntity.component(ofType: InteractionComponent.self) else { return }
+          let interaction = crabEntity.component(ofType: InteractionComponent.self) else { return }
 
     let location = touch.location(in: self)
 
@@ -316,21 +311,6 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
   }
 
   // MARK: - Helper Methods
-
-  private func findEntityAtPoint(_ location: CGPoint) -> GKEntity? {
-    let touchedNode = atPoint(location)
-
-    // Check the touched node and all its parents
-    var currentNode: SKNode? = touchedNode
-    while let node = currentNode {
-      if let entity = findEntityForNode(node) {
-        return entity
-      }
-      currentNode = node.parent
-    }
-
-    return nil
-  }
 
   /// Find entity that owns a specific SKNode
   private func findEntityForNode(_ node: SKNode?) -> GKEntity? {
