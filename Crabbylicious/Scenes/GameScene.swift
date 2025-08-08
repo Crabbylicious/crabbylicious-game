@@ -235,23 +235,17 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
     guard gameState.state == .playing else { return }
 
     var ingredientEntity: GKEntity?
-    var ingredientNode: SKNode?
 
     // Determine which body is ingredient and which is crab/ground
     if contact.bodyA.categoryBitMask == PhysicsCategory.ingredient {
       ingredientEntity = findEntityForNode(contact.bodyA.node)
-      ingredientNode = contact.bodyA.node
     } else if contact.bodyB.categoryBitMask == PhysicsCategory.ingredient {
       ingredientEntity = findEntityForNode(contact.bodyB.node)
-      ingredientNode = contact.bodyB.node
     }
 
     guard let ingredient = ingredientEntity,
-          let ingredientComponent = ingredient.component(ofType: IngredientComponent.self),
-          let ingredientSKNode = ingredientNode
-    else {
-      return
-    }
+          let ingredientComponent = ingredient.component(ofType: IngredientComponent.self)
+    else { return }
 
     guard let ingredientLifecycle = ingredient.component(ofType: LifecycleComponent.self),
           let crabSprite = crabEntity.component(ofType: SpriteComponent.self),

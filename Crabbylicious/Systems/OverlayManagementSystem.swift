@@ -94,7 +94,13 @@ class OverlayManagementSystem: System, GameOverOverlayDelegate, NextStageOverlay
       interaction.isEnabled = true
     }
 
-    // Reset heart
+    // Clear all ingredient entities
+    let ingredientEntities = context.entityManager.getEntitiesWith(componentType: IngredientComponent.self)
+    for entity in ingredientEntities {
+      if let lifecycle = entity.component(ofType: LifecycleComponent.self) {
+        lifecycle.markForRemoval()
+      }
+    }
   }
 
   func hideNextStageOverlay(context: GameContext) {
