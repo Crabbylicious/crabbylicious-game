@@ -6,6 +6,7 @@
 //
 
 import GameplayKit
+import SpriteKit
 
 class InteractionComponent: GKComponent {
   enum InteractionType {
@@ -80,7 +81,24 @@ class InteractionComponent: GKComponent {
 
     switch interactionType {
     case .button:
-      onTap?()
+      // Add button press animation before triggering the tap action
+      if let spriteComponent = entity?.component(ofType: SpriteComponent.self) {
+        let buttonNode = spriteComponent.node
+
+        // Check if it's a special button (play button) or regular button
+        if buttonNode.name == "playButton" {
+          animateSpecialButtonPress(buttonNode) {
+            self.onTap?()
+          }
+        } else {
+          animateButtonPress(buttonNode) {
+            self.onTap?()
+          }
+        }
+      } else {
+        // Fallback if no sprite component
+        onTap?()
+      }
 
     case .draggable:
       isDragging = false

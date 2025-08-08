@@ -28,6 +28,8 @@ class AnimationManager {
     case scaleOut(duration: TimeInterval = 0.5)
     case bounceIn(duration: TimeInterval = 0.6)
     case elastic(duration: TimeInterval = 0.8)
+    case wiggle(duration: TimeInterval = 0.4)
+    case pulse(duration: TimeInterval = 0.6)
   }
 
   // MARK: - Single Node Animation
@@ -118,7 +120,7 @@ class AnimationManager {
 
   // MARK: - Private Implementation
 
-  private func createAction(for preset: AnimationPreset, node: SKNode) -> SKAction {
+  func createAction(for preset: AnimationPreset, node: SKNode) -> SKAction {
     switch preset {
     case let .slideIn(direction, duration):
       return createSlideInAction(direction: direction, duration: duration, for: node)
@@ -160,6 +162,21 @@ class AnimationManager {
       let elastic = SKAction.scale(to: originalScale, duration: duration)
       elastic.timingMode = .easeOut
       return elastic
+
+    case let .wiggle(duration):
+      let wiggleLeft = SKAction.rotate(byAngle: -0.1, duration: duration * 0.25)
+      let wiggleRight = SKAction.rotate(byAngle: 0.2, duration: duration * 0.25)
+      let wiggleCenter = SKAction.rotate(byAngle: -0.1, duration: duration * 0.25)
+      let wiggleBack = SKAction.rotate(toAngle: 0, duration: duration * 0.25)
+      return SKAction.sequence([wiggleLeft, wiggleRight, wiggleCenter, wiggleBack])
+
+    case let .pulse(duration):
+      let originalScale = node.xScale
+      let scaleUp = SKAction.scale(to: originalScale * 1.2, duration: duration * 0.5)
+      scaleUp.timingMode = .easeOut
+      let scaleDown = SKAction.scale(to: originalScale, duration: duration * 0.5)
+      scaleDown.timingMode = .easeIn
+      return SKAction.sequence([scaleUp, scaleDown])
     }
   }
 
@@ -196,7 +213,7 @@ class AnimationManager {
     case .toRight:
       CGPoint(x: scene.size.width + node.frame.width, y: node.position.y)
     case .toTop:
-      CGPoint(x: node.position.x, y: scene.size.height + node.frame.height)
+      CGPoint(x: node.position.x, y: scene.size.height + node.frame.height + 100)
     case .toBottom:
       CGPoint(x: node.position.x, y: -node.frame.height)
     default:

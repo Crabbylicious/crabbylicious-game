@@ -12,32 +12,44 @@ extension AnimationManager {
     // Find and animate entities
     let entities = scene.entityManager.getEntitiesWith(componentType: SpriteComponent.self)
 
+    // Play bubble sound for entrance
+    SoundManager.sound.bubbleSound()
+
     for entity in entities {
       if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
         switch spriteComponent.name {
-        case "bubbleBackground1", "bubbleBackground2":
-          // Bubble background slides up from bottom to fill the scene
-          animate(spriteComponent.node, with: .slideIn(direction: .fromBottom, duration: 0.8), delay: 0.0)
+        case "bubbleBackground1":
+          // First bubble background slides up from bottom slowly
+          animate(spriteComponent.node, with: .slideIn(direction: .fromBottom, duration: 1.2), delay: 0.0)
+
+        case "bubbleBackground2":
+          // Second bubble background slides up with slight delay for layered effect
+          animate(spriteComponent.node, with: .slideIn(direction: .fromBottom, duration: 1.2), delay: 0.2)
 
         case "crab":
-          // Crab slides in from bottom for smooth transition
-          animate(spriteComponent.node, with: .slideIn(direction: .fromBottom, duration: 0.4), delay: 0.3)
+          // Crab bounces in from bottom with more dramatic effect
+          animate(spriteComponent.node, with: .bounceIn(duration: 1.0), delay: 1.0)
+          // Add a subtle wiggle animation after entrance
+          DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+            let wiggleAction = self.createAction(for: .wiggle(duration: 0.8), node: spriteComponent.node)
+            spriteComponent.node.run(wiggleAction)
+          }
 
         case "scoreDisplay":
-          // Score display fades in quickly
-          animate(spriteComponent.node, with: .fadeIn(duration: 0.3), delay: 0.4)
+          // Score display fades in slowly after crab appears
+          animate(spriteComponent.node, with: .fadeIn(duration: 0.8), delay: 1.5)
 
         case "lifeDisplay":
-          // Life display fades in quickly
-          animate(spriteComponent.node, with: .fadeIn(duration: 0.3), delay: 0.45)
+          // Life display fades in sequentially after score
+          animate(spriteComponent.node, with: .fadeIn(duration: 0.8), delay: 1.8)
 
         case "ButtonPause", "pauseButton":
-          // Pause button slides in from top
-          animate(spriteComponent.node, with: .slideIn(direction: .fromTop, duration: 0.3), delay: 0.4)
+          // Pause button slides in from top with bounce effect
+          animate(spriteComponent.node, with: .slideIn(direction: .fromTop, duration: 0.8), delay: 2.1)
 
         case "recipeCard":
-          // Recipe card slides in from top
-          animate(spriteComponent.node, with: .slideIn(direction: .fromTop, duration: 0.4), delay: 0.5)
+          // Recipe card slides in from top last with elastic effect
+          animate(spriteComponent.node, with: .elastic(duration: 1.2), delay: 2.4)
 
         default:
           break
@@ -45,8 +57,8 @@ extension AnimationManager {
       }
     }
 
-    // Complete after all animations
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+    // Complete after all animations (increased timing for slower, sequential animations)
+    DispatchQueue.main.asyncAfter(deadline: .now() + 3.8) {
       completion?()
     }
   }
@@ -55,14 +67,44 @@ extension AnimationManager {
     let entities = scene.entityManager.getEntitiesWith(componentType: SpriteComponent.self)
 
     for entity in entities {
-      if let spriteComponent = entity.component(ofType: SpriteComponent.self),
-         spriteComponent.name == "pauseButton"
-      {
-        animate(spriteComponent.node, with: .slideOut(direction: .toTop, duration: 0.3), delay: 0.0)
+      if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
+        switch spriteComponent.name {
+        case "recipeCard":
+          // Recipe card slides out to top first
+          animate(spriteComponent.node, with: .slideOut(direction: .toTop, duration: 0.6), delay: 0.0)
+
+        case "ButtonPause", "pauseButton":
+          // Pause button slides out to top
+          animate(spriteComponent.node, with: .slideOut(direction: .toTop, duration: 0.5), delay: 0.2)
+
+        case "scoreDisplay":
+          // Score display fades out
+          animate(spriteComponent.node, with: .fadeOut(duration: 0.6), delay: 0.4)
+
+        case "lifeDisplay":
+          // Life display fades out
+          animate(spriteComponent.node, with: .fadeOut(duration: 0.6), delay: 0.5)
+
+        case "crab":
+          // Crab slides out to bottom with scaling effect
+          animate(spriteComponent.node, with: .slideOut(direction: .toBottom, duration: 0.8), delay: 0.6)
+
+        case "bubbleBackground1":
+          // First bubble background slides out to bottom
+          animate(spriteComponent.node, with: .slideOut(direction: .toBottom, duration: 1.0), delay: 1.0)
+
+        case "bubbleBackground2":
+          // Second bubble background slides out to bottom last
+          animate(spriteComponent.node, with: .slideOut(direction: .toBottom, duration: 1.0), delay: 1.2)
+
+        default:
+          break
+        }
       }
     }
 
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+    // Complete after all animations (increased timing for slower, sequential animations)
+    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
       completion?()
     }
   }

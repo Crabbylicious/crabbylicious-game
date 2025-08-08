@@ -16,7 +16,7 @@ class IngredientNode: SKSpriteNode {
 
     setScale(ingredient.scale)
 
-    let physicsBody = SKPhysicsBody(circleOfRadius: 20)
+    let physicsBody = SKPhysicsBody(circleOfRadius: 30)
     physicsBody.categoryBitMask = PhysicsCategory.ingredient
     physicsBody.contactTestBitMask = PhysicsCategory.player
     physicsBody.collisionBitMask = 0

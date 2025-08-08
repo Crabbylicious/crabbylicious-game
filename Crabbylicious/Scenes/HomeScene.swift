@@ -91,11 +91,10 @@ class HomeScene: SKScene, BaseScene {
   }
 
   private func handlePlayButtonTap() {
-    // Play button sound
-    SoundManager.sound.startButtonSound()
-
     // Start in-game music before transition (this will stop lobby music automatically)
     SoundManager.sound.playInGameMusic()
+
+    GameState.shared.resetGameState()
 
     // Use seamless transition
     SceneCoordinator.shared.transitionSeamlessly(to: .game)
@@ -106,8 +105,19 @@ class HomeScene: SKScene, BaseScene {
     let location = touch.location(in: self)
     let touchedNode = atPoint(location)
 
+    // Handle entity-based touch for play button
     if touchedNode.name == "playButton" {
-      // not moving yet,
+      if let playButtonEntity = entityManager.getEntitiesWith(componentType: SpriteComponent.self)
+        .first(where: { entity in
+          if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
+            return spriteComponent.node.name == "playButton"
+          }
+          return false
+        }),
+        let interaction = playButtonEntity.component(ofType: InteractionComponent.self)
+      {
+        interaction.handleTouchBegan(at: location)
+      }
     }
   }
 
@@ -116,8 +126,19 @@ class HomeScene: SKScene, BaseScene {
     let location = touch.location(in: self)
     let touchedNode = atPoint(location)
 
+    // Handle entity-based touch for play button
     if touchedNode.name == "playButton" {
-      handlePlayButtonTap()
+      if let playButtonEntity = entityManager.getEntitiesWith(componentType: SpriteComponent.self)
+        .first(where: { entity in
+          if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
+            return spriteComponent.node.name == "playButton"
+          }
+          return false
+        }),
+        let interaction = playButtonEntity.component(ofType: InteractionComponent.self)
+      {
+        interaction.handleTouchEnded(at: location)
+      }
     }
   }
 }

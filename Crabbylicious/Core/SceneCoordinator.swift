@@ -58,7 +58,7 @@ class SceneCoordinator {
 
   private func performTransition(
     to sceneType: SceneType,
-    transition: SKTransition,
+    transition _: SKTransition,
     view: SKView
   ) {
     let newScene: SKScene = switch sceneType {
@@ -72,7 +72,7 @@ class SceneCoordinator {
     newScene.scaleMode = .aspectFill
 
     // Present new scene
-    view.presentScene(newScene, transition: transition)
+    view.presentScene(newScene)
 
     // Animate new scene entrance - already handled on each scene
   }

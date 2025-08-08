@@ -145,7 +145,7 @@ class OverlayManagementSystem: System, GameOverOverlayDelegate, NextStageOverlay
     SoundManager.sound.playLobbyMusic()
 
     // Navigate to home scene
-    context.sceneCoordinator.transitionWithAnimation(to: .home)
+    context.sceneCoordinator.transitionSeamlessly(to: .home)
   }
 
   private func resetGameComponents(context: GameContext) {
