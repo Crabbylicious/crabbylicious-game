@@ -371,7 +371,7 @@ class GameScene: SKScene, BaseScene, SKPhysicsContactDelegate, PauseOverlayDeleg
 
   func didTapBackHome() {
     hidePauseOverlay()
-    gameState.resetGameState() // Reset the game state when going home
+    gameState.pauseGame() // Reset the game state when going home
     SoundManager.sound.stopInGameMusic()
     SoundManager.sound.playLobbyMusic()
     SceneCoordinator.shared.transitionWithAnimation(to: .home)

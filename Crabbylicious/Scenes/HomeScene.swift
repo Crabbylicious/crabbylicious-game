@@ -94,6 +94,7 @@ class HomeScene: SKScene, BaseScene {
     // Start in-game music before transition (this will stop lobby music automatically)
     SoundManager.sound.playInGameMusic()
 
+    // set the state
     GameState.shared.resetGameState()
 
     // Use seamless transition
