@@ -140,8 +140,11 @@ class OverlayManagementSystem: System, GameOverOverlayDelegate, NextStageOverlay
   func didTapBackHome() {
     guard let context else { return }
 
-    // Navigate to home scene
+    // Stop in-game music and start lobby music
+    SoundManager.sound.stopInGameMusic()
     SoundManager.sound.playLobbyMusic()
+
+    // Navigate to home scene
     context.sceneCoordinator.transitionWithAnimation(to: .home)
   }
 

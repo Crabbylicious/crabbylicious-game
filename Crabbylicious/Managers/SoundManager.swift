@@ -47,6 +47,14 @@ class SoundManager {
   // MARK: - Lobby Music
 
   func playLobbyMusic() {
+    // Stop any currently playing in-game music first
+    stopInGameMusic()
+
+    // Don't start if already playing
+    if lobbyMusicPlayer?.isPlaying == true {
+      return
+    }
+
     guard let url = Bundle.main.url(forResource: "lobbyMusic", withExtension: "wav") else {
       print("Lobby music file not found.")
       return
@@ -70,6 +78,14 @@ class SoundManager {
   // MARK: - In-Game Music
 
   func playInGameMusic() {
+    // Stop any currently playing lobby music first
+    stopLobbyMusic()
+
+    // Don't start if already playing
+    if inGameMusicPlayer?.isPlaying == true {
+      return
+    }
+
     guard let url = Bundle.main.url(forResource: "inGameMusic", withExtension: "wav") else {
       print("In-game music file not found.")
       return

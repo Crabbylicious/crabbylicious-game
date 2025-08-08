@@ -16,6 +16,9 @@ class HomeScene: SKScene, BaseScene {
 
     setupEntities()
 
+    // Start lobby music when entering home scene
+    SoundManager.sound.playLobbyMusic()
+
     AnimationManager.shared.animateSceneEntrance(for: self)
   }
 
@@ -91,7 +94,7 @@ class HomeScene: SKScene, BaseScene {
     // Play button sound
     SoundManager.sound.startButtonSound()
 
-    // Start in-game music before transition
+    // Start in-game music before transition (this will stop lobby music automatically)
     SoundManager.sound.playInGameMusic()
 
     // Use seamless transition
