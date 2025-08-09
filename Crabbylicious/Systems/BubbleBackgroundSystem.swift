@@ -77,8 +77,7 @@ class BubbleBackgroundSystem: System {
     allNodes: [BubbleBackgroundNode]
   ) {
     // If the bubble has moved completely above the screen, reset its position to below
-    if node.position.y > sceneSize.height + 100 {
-      // Find the lowest positioned node among all other nodes
+    if node.position.y > sceneSize.height + 1800 {
       var lowestY = node.position.y
       for (index, otherNode) in allNodes.enumerated() {
         if index != nodeIndex, otherNode.position.y < lowestY {

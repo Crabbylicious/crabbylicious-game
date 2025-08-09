@@ -16,7 +16,7 @@ class GroundNode: SKSpriteNode {
     // Position the ground at the bottom of the screen
     name = "ground"
     self.position = position
-    zPosition = 2
+    zPosition = 3
     setScale(0.35)
   }
 

@@ -18,13 +18,9 @@ extension AnimationManager {
     for entity in entities {
       if let spriteComponent = entity.component(ofType: SpriteComponent.self) {
         switch spriteComponent.name {
-        case "bubbleBackground1":
+        case "bubbleBackground1", "bubbleBackground2", "bubbleBackgroung3":
           // First bubble background slides up from bottom slowly
           animate(spriteComponent.node, with: .slideIn(direction: .fromBottom, duration: 1.2), delay: 0.0)
-
-        case "bubbleBackground2":
-          // Second bubble background slides up with slight delay for layered effect
-          animate(spriteComponent.node, with: .slideIn(direction: .fromBottom, duration: 1.2), delay: 0.2)
 
         case "crab":
           // Crab bounces in from bottom with more dramatic effect
